@@ -19,6 +19,7 @@ import { mockProducts, mockTestimonials } from '../../data/mockData';
 import { formatCurrency } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
 import ProductCard from '../../components/product/ProductCard';
+import SizeGuide from '../../components/product/SizeGuide';
 import type { Product } from '../../types';
 
 const ProductDetail: React.FC = () => {
@@ -33,6 +34,7 @@ const ProductDetail: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -231,7 +233,15 @@ const ProductDetail: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Size</h3>
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Size</h3>
+                <button
+                  onClick={() => setShowSizeGuide(true)}
+                  className="text-sm text-accent-rose hover:text-accent-rose/80 underline font-medium"
+                >
+                  Size Guide
+                </button>
+              </div>
               <div className="grid grid-cols-4 gap-2">
                 {product.sizes.map(size => (
                   <button
@@ -468,6 +478,12 @@ const ProductDetail: React.FC = () => {
           </section>
         )}
       </div>
+
+      {/* Size Guide Modal */}
+      <SizeGuide 
+        isOpen={showSizeGuide} 
+        onClose={() => setShowSizeGuide(false)} 
+      />
     </div>
   );
 };

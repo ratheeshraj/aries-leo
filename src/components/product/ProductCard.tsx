@@ -78,7 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive ${className}`}
+      className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive h-full flex flex-col ${className}`}
     >
       <div className="block">
         {/* Product Image */}
@@ -153,51 +153,55 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Link>
 
         {/* Product Info */}
-        <div className="p-4">
+        <div className="p-4 flex-1 flex flex-col">
           <Link 
             to={`/product/${product.id}`} 
-            className="block"
+            className="block flex-1"
             onClick={onView}
           >
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-accent-rose transition-colors">
-                {product.name}
-              </h3>
-            </div>
-
-            <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-              {product.description}
-            </p>
-
-            {/* Rating */}
-            <div className="flex items-center mb-2">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <StarIcon
-                    key={i}
-                    className={`w-4 h-4 ${
-                      i < Math.floor(product.rating)
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
+            <div className="flex flex-col h-full">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-accent-rose transition-colors">
+                  {product.name}
+                </h3>
               </div>
-              <span className="text-sm text-gray-600 ml-1">
-                ({product.reviewCount})
-              </span>
-            </div>
 
-            {/* Price */}
-            <div className="flex items-center space-x-2 mb-3">
-              <span className="text-xl font-bold text-gray-900">
-                {formatCurrency(product.price)}
-              </span>
-              {hasDiscount && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatCurrency(product.originalPrice!)}
-                </span>
-              )}
+              <p className="text-gray-600 text-sm mb-2 line-clamp-2 flex-1">
+                {product.description}
+              </p>
+
+              <div className="mt-auto">
+                {/* Rating */}
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < Math.floor(product.rating)
+                            ? 'text-yellow-400 fill-current'
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600 ml-1">
+                    ({product.reviewCount})
+                  </span>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="text-xl font-bold text-gray-900">
+                    {formatCurrency(product.price)}
+                  </span>
+                  {hasDiscount && (
+                    <span className="text-sm text-gray-500 line-through">
+                      {formatCurrency(product.originalPrice!)}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </Link>
 
