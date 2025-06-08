@@ -5,8 +5,11 @@ import { ArrowLeftIcon, CalendarIcon, ClockIcon, TagIcon, UserIcon } from '@hero
 import { mockBlogPosts } from '../../data/mockData';
 import { formatDate } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 
 export const BlogDetail: React.FC = () => {
+  useScrollToTop();
+  
   const { id } = useParams<{ id: string }>();
   const post = mockBlogPosts.find(p => p.id === id);
 

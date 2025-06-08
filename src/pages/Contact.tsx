@@ -10,8 +10,11 @@ import {
 } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 const Contact: React.FC = () => {
+  useScrollToTop();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -364,7 +367,7 @@ const Contact: React.FC = () => {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent-rose"
+              className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
             />
             <Button variant="secondary" size="lg">
               Subscribe

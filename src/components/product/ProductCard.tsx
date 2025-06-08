@@ -12,14 +12,12 @@ import Button from '../ui/Button';
 interface ProductCardProps {
   product: Product;
   className?: string;
-  viewMode?: 'grid' | 'list';
   onView?: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   className = '', 
-  viewMode = 'grid', 
   onView 
 }) => {
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useApp();
@@ -79,21 +77,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <motion.div
-      whileHover={{ y: viewMode === 'grid' ? -4 : 0 }}
-      className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive ${
-        viewMode === 'list' ? 'flex' : ''
-      } ${className}`}
+      whileHover={{ y: -4 }}
+      className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive ${className}`}
     >
-      <div className={`${viewMode === 'list' ? 'flex w-full' : 'block'}`}>
+      <div className="block">
         {/* Product Image */}
         <Link 
           to={`/product/${product.id}`} 
-          className={`block ${viewMode === 'list' ? 'flex-shrink-0' : ''}`}
+          className="block"
           onClick={onView}
         >
-          <div className={`relative overflow-hidden bg-gray-100 ${
-            viewMode === 'list' ? 'w-32 h-32 sm:w-48 sm:h-48' : 'aspect-[3/4]'
-          }`}>
+          <div className="relative overflow-hidden bg-gray-100 aspect-[3/4]">
             {hasDiscount && (
               <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-10">
                 <span className="bg-accent-rose text-white px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded">
@@ -159,7 +153,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Link>
 
         {/* Product Info */}
-        <div className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
+        <div className="p-4">
           <Link 
             to={`/product/${product.id}`} 
             className="block"
@@ -208,10 +202,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Link>
 
           {/* Quick Options */}
-          <div className={`space-y-2 mb-3 ${viewMode === 'list' ? 'flex flex-wrap gap-4 space-y-0' : ''}`}>
+          <div className="space-y-2 mb-3">
             {/* Size Selection */}
             {product.sizes.length > 0 && (
-              <div className={viewMode === 'list' ? 'flex-1 min-w-20' : ''}>
+              <div>
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Size:
                 </label>
@@ -236,7 +230,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
             {/* Color Selection */}
             {product.colors.length > 0 && (
-              <div className={viewMode === 'list' ? 'flex-1 min-w-20' : ''}>
+              <div>
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Color:
                 </label>

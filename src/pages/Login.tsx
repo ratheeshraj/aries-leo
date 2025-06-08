@@ -13,8 +13,11 @@ import {
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 export const Login: React.FC = () => {
+  useScrollToTop();
+  
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -88,6 +91,9 @@ export const Login: React.FC = () => {
       });
     }
   };
+
+  // Scroll to top on component mount
+  useScrollToTop();
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">

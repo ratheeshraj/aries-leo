@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 interface FAQItem {
   id: string;
@@ -123,6 +124,8 @@ const faqData: FAQItem[] = [
 const categories = Array.from(new Set(faqData.map(item => item.category)));
 
 export const FAQ: React.FC = () => {
+  useScrollToTop();
+  
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');

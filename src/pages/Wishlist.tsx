@@ -7,8 +7,10 @@ import Button from '../components/ui/Button';
 import ProductCard from '../components/product/ProductCard';
 import { formatCurrency } from '../utils/helpers';
 import { mockProducts } from '../data/mockData';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 export const Wishlist: React.FC = () => {
+  useScrollToTop();
   const { wishlist, removeFromWishlist } = useApp();
 
   console.log('[DEBUG] Wishlist page - wishlist from context:', wishlist);

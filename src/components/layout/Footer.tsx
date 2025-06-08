@@ -1,11 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {
-  CheckIcon
-} from '@heroicons/react/24/outline';
-import Button from '../ui/Button';
-import Input from '../ui/Input';
 
 // SVG Icon components for social media
 // You can move these to a separate file (e.g., src/components/icons.tsx) and import them
@@ -28,25 +22,6 @@ const FacebookIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const Footer: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubscribed(true);
-      setIsLoading(false);
-      setEmail('');
-      // Optionally reset isSubscribed message after a few seconds
-      setTimeout(() => setIsSubscribed(false), 3000);
-    }, 1000);
-  };
 
   const quickLinks = [
     { name: 'Home', href: '/' },

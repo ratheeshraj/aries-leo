@@ -5,8 +5,11 @@ import { XMarkIcon, MinusIcon, PlusIcon, ShoppingBagIcon } from '@heroicons/reac
 import { useApp } from '../context/AppContext';
 import { formatCurrency } from '../utils/helpers';
 import Button from '../components/ui/Button';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 const Cart: React.FC = () => {
+  useScrollToTop();
+
   const { cart, removeFromCart, updateCartQuantity, clearCart, getCartTotal, getCartItemCount } = useApp();
 
   const handleQuantityChange = (productId: string, size: string, color: string, newQuantity: number) => {

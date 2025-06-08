@@ -3,18 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AdjustmentsHorizontalIcon, 
   XMarkIcon, 
-  Squares2X2Icon,
-  ListBulletIcon,
   FunnelIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   StarIcon,
-  EyeIcon,
   MagnifyingGlassIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { mockProducts, productCategories } from '../../data/mockData';
 import { sortProducts } from '../../utils/helpers';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 import ProductCard from '../../components/product/ProductCard';
 import Button from '../../components/ui/Button';
 
@@ -28,16 +26,16 @@ interface ShopFilters {
   onSale: boolean;
 }
 
-type ViewMode = 'grid' | 'list';
 type SortOption = 'name' | 'price_low_high' | 'price_high_low' | 'rating' | 'newest' | 'popularity';
 
 const PRODUCTS_PER_PAGE = 12;
 
 const Shop: React.FC = () => {
+  useScrollToTop();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(new Set(['category', 'price']));
@@ -442,30 +440,6 @@ const Shop: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* View Mode Toggle */}
-                  <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-2 rounded-md transition-colors ${
-                        viewMode === 'grid'
-                          ? 'bg-white text-accent-rose shadow-sm'
-                          : 'text-gray-500 hover:text-gray-700'
-                      }`}
-                    >
-                      <Squares2X2Icon className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-2 rounded-md transition-colors ${
-                        viewMode === 'list'
-                          ? 'bg-white text-accent-rose shadow-sm'
-                          : 'text-gray-500 hover:text-gray-700'
-                      }`}
-                    >
-                      <ListBulletIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-
                   <div className="flex items-center gap-2">
                     <label className="text-sm text-gray-700">Sort by:</label>
                     <select
@@ -492,14 +466,10 @@ const Shop: React.FC = () => {
               </div>
             )}
 
-            {/* Products Grid/List */}
+            {/* Products Grid */}
             {!isLoading && paginatedProducts.length > 0 ? (
               <motion.div
-                className={
-                  viewMode === 'grid'
-                    ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
-                    : 'space-y-4'
-                }
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6 }}
@@ -512,12 +482,10 @@ const Shop: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -30 }}
                       transition={{ duration: 0.4, delay: index * 0.05 }}
-                      className={viewMode === 'list' ? 'w-full' : ''}
                     >
                       <div className="relative group">
                         <ProductCard 
-                          product={product} 
-                          viewMode={viewMode}
+                          product={product}
                         />
                       </div>
                     </motion.div>

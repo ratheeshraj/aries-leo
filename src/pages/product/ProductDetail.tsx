@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { useApp } from '../../context/AppContext';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 import { mockProducts, mockTestimonials } from '../../data/mockData';
 import { formatCurrency } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
@@ -21,6 +22,8 @@ import ProductCard from '../../components/product/ProductCard';
 import type { Product } from '../../types';
 
 const ProductDetail: React.FC = () => {
+  useScrollToTop();
+  
   const { id } = useParams<{ id: string }>();
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useApp();
   
@@ -47,6 +50,8 @@ const ProductDetail: React.FC = () => {
   ).slice(0, 4);
 
   const productReviews = mockTestimonials.slice(0, 3);
+
+  useScrollToTop();
 
   if (!product) {
     return (

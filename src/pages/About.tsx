@@ -3,8 +3,11 @@ import { motion } from 'framer-motion';
 import { HeartIcon, GlobeAltIcon, CheckCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import { Link } from 'react-router-dom';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 const About: React.FC = () => {
+  useScrollToTop();
+  
   const values = [
     {
       icon: <HeartIcon className="w-8 h-8" />,
@@ -319,7 +322,7 @@ const About: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <Link to="/shop" className="w-full sm:w-auto">
-                <Button size="lg" className="group w-full sm:w-auto btn-responsive">
+                <Button size="lg" variant='secondary' className="group w-full sm:w-auto btn-responsive">
                   Shop Collection
                 </Button>
               </Link>

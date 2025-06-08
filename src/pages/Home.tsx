@@ -5,8 +5,11 @@ import { ArrowRightIcon, StarIcon, TruckIcon, ShieldCheckIcon, HeartIcon } from 
 import { mockProducts, mockTestimonials, mockBlogPosts } from '../data/mockData';
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/ui/Button';
+import { useScrollToTop } from '../hooks/useScrollToTop';
 
 const Home: React.FC = () => {
+  useScrollToTop();
+
   const featuredProducts = mockProducts.slice(0, 4);
   const latestBlogPosts = mockBlogPosts.slice(0, 3);
 
@@ -154,7 +157,6 @@ const Home: React.FC = () => {
               >
                 <ProductCard 
                   product={product}
-                  viewMode="grid"
                   onView={() => {}}
                 />
               </motion.div>
@@ -316,10 +318,11 @@ const Home: React.FC = () => {
             <p className="text-xl text-accent-light mb-8 max-w-2xl mx-auto">
               Be the first to know about new collections, exclusive offers, and style inspiration
             </p>
-            <div className="max-w-md mx-auto flex gap-4">            <input
+            <div className="max-w-md mx-auto flex gap-4">
+            <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent-rose"
+              className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
             />
               <Button variant="secondary" size="lg">
                 Subscribe

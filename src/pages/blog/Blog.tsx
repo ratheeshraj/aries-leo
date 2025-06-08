@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 import { ArrowRightIcon, CalendarIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
 import { mockBlogPosts } from '../../data/mockData';
 import Button from '../../components/ui/Button';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
 
 const Blog: React.FC = () => {
+  useScrollToTop();
+
   const featuredPost = mockBlogPosts[0];
   const regularPosts = mockBlogPosts.slice(1);
 
@@ -195,7 +198,7 @@ const Blog: React.FC = () => {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent-rose"
+              className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
             />
             <Button variant="secondary" size="lg">
               Subscribe
