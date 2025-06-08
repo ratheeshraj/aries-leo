@@ -34,7 +34,7 @@ const Loading: React.FC<LoadingProps> = ({
 
   const renderSpinner = () => (
     <svg
-      className={`animate-spin ${sizeClasses[size]} text-primary-600`}
+      className={`animate-spin ${sizeClasses[size]} text-accent-rose`}
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -59,7 +59,7 @@ const Loading: React.FC<LoadingProps> = ({
       {[0, 1, 2].map((index) => (
         <motion.div
           key={index}
-          className={`${size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-4 h-4'} bg-primary-600 rounded-full`}
+          className={`${size === 'sm' ? 'w-2 h-2' : size === 'md' ? 'w-3 h-3' : 'w-4 h-4'} bg-accent-rose rounded-full`}
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.5, 1, 0.5],
@@ -79,7 +79,7 @@ const Loading: React.FC<LoadingProps> = ({
       {[0, 1, 2, 3].map((index) => (
         <motion.div
           key={index}
-          className={`w-1 bg-primary-600 ${size === 'sm' ? 'h-4' : size === 'md' ? 'h-6' : 'h-8'}`}
+          className={`w-1 bg-accent-rose ${size === 'sm' ? 'h-4' : size === 'md' ? 'h-6' : 'h-8'}`}
           animate={{
             scaleY: [1, 1.5, 1],
           }}

@@ -12,8 +12,8 @@ export const NotFound: React.FC = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <ExclamationTriangleIcon className="mx-auto h-24 w-24 text-primary-400 mb-6" />
-          <h1 className="text-9xl font-bold text-primary-600 mb-4">404</h1>
+          <ExclamationTriangleIcon className="mx-auto h-24 w-24 text-accent-mauve mb-6" />
+          <h1 className="text-9xl font-bold text-accent-rose mb-4">404</h1>
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Page Not Found
           </h2>
@@ -66,16 +66,16 @@ export const NotFound: React.FC = () => {
               Looking for something specific?
             </p>
             <div className="space-y-2">
-              <a href="/shop" className="block text-primary-600 hover:text-primary-500 text-sm">
+              <a href="/shop" className="block text-accent-rose hover:text-accent-mauve text-sm">
                 Shop All Products
               </a>
-              <a href="/about" className="block text-primary-600 hover:text-primary-500 text-sm">
+              <a href="/about" className="block text-accent-rose hover:text-accent-mauve text-sm">
                 About Aries Leo
               </a>
-              <a href="/contact" className="block text-primary-600 hover:text-primary-500 text-sm">
+              <a href="/contact" className="block text-accent-rose hover:text-accent-mauve text-sm">
                 Contact Support
               </a>
-              <a href="/faq" className="block text-primary-600 hover:text-primary-500 text-sm">
+              <a href="/faq" className="block text-accent-rose hover:text-accent-mauve text-sm">
                 FAQ
               </a>
             </div>

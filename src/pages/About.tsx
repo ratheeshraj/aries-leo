@@ -80,7 +80,7 @@ const About: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-gradient-to-br from-primary-50 to-secondary-50 overflow-hidden">
+      <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-gradient-to-br from-accent-light to-accent-medium overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10"></div>
         
         <div className="relative container-responsive">
@@ -129,15 +129,15 @@ const About: React.FC = () => {
               
               <div className="grid grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600">50K+</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-rose">50K+</div>
                   <div className="text-xs sm:text-sm md:text-base text-gray-600">Happy Customers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600">25+</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-rose">25+</div>
                   <div className="text-xs sm:text-sm md:text-base text-gray-600">Countries</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600">4.8★</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-rose">4.8★</div>
                   <div className="text-xs sm:text-sm md:text-base text-gray-600">Average Rating</div>
                 </div>
               </div>
@@ -186,7 +186,7 @@ const About: React.FC = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="text-primary-600 mb-3 sm:mb-4 flex justify-center">
+                <div className="text-accent-rose mb-3 sm:mb-4 flex justify-center">
                   {React.cloneElement(value.icon, { className: "w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" })}
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
@@ -220,7 +220,7 @@ const About: React.FC = () => {
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               {/* Timeline line - hidden on mobile */}
-              <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-0.5 bg-primary-200 h-full"></div>
+              <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-0.5 bg-accent-rose h-full"></div>
 
               {timeline.map((item, index) => (
                 <motion.div
@@ -234,8 +234,8 @@ const About: React.FC = () => {
                   viewport={{ once: true }}
                 >
                   <div className={`w-full md:w-5/12 ${index % 2 === 0 ? 'md:text-right md:pr-8' : 'md:text-left md:pl-8'}`}>
-                    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border-l-4 md:border-l-0 border-primary-600">
-                      <div className="text-primary-600 font-bold text-base sm:text-lg mb-2">
+                    <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border-l-4 md:border-l-0 border-accent-rose">
+                      <div className="text-accent-rose font-bold text-base sm:text-lg mb-2">
                         {item.year}
                       </div>
                       <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
@@ -248,7 +248,7 @@ const About: React.FC = () => {
                   </div>
                   
                   {/* Timeline dot - hidden on mobile */}
-                  <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-primary-600 rounded-full border-4 border-white"></div>
+                  <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-accent-rose rounded-full border-4 border-white"></div>
                 </motion.div>
               ))}
             </div>
@@ -290,7 +290,7 @@ const About: React.FC = () => {
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
                   {member.name}
                 </h3>
-                <p className="text-primary-600 font-medium mb-2 sm:mb-3 text-sm sm:text-base">
+                <p className="text-accent-rose font-medium mb-2 sm:mb-3 text-sm sm:text-base">
                   {member.role}
                 </p>
                 <p className="text-sm sm:text-base text-gray-600">
@@ -303,7 +303,7 @@ const About: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-primary-600">
+      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-accent-rose">
         <div className="container-responsive text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

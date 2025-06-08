@@ -81,7 +81,7 @@ const Cart: React.FC = () => {
                   {cart.length > 0 && (
                     <button
                       onClick={clearCart}
-                      className="text-xs sm:text-sm text-gray-500 hover:text-red-600 transition-colors"
+                      className="text-xs sm:text-sm text-gray-500 hover:text-accent-rose transition-colors"
                     >
                       Clear all
                     </button>
@@ -112,7 +112,7 @@ const Cart: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <Link
                           to={`/product/${item.product.id}`}
-                          className="text-lg font-semibold text-gray-900 hover:text-primary-600 transition-colors block truncate"
+                          className="text-lg font-semibold text-gray-900 hover:text-accent-rose transition-colors block truncate"
                         >
                           {item.product.name}
                         </Link>
@@ -162,7 +162,7 @@ const Cart: React.FC = () => {
                             item.selectedSize,
                             item.selectedColor
                           )}
-                          className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                          className="p-2 text-gray-400 hover:text-accent-rose transition-colors"
                         >
                           <XMarkIcon className="w-5 h-5" />
                         </button>
@@ -257,29 +257,7 @@ const Cart: React.FC = () => {
             </motion.div>
           </div>
         </div>
-
-        {/* Recommendations */}
-        <motion.section
-          className="mt-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Complete your look
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Customers who bought these items also purchased:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* This would typically show recommended products */}
-              <div className="text-center py-8 text-gray-500">
-                <p>Recommended products coming soon...</p>
-              </div>
-            </div>
-          </div>
-        </motion.section>
+        
       </div>
     </div>
   );

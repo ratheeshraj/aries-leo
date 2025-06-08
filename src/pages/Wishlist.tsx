@@ -11,7 +11,12 @@ import { mockProducts } from '../data/mockData';
 export const Wishlist: React.FC = () => {
   const { wishlist, removeFromWishlist } = useApp();
 
+  console.log('[DEBUG] Wishlist page - wishlist from context:', wishlist);
+  console.log('[DEBUG] Wishlist page - wishlist length:', wishlist.length);
+
   const wishlistItems = wishlist.map(item => item.product);
+
+  console.log('[DEBUG] Wishlist page - wishlistItems:', wishlistItems);
 
   const clearAllWishlist = () => {
     wishlistItems.forEach(product => {
@@ -73,7 +78,7 @@ export const Wishlist: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                <HeartSolidIcon className="w-8 h-8 text-red-500 mr-3" />
+                <HeartSolidIcon className="w-8 h-8 text-accent-rose mr-3" />
                 My Wishlist
               </h1>
               <p className="text-gray-600 mt-2">
@@ -84,7 +89,7 @@ export const Wishlist: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={clearAllWishlist}
-                className="text-red-600 border-red-300 hover:bg-red-50"
+                className="text-accent-rose border-accent-rose hover:bg-accent-light"
               >
                 <TrashIcon className="w-4 h-4 mr-2" />
                 Clear All
@@ -112,7 +117,7 @@ export const Wishlist: React.FC = () => {
                 className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow z-10"
                 title="Remove from wishlist"
               >
-                <TrashIcon className="w-4 h-4 text-red-500" />
+                <TrashIcon className="w-4 h-4 text-accent-rose" />
               </button>
             </motion.div>
           ))}

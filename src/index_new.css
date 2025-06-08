@@ -3,6 +3,55 @@
 /* Import Tailwind for v4 */
 @import 'tailwindcss';
 
+/* Custom color utilities for our new palette */
+.bg-accent-light { background-color: #FFCDB2; }
+.bg-accent-medium { background-color: #FFB4A2; }
+.bg-accent-rose { background-color: #E5989B; }
+.bg-accent-mauve { background-color: #B5838D; }
+.bg-accent-dark { background-color: #6D6875; }
+
+.text-accent-light { color: #FFCDB2; }
+.text-accent-medium { color: #FFB4A2; }
+.text-accent-rose { color: #E5989B; }
+.text-accent-mauve { color: #B5838D; }
+.text-accent-dark { color: #6D6875; }
+
+.border-accent-light { border-color: #FFCDB2; }
+.border-accent-medium { border-color: #FFB4A2; }
+.border-accent-rose { border-color: #E5989B; }
+.border-accent-mauve { border-color: #B5838D; }
+.border-accent-dark { border-color: #6D6875; }
+
+.ring-accent-light { --tw-ring-color: #FFCDB2; }
+.ring-accent-medium { --tw-ring-color: #FFB4A2; }
+.ring-accent-rose { --tw-ring-color: #E5989B; }
+.ring-accent-mauve { --tw-ring-color: #B5838D; }
+.ring-accent-dark { --tw-ring-color: #6D6875; }
+
+.hover\:bg-accent-light:hover { background-color: #FFCDB2; }
+.hover\:bg-accent-medium:hover { background-color: #FFB4A2; }
+.hover\:bg-accent-rose:hover { background-color: #E5989B; }
+.hover\:bg-accent-mauve:hover { background-color: #B5838D; }
+.hover\:bg-accent-dark:hover { background-color: #6D6875; }
+
+.hover\:text-accent-light:hover { color: #FFCDB2; }
+.hover\:text-accent-medium:hover { color: #FFB4A2; }
+.hover\:text-accent-rose:hover { color: #E5989B; }
+.hover\:text-accent-mauve:hover { color: #B5838D; }
+.hover\:text-accent-dark:hover { color: #6D6875; }
+
+.hover\:border-accent-light:hover { border-color: #FFCDB2; }
+.hover\:border-accent-medium:hover { border-color: #FFB4A2; }
+.hover\:border-accent-rose:hover { border-color: #E5989B; }
+.hover\:border-accent-mauve:hover { border-color: #B5838D; }
+.hover\:border-accent-dark:hover { border-color: #6D6875; }
+
+.focus\:ring-accent-light:focus { --tw-ring-color: #FFCDB2; }
+.focus\:ring-accent-medium:focus { --tw-ring-color: #FFB4A2; }
+.focus\:ring-accent-rose:focus { --tw-ring-color: #E5989B; }
+.focus\:ring-accent-mauve:focus { --tw-ring-color: #B5838D; }
+.focus\:ring-accent-dark:focus { --tw-ring-color: #6D6875; }
+
 /* Custom utilities that work without @apply */
 body {
   font-family: 'Inter', sans-serif;

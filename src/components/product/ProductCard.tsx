@@ -58,9 +58,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('[DEBUG] ProductCard - handleWishlistToggle called for product:', product.name, product.id);
+    console.log('[DEBUG] ProductCard - currently wishlisted?', isWishlisted);
     if (isWishlisted) {
+      console.log('[DEBUG] ProductCard - removing from wishlist');
       removeFromWishlist(product.id);
     } else {
+      console.log('[DEBUG] ProductCard - adding to wishlist');
       addToWishlist(product);
     }
   };
@@ -92,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           }`}>
             {hasDiscount && (
               <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-10">
-                <span className="bg-red-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded">
+                <span className="bg-accent-rose text-white px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded">
                   -{discountPercentage}%
                 </span>
               </div>
@@ -112,7 +116,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 p-1.5 sm:p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50"
             >
               {isWishlisted ? (
-                <HeartSolid className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                <HeartSolid className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose" />
               ) : (
                 <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               )}
@@ -162,7 +166,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             onClick={onView}
           >
             <div className="flex items-start justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
+              <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-accent-rose transition-colors">
                 {product.name}
               </h3>
             </div>

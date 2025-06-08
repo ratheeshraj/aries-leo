@@ -9,14 +9,12 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   StarIcon,
-  HeartIcon,
   EyeIcon,
   MagnifyingGlassIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { mockProducts, productCategories } from '../../data/mockData';
-import { filterProducts, sortProducts } from '../../utils/helpers';
+import { sortProducts } from '../../utils/helpers';
 import ProductCard from '../../components/product/ProductCard';
 import Button from '../../components/ui/Button';
 
@@ -42,8 +40,6 @@ const Shop: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [wishlist, setWishlist] = useState<Set<number>>(new Set());
-  const [recentlyViewed, setRecentlyViewed] = useState<number[]>([]);
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(new Set(['category', 'price']));
   
   const [filters, setFilters] = useState<ShopFilters>({
@@ -164,25 +160,6 @@ const Shop: React.FC = () => {
     }));
   };
 
-  const handleWishlistToggle = (productId: number) => {
-    setWishlist(prev => {
-      const newWishlist = new Set(prev);
-      if (newWishlist.has(productId)) {
-        newWishlist.delete(productId);
-      } else {
-        newWishlist.add(productId);
-      }
-      return newWishlist;
-    });
-  };
-
-  const handleProductView = (productId: number) => {
-    setRecentlyViewed(prev => {
-      const newViewed = [productId, ...prev.filter(id => id !== productId)];
-      return newViewed.slice(0, 5); // Keep only last 5 viewed
-    });
-  };
-
   const clearFilters = () => {
     setFilters({
       category: '',
@@ -283,7 +260,7 @@ const Shop: React.FC = () => {
                 </h3>
                 <div className="flex items-center gap-2">
                   {activeFiltersCount > 0 && (
-                    <span className="bg-primary-100 text-primary-700 text-xs px-2 py-1 rounded-full">
+                    <span className="bg-accent-light text-accent-mauve text-xs px-2 py-1 rounded-full">
                       {activeFiltersCount}
                     </span>
                   )}
@@ -309,7 +286,7 @@ const Shop: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search products..."
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
                   />
                 </div>
               </div>
@@ -319,7 +296,7 @@ const Shop: React.FC = () => {
                 <select
                   value={filters.category}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
                 >
                   <option value="">All Categories</option>
                   {productCategories.map(category => (
@@ -339,7 +316,7 @@ const Shop: React.FC = () => {
                     max="1000" // Updated from 500 to 1000
                     value={filters.priceRange[1]}
                     onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
-                    className="w-full accent-primary-600"
+                    className="w-full accent-accent-rose"
                   />
                   <div className="flex justify-between text-sm text-gray-500">
                     <span>$0</span>
@@ -357,7 +334,7 @@ const Shop: React.FC = () => {
                       onClick={() => handleFilterChange('rating', filters.rating === rating ? 0 : rating)}
                       className={`flex items-center gap-2 w-full p-2 rounded-lg transition-colors ${
                         filters.rating === rating
-                          ? 'bg-primary-50 text-primary-700'
+                          ? 'bg-accent-light text-accent-mauve'
                           : 'hover:bg-gray-50'
                       }`}
                     >
@@ -386,8 +363,8 @@ const Shop: React.FC = () => {
                       onClick={() => handleSizeToggle(size)}
                       className={`px-3 py-2 text-sm rounded-lg border transition-all ${
                         filters.sizes.includes(size)
-                          ? 'bg-primary-600 text-white border-primary-600 scale-105'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-primary-300 hover:scale-105'
+                          ? 'bg-accent-rose text-white border-accent-rose scale-105'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium hover:scale-105'
                       }`}
                     >
                       {size}
@@ -405,8 +382,8 @@ const Shop: React.FC = () => {
                       onClick={() => handleColorToggle(color)}
                       className={`px-3 py-2 text-sm rounded-lg border transition-all ${
                         filters.colors.includes(color)
-                          ? 'bg-primary-600 text-white border-primary-600 scale-105'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-primary-300 hover:scale-105'
+                          ? 'bg-accent-rose text-white border-accent-rose scale-105'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium hover:scale-105'
                       }`}
                     >
                       {color}
@@ -423,7 +400,7 @@ const Shop: React.FC = () => {
                       type="checkbox"
                       checked={filters.inStock}
                       onChange={(e) => handleFilterChange('inStock', e.target.checked)}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose"
                     />
                     <span className="ml-2 text-sm text-gray-700">In stock only</span>
                   </label>
@@ -432,7 +409,7 @@ const Shop: React.FC = () => {
                       type="checkbox"
                       checked={filters.onSale}
                       onChange={(e) => handleFilterChange('onSale', e.target.checked)}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose"
                     />
                     <span className="ml-2 text-sm text-gray-700">On sale</span>
                   </label>
@@ -454,7 +431,7 @@ const Shop: React.FC = () => {
                     <AdjustmentsHorizontalIcon className="w-5 h-5" />
                     Filters
                     {activeFiltersCount > 0 && (
-                      <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded-full">
+                      <span className="bg-accent-rose text-white text-xs px-2 py-1 rounded-full">
                         {activeFiltersCount}
                       </span>
                     )}
@@ -471,7 +448,7 @@ const Shop: React.FC = () => {
                       onClick={() => setViewMode('grid')}
                       className={`p-2 rounded-md transition-colors ${
                         viewMode === 'grid'
-                          ? 'bg-white text-primary-600 shadow-sm'
+                          ? 'bg-white text-accent-rose shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -481,7 +458,7 @@ const Shop: React.FC = () => {
                       onClick={() => setViewMode('list')}
                       className={`p-2 rounded-md transition-colors ${
                         viewMode === 'list'
-                          ? 'bg-white text-primary-600 shadow-sm'
+                          ? 'bg-white text-accent-rose shadow-sm'
                           : 'text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -494,7 +471,7 @@ const Shop: React.FC = () => {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as SortOption)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
                     >
                       <option value="name">Name</option>
                       <option value="price_low_high">Price: Low to High</option>
@@ -511,7 +488,7 @@ const Shop: React.FC = () => {
             {/* Loading State */}
             {isLoading && (
               <div className="flex items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-rose"></div>
               </div>
             )}
 
@@ -541,19 +518,7 @@ const Shop: React.FC = () => {
                         <ProductCard 
                           product={product} 
                           viewMode={viewMode}
-                          onView={() => handleProductView(Number(product.id))}
                         />
-                        {/* Wishlist Button */}
-                        <button
-                          onClick={() => handleWishlistToggle(Number(product.id))}
-                          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
-                        >
-                          {wishlist.has(Number(product.id)) ? (
-                            <HeartSolidIcon className="w-5 h-5 text-red-500" />
-                          ) : (
-                            <HeartIcon className="w-5 h-5 text-gray-400" />
-                          )}
-                        </button>
                       </div>
                     </motion.div>
                   ))}
@@ -624,7 +589,7 @@ const Shop: React.FC = () => {
                       onClick={() => setCurrentPage(pageNumber)}
                       className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                         isCurrentPage
-                          ? 'bg-primary-600 text-white'
+                          ? 'bg-accent-rose text-white'
                           : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                       }`}
                     >

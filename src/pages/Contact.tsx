@@ -112,7 +112,7 @@ const Contact: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-16">
+      <section className="bg-gradient-to-br from-accent-light to-secondary-50 py-16">
         <div className="container mx-auto px-4">
           <motion.div
             className="text-center max-w-3xl mx-auto"
@@ -158,8 +158,8 @@ const Contact: React.FC = () => {
                       onClick={() => setFormType(type.id as typeof formType)}
                       className={`p-4 rounded-lg border-2 transition-colors flex items-center gap-2 ${
                         formType === type.id
-                          ? 'border-primary-600 bg-primary-50 text-primary-700'
-                          : 'border-gray-200 hover:border-primary-300'
+                          ? 'border-accent-rose bg-accent-light text-accent-mauve'
+                          : 'border-gray-200 hover:border-accent-medium'
                       }`}
                     >
                       {type.icon}
@@ -223,7 +223,7 @@ const Contact: React.FC = () => {
                     onChange={handleTextAreaChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent resize-none"
                     placeholder={
                       formType === 'general' ? "Tell us more about your inquiry..." :
                       formType === 'support' ? "Please describe the issue you're experiencing..." :
@@ -251,7 +251,7 @@ const Contact: React.FC = () => {
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start gap-4">
-                    <div className="text-primary-600 mt-1">
+                    <div className="text-accent-rose mt-1">
                       {info.icon}
                     </div>
                     <div>
@@ -292,7 +292,7 @@ const Contact: React.FC = () => {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <a
                   href="/faq"
-                  className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                  className="text-accent-rose hover:text-accent-mauve font-medium text-sm"
                 >
                   View all FAQs →
                 </a>
@@ -301,20 +301,20 @@ const Contact: React.FC = () => {
 
             {/* Emergency Contact */}
             <motion.div
-              className="bg-red-50 rounded-2xl p-6 border border-red-200"
+              className="bg-accent-light rounded-2xl p-6 border border-accent-medium"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
-              <h3 className="text-lg font-semibold text-red-900 mb-2">
+              <h3 className="text-lg font-semibold text-accent-dark mb-2">
                 Urgent Issue?
               </h3>
-              <p className="text-red-700 text-sm mb-3">
+              <p className="text-accent-mauve text-sm mb-3">
                 For urgent matters like payment issues or order problems, call us directly.
               </p>
               <a
                 href="tel:+15551234567"
-                className="inline-flex items-center gap-2 text-red-700 font-medium hover:text-red-800"
+                className="inline-flex items-center gap-2 text-accent-mauve font-medium hover:text-accent-dark"
               >
                 <PhoneIcon className="w-4 h-4" />
                 +1 (555) 123-4567
@@ -349,7 +349,7 @@ const Contact: React.FC = () => {
 
         {/* Newsletter Signup */}
         <motion.section
-          className="mt-16 bg-primary-600 rounded-2xl p-8 text-center"
+          className="mt-16 bg-accent-rose rounded-2xl p-8 text-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.2 }}
@@ -357,14 +357,14 @@ const Contact: React.FC = () => {
           <h2 className="text-2xl font-bold text-white mb-4">
             Stay Connected
           </h2>
-          <p className="text-primary-100 mb-6">
+          <p className="text-accent-light mb-6">
             Subscribe to our newsletter for updates, exclusive offers, and style tips.
           </p>
           <div className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent-rose"
             />
             <Button variant="secondary" size="lg">
               Subscribe

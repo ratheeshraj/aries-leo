@@ -160,7 +160,7 @@ const ProductDetail: React.FC = () => {
                     onClick={() => setSelectedImage(index)}
                     className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-colors touch-target ${
                       selectedImage === index
-                        ? 'border-primary-600'
+                        ? 'border-accent-rose'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -234,8 +234,8 @@ const ProductDetail: React.FC = () => {
                     onClick={() => setSelectedSize(size)}
                     className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
                       selectedSize === size
-                        ? 'bg-primary-600 text-white border-primary-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-primary-300'
+                        ? 'bg-accent-rose text-white border-accent-rose'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium'
                     }`}
                   >
                     {size}
@@ -258,8 +258,8 @@ const ProductDetail: React.FC = () => {
                     onClick={() => setSelectedColor(color)}
                     className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
                       selectedColor === color
-                        ? 'bg-primary-600 text-white border-primary-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-primary-300'
+                        ? 'bg-accent-rose text-white border-accent-rose'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium'
                     }`}
                   >
                     {color}
@@ -314,7 +314,7 @@ const ProductDetail: React.FC = () => {
                 className="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors touch-target"
               >
                 {isInWishlist(product.id) ? (
-                  <HeartIconSolid className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+                  <HeartIconSolid className="w-5 h-5 sm:w-6 sm:h-6 text-accent-rose" />
                 ) : (
                   <HeartIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
                 )}
@@ -329,11 +329,11 @@ const ProductDetail: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.7 }}
             >
               <div className="flex items-center gap-3">
-                <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 flex-shrink-0" />
+                <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />
                 <span className="text-sm sm:text-base text-gray-700">Free shipping on orders over $100</span>
               </div>
               <div className="flex items-center gap-3">
-                <ShieldCheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 flex-shrink-0" />
+                <ShieldCheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />
                 <span className="text-sm sm:text-base text-gray-700">30-day return policy</span>
               </div>
             </motion.div>
@@ -354,7 +354,7 @@ const ProductDetail: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap touch-target ${
                     activeTab === tab.id
-                      ? 'border-primary-600 text-primary-600'
+                      ? 'border-accent-rose text-accent-rose'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -373,7 +373,7 @@ const ProductDetail: React.FC = () => {
                 <ul className="mt-4 space-y-2">
                   {product.tags.map(tag => (
                     <li key={tag} className="flex items-center">
-                      <span className="w-2 h-2 bg-primary-600 rounded-full mr-3"></span>
+                      <span className="w-2 h-2 bg-accent-rose rounded-full mr-3"></span>
                       {tag}
                     </li>
                   ))}

@@ -2,16 +2,23 @@
 
 /* Custom styles */
 :root {
-  --primary-50: #f8fafc;
-  --primary-100: #f1f5f9;
-  --primary-200: #e2e8f0;
-  --primary-300: #cbd5e1;
-  --primary-400: #94a3b8;
-  --primary-500: #64748b;
-  --primary-600: #475569;
-  --primary-700: #334155;
-  --primary-800: #1e293b;
-  --primary-900: #0f172a;
+  --primary-50: #FFCDB2;   /* Light peach/cream */
+  --primary-100: #FFB4A2;  /* Medium peach/salmon */
+  --primary-200: #E5989B;  /* Dusty rose/pink */
+  --primary-300: #B5838D;  /* Mauve/taupe */
+  --primary-400: #6D6875;  /* Dark purple/gray */
+  --primary-500: #E5989B;  /* Main primary - dusty rose */
+  --primary-600: #B5838D;  /* Mauve for hover states */
+  --primary-700: #6D6875;  /* Dark purple for emphasis */
+  --primary-800: #5a555e;  /* Darker purple */
+  --primary-900: #47434a;  /* Darkest purple */
+  
+  /* Accent colors for easy access */
+  --accent-light: #FFCDB2;
+  --accent-medium: #FFB4A2;
+  --accent-rose: #E5989B;
+  --accent-mauve: #B5838D;
+  --accent-dark: #6D6875;
 }
 
 /* Smooth scrolling */

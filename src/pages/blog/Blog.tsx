@@ -51,7 +51,7 @@ const Blog: React.FC = () => {
                   />
                 </div>
                 <div className="p-8 lg:p-12 flex flex-col justify-center">
-                  <div className="text-primary-600 font-medium text-sm mb-2">
+                  <div className="text-accent-rose font-medium text-sm mb-2">
                     Featured Post
                   </div>
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -99,8 +99,8 @@ const Blog: React.FC = () => {
                 key={category}
                 className={`px-6 py-3 rounded-full font-medium transition-colors ${
                   index === 0
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-primary-50 hover:text-primary-600'
+                    ? 'bg-accent-rose text-white'
+                    : 'bg-white text-gray-700 hover:bg-accent-light hover:text-accent-mauve'
                 }`}
               >
                 {category}
@@ -136,7 +136,7 @@ const Blog: React.FC = () => {
                     {post.tags.slice(0, 2).map(tag => (
                       <span
                         key={tag}
-                        className="px-3 py-1 bg-primary-100 text-primary-700 text-xs font-medium rounded-full"
+                        className="px-3 py-1 bg-accent-light text-accent-mauve text-xs font-medium rounded-full"
                       >
                         {tag}
                       </span>
@@ -155,7 +155,7 @@ const Blog: React.FC = () => {
                     </div>
                     <Link
                       to={`/blog/${post.id}`}
-                      className="text-primary-600 hover:text-primary-700 font-medium"
+                      className="text-accent-rose hover:text-accent-mauve font-medium"
                     >
                       Read More
                     </Link>
@@ -180,7 +180,7 @@ const Blog: React.FC = () => {
 
         {/* Newsletter CTA */}
         <motion.section
-          className="mt-16 bg-primary-600 rounded-2xl p-8 text-center"
+          className="mt-16 bg-accent-rose rounded-2xl p-8 text-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
@@ -188,14 +188,14 @@ const Blog: React.FC = () => {
           <h2 className="text-2xl font-bold text-white mb-4">
             Never Miss a Story
           </h2>
-          <p className="text-primary-100 mb-6 max-w-2xl mx-auto">
+          <p className="text-accent-light mb-6 max-w-2xl mx-auto">
             Subscribe to our newsletter and be the first to read our latest articles about style, sustainability, and fashion trends.
           </p>
           <div className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent-rose"
             />
             <Button variant="secondary" size="lg">
               Subscribe

@@ -173,7 +173,7 @@ export const FAQ: React.FC = () => {
             placeholder="Search FAQs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-accent-rose"
           />
         </motion.div>
 
@@ -189,7 +189,7 @@ export const FAQ: React.FC = () => {
               onClick={() => setActiveCategory('All')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 activeCategory === 'All'
-                  ? 'bg-primary-600 text-white'
+                  ? 'bg-accent-rose text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -201,7 +201,7 @@ export const FAQ: React.FC = () => {
                 onClick={() => setActiveCategory(category)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   activeCategory === category
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-accent-rose text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -231,7 +231,7 @@ export const FAQ: React.FC = () => {
                 className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
               >
                 <div>
-                  <span className="text-sm text-primary-600 font-medium">
+                  <span className="text-sm text-accent-rose font-medium">
                     {item.category}
                   </span>
                   <h3 className="text-lg font-semibold text-gray-900 mt-1">
@@ -289,7 +289,7 @@ export const FAQ: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => window.location.href = '/contact'}
-              className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="px-6 py-3 bg-accent-rose text-white rounded-lg hover:bg-accent-mauve transition-colors"
             >
               Contact Support
             </button>

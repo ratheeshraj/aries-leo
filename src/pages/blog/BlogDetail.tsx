@@ -92,7 +92,7 @@ export const BlogDetail: React.FC = () => {
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm bg-primary-100 text-primary-800"
+                  className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm bg-accent-light text-accent-mauve"
                 >
                   <TagIcon className="w-3 h-3 mr-1" />
                   {tag}
@@ -118,7 +118,7 @@ export const BlogDetail: React.FC = () => {
                 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
               </p>
 
-              <blockquote className="border-l-4 border-primary-500 pl-6 italic text-lg text-gray-600 my-8">
+              <blockquote className="border-l-4 border-accent-rose pl-6 italic text-lg text-gray-600 my-8">
                 "Pants that feel like freedom – Cotton | Pockets | Personality. This isn't just our tagline; it's our promise to every customer who chooses Aries Leo."
               </blockquote>
 
@@ -221,7 +221,7 @@ export const BlogDetail: React.FC = () => {
                       className="w-full h-40 sm:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="p-4 sm:p-6">
-                      <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors text-sm sm:text-base line-clamp-2">
+                      <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-accent-rose transition-colors text-sm sm:text-base line-clamp-2">
                         {relatedPost.title}
                       </h4>
                       <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3">

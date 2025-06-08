@@ -43,9 +43,9 @@ const Input: React.FC<InputProps> = ({
 
   const baseClasses = `
     w-full px-3 py-2 border rounded-lg transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-accent-rose focus:border-transparent
     disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50
-    ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}
+    ${error ? 'border-accent-rose focus:ring-accent-rose' : 'border-accent-mauve'}
     ${leftIcon ? 'pl-10' : ''}
     ${rightIcon ? 'pr-10' : ''}
   `;
@@ -57,10 +57,10 @@ const Input: React.FC<InputProps> = ({
       {label && (
         <label 
           htmlFor={inputId} 
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className="block text-sm font-medium text-accent-dark mb-1"
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-accent-rose ml-1">*</span>}
         </label>
       )}
       
@@ -94,7 +94,7 @@ const Input: React.FC<InputProps> = ({
       </div>
       
       {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
+        <p className="mt-1 text-sm text-accent-rose">{error}</p>
       )}
     </div>
   );

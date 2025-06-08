@@ -95,7 +95,7 @@ export const Login: React.FC = () => {
       <div className="absolute top-6 left-6 z-20">
         <button
           onClick={() => window.history.back()}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-lg p-2"
+          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-2 rounded-lg p-2"
         >
           <ArrowLeftIcon className="w-5 h-5" />
           <span className="text-sm font-medium">Back</span>
@@ -109,7 +109,7 @@ export const Login: React.FC = () => {
           className="text-center"
         >
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-accent-rose to-accent-mauve rounded-2xl flex items-center justify-center shadow-lg">
               <SparklesIcon className="w-8 h-8 text-black" />
             </div>
           </div>
@@ -151,9 +151,9 @@ export const Login: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+              className="mb-6 p-4 bg-accent-light border border-accent-medium rounded-lg"
             >
-              <p className="text-sm text-red-600 text-center">{errors.submit}</p>
+              <p className="text-sm text-accent-rose text-center">{errors.submit}</p>
             </motion.div>
           )}
 
@@ -300,7 +300,7 @@ export const Login: React.FC = () => {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded transition-colors"
+                    className="h-4 w-4 text-accent-rose focus:ring-accent-rose border-gray-300 rounded transition-colors"
                   />
                   <span className="ml-2 block text-sm text-gray-700">
                     Remember me
@@ -309,7 +309,7 @@ export const Login: React.FC = () => {
 
                 <button
                   type="button"
-                  className="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors focus:outline-none focus:underline"
+                  className="text-sm font-medium text-accent-rose hover:text-accent-mauve transition-colors focus:outline-none focus:underline"
                 >
                   Forgot password?
                 </button>
@@ -320,7 +320,7 @@ export const Login: React.FC = () => {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transform transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02] shadow-lg"
+              className="w-full bg-gradient-to-r from-accent-rose to-accent-mauve hover:from-accent-mauve hover:to-accent-dark transform transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02] shadow-lg"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -402,7 +402,7 @@ export const Login: React.FC = () => {
                     confirmPassword: ''
                   });
                 }}
-                className="ml-2 font-semibold text-primary-600 hover:text-primary-500 transition-colors focus:outline-none focus:underline"
+                className="ml-2 font-semibold text-accent-rose hover:text-accent-mauve transition-colors focus:outline-none focus:underline"
               >
                 {isLogin ? 'Sign up' : 'Sign in'}
               </button>
@@ -419,11 +419,11 @@ export const Login: React.FC = () => {
             >
               <p className="text-xs text-gray-500 leading-relaxed">
                 By creating an account, you agree to our{' '}
-                <button className="text-primary-600 hover:text-primary-500 underline focus:outline-none">
+                <button className="text-accent-rose hover:text-accent-mauve underline focus:outline-none">
                   Terms of Service
                 </button>{' '}
                 and{' '}
-                <button className="text-primary-600 hover:text-primary-500 underline focus:outline-none">
+                <button className="text-accent-rose hover:text-accent-mauve underline focus:outline-none">
                   Privacy Policy
                 </button>
               </p>

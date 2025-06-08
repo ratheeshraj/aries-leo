@@ -16,17 +16,29 @@ export default {
       },
       colors: {
         primary: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
+          50: '#FFCDB2',   // Light peach/cream
+          100: '#FFB4A2',  // Medium peach/salmon
+          200: '#E5989B',  // Dusty rose/pink
+          300: '#B5838D',  // Mauve/taupe
+          400: '#6D6875',  // Dark purple/gray
+          500: '#E5989B',  // Dusty rose as main primary
+          600: '#B5838D',  // Mauve for hover states
+          700: '#6D6875',  // Dark purple for emphasis
+          800: '#5a555e',  // Darker purple
+          900: '#47434a',  // Darkest purple
         },
+        accent: {
+          light: '#FFCDB2',
+          medium: '#FFB4A2',
+          rose: '#E5989B',
+          mauve: '#B5838D',
+          dark: '#6D6875',
+        },
+        // Add semantic colors
+        background: '#FFCDB2',
+        foreground: '#6D6875',
+        surface: '#FFB4A2',
+        'surface-alt': '#E5989B',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

@@ -94,16 +94,21 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, cart: [] };
 
     case 'ADD_TO_WISHLIST': {
+      console.log('[DEBUG] Reducer ADD_TO_WISHLIST:', action.payload.name, action.payload.id);
       const isAlreadyInWishlist = state.wishlist.some(item => item.product.id === action.payload.id);
+      console.log('[DEBUG] Already in wishlist?', isAlreadyInWishlist);
       if (isAlreadyInWishlist) return state;
       
-      return {
+      const newState = {
         ...state,
         wishlist: [...state.wishlist, { product: action.payload, addedAt: new Date() }]
       };
+      console.log('[DEBUG] New wishlist state:', newState.wishlist.length, 'items');
+      return newState;
     }
 
     case 'REMOVE_FROM_WISHLIST':
+      console.log('[DEBUG] Reducer REMOVE_FROM_WISHLIST:', action.payload);
       return {
         ...state,
         wishlist: state.wishlist.filter(item => item.product.id !== action.payload)
@@ -128,25 +133,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Persist cart and wishlist to localStorage
   useEffect(() => {
+    console.log('[DEBUG] Loading persisted state from localStorage');
     const savedCart = localStorage.getItem('aries_leo_cart');
     const savedWishlist = localStorage.getItem('aries_leo_wishlist');
 
+    console.log('[DEBUG] Saved cart:', savedCart);
+    console.log('[DEBUG] Saved wishlist:', savedWishlist);
+
     if (savedCart || savedWishlist) {
+      const parsedCart = savedCart ? JSON.parse(savedCart) : [];
+      const parsedWishlist = savedWishlist ? JSON.parse(savedWishlist) : [];
+      
+      console.log('[DEBUG] Parsed cart:', parsedCart);
+      console.log('[DEBUG] Parsed wishlist:', parsedWishlist);
+      
       dispatch({
         type: 'LOAD_PERSISTED_STATE',
         payload: {
-          cart: savedCart ? JSON.parse(savedCart) : [],
-          wishlist: savedWishlist ? JSON.parse(savedWishlist) : []
+          cart: parsedCart,
+          wishlist: parsedWishlist
         }
       });
     }
   }, []);
 
   useEffect(() => {
+    console.log('[DEBUG] Saving cart to localStorage:', state.cart);
     localStorage.setItem('aries_leo_cart', JSON.stringify(state.cart));
   }, [state.cart]);
 
   useEffect(() => {
+    console.log('[DEBUG] Saving wishlist to localStorage:', state.wishlist);
     localStorage.setItem('aries_leo_wishlist', JSON.stringify(state.wishlist));
   }, [state.wishlist]);
 
@@ -167,15 +184,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addToWishlist = (product: Product) => {
+    console.log('[DEBUG] Adding to wishlist:', product.name, product.id);
     dispatch({ type: 'ADD_TO_WISHLIST', payload: product });
   };
 
   const removeFromWishlist = (productId: string) => {
+    console.log('[DEBUG] Removing from wishlist:', productId);
     dispatch({ type: 'REMOVE_FROM_WISHLIST', payload: productId });
   };
 
   const isInWishlist = (productId: string) => {
-    return state.wishlist.some(item => item.product.id === productId);
+    const result = state.wishlist.some(item => item.product.id === productId);
+    console.log('[DEBUG] Checking if in wishlist:', productId, result);
+    return result;
   };
 
   const getCartTotal = () => {

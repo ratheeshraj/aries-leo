@@ -45,7 +45,7 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
       {/* Top Banner */}
-      <div className="bg-red-600 text-white text-center py-2 px-4">
+      <div className="bg-accent-rose text-white text-center py-2 px-4">
         <p className="text-xs sm:text-sm font-medium truncate">
           <span className="hidden sm:inline">Free shipping on orders over $100 | Premium women's bottoms worldwide 🌍</span>
           <span className="sm:hidden">Free shipping over $100 🌍</span>
@@ -86,8 +86,8 @@ const Header: React.FC = () => {
                 to={item.href}
                 className={`text-sm font-medium transition-colors duration-200 ${
                   isActivePage(item.href)
-                    ? 'text-primary-600 border-b-2 border-primary-600 pb-1'
-                    : 'text-gray-700 hover:text-primary-600'
+                    ? 'text-accent-rose border-b-2 border-accent-rose pb-1'
+                    : 'text-gray-700 hover:text-accent-rose'
                 }`}
               >
                 {item.name}
@@ -123,7 +123,7 @@ const Header: React.FC = () => {
                           placeholder="Search for women's bottoms..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-rose"
                           autoFocus
                         />
                         <Button type="submit" size="sm" className="px-3 py-2 text-sm">
@@ -137,26 +137,26 @@ const Header: React.FC = () => {
             </div>
 
             {/* Login */}
-            <Link to="/login" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-primary-600 flex items-center">
+            <Link to="/login" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose flex items-center">
               <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-1" />
               <span className="hidden md:inline text-sm font-medium">Login</span>
             </Link>
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-red-600">
+            <Link to="/wishlist" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose">
               <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
                   {wishlist.length > 9 ? '9+' : wishlist.length}
                 </span>
               )}
             </Link>
 
             {/* Cart */}
-            <Link to="/cart" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-red-600">
+            <Link to="/cart" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose">
               <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               {getCartItemCount() > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
                   {getCartItemCount() > 9 ? '9+' : getCartItemCount()}
                 </span>
               )}
@@ -181,8 +181,8 @@ const Header: React.FC = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                       isActivePage(item.href)
-                        ? 'text-red-600 bg-red-50'
-                        : 'text-gray-700 hover:text-red-600 hover:bg-gray-50'
+                        ? 'text-accent-rose bg-accent-light'
+                        : 'text-gray-700 hover:text-accent-rose hover:bg-accent-light'
                     }`}
                   >
                     {item.name}

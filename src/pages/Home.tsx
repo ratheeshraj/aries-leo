@@ -13,7 +13,7 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 overflow-hidden px-4 py-8 sm:py-16">
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-accent-light to-secondary-50 overflow-hidden px-4 py-8 sm:py-16">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10"></div>
         
         <motion.div 
@@ -106,13 +106,13 @@ const Home: React.FC = () => {
             ].map((feature, index) => (
               <motion.div
                 key={index}
-                className="text-center p-8 rounded-2xl bg-gray-50 hover:bg-primary-50 transition-colors"
+                className="text-center p-8 rounded-2xl bg-gray-50 hover:bg-accent-light transition-colors"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="text-primary-600 mb-4 flex justify-center">
+                <div className="text-accent-rose mb-4 flex justify-center">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -274,7 +274,7 @@ const Home: React.FC = () => {
                   </p>
                   <Link
                     to={`/blog/${post.id}`}
-                    className="text-primary-600 hover:text-primary-700 font-medium inline-flex items-center"
+                    className="text-accent-rose hover:text-accent-mauve font-medium inline-flex items-center"
                   >
                     Read More
                     <ArrowRightIcon className="w-4 h-4 ml-1" />
@@ -302,7 +302,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Newsletter CTA */}
-      <section className="py-20 bg-primary-600">
+      <section className="py-20 bg-accent-rose">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -313,15 +313,14 @@ const Home: React.FC = () => {
             <h2 className="text-4xl font-bold text-white mb-4">
               Stay in the Loop
             </h2>
-            <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-accent-light mb-8 max-w-2xl mx-auto">
               Be the first to know about new collections, exclusive offers, and style inspiration
             </p>
-            <div className="max-w-md mx-auto flex gap-4">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
-              />
+            <div className="max-w-md mx-auto flex gap-4">            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent-rose"
+            />
               <Button variant="secondary" size="lg">
                 Subscribe
               </Button>
