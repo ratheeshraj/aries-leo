@@ -3,6 +3,7 @@ import type { AppState, CartItem, WishlistItem, Product } from '../types';
 
 interface AppContextType extends AppState {
   addToCart: (product: Product, quantity: number, size: string, color: string) => void;
+  addAllToCart: (products: Product[], quantity: number, size: string, color: string) => void;
   removeFromCart: (productId: string, size: string, color: string) => void;
   updateCartQuantity: (productId: string, size: string, color: string, quantity: number) => void;
   clearCart: () => void;
@@ -17,6 +18,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 type AppAction =
   | { type: 'ADD_TO_CART'; payload: { product: Product; quantity: number; size: string; color: string } }
+  | { type: 'ADD_ALL_TO_CART'; payload: { products: Product[]; quantity: number; size: string; color: string } }
   | { type: 'REMOVE_FROM_CART'; payload: { productId: string; size: string; color: string } }
   | { type: 'UPDATE_CART_QUANTITY'; payload: { productId: string; size: string; color: string; quantity: number } }
   | { type: 'CLEAR_CART' }
@@ -53,6 +55,27 @@ function appReducer(state: AppState, action: AppAction): AppState {
           cart: [...state.cart, { product, quantity, selectedSize: size, selectedColor: color }]
         };
       }
+    }
+
+    case 'ADD_ALL_TO_CART': {
+      const { products, quantity, size, color } = action.payload;
+      const updatedCart = [...state.cart];
+
+      products.forEach(product => {
+        const existingItemIndex = updatedCart.findIndex(
+          item => item.product.id === product.id && 
+                  item.selectedSize === size && 
+                  item.selectedColor === color
+        );
+
+        if (existingItemIndex >= 0) {
+          updatedCart[existingItemIndex].quantity += quantity;
+        } else {
+          updatedCart.push({ product, quantity, selectedSize: size, selectedColor: color });
+        }
+      });
+
+      return { ...state, cart: updatedCart };
     }
 
     case 'REMOVE_FROM_CART': {
@@ -94,21 +117,16 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, cart: [] };
 
     case 'ADD_TO_WISHLIST': {
-      console.log('[DEBUG] Reducer ADD_TO_WISHLIST:', action.payload.name, action.payload.id);
       const isAlreadyInWishlist = state.wishlist.some(item => item.product.id === action.payload.id);
-      console.log('[DEBUG] Already in wishlist?', isAlreadyInWishlist);
       if (isAlreadyInWishlist) return state;
-      
-      const newState = {
+
+      return {
         ...state,
         wishlist: [...state.wishlist, { product: action.payload, addedAt: new Date() }]
       };
-      console.log('[DEBUG] New wishlist state:', newState.wishlist.length, 'items');
-      return newState;
     }
 
     case 'REMOVE_FROM_WISHLIST':
-      console.log('[DEBUG] Reducer REMOVE_FROM_WISHLIST:', action.payload);
       return {
         ...state,
         wishlist: state.wishlist.filter(item => item.product.id !== action.payload)
@@ -171,6 +189,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'ADD_TO_CART', payload: { product, quantity, size, color } });
   };
 
+  const addAllToCart = (products: Product[], quantity: number, size: string, color: string) => {
+    dispatch({ type: 'ADD_ALL_TO_CART', payload: { products, quantity, size, color } });
+  };
+
   const removeFromCart = (productId: string, size: string, color: string) => {
     dispatch({ type: 'REMOVE_FROM_CART', payload: { productId, size, color } });
   };
@@ -210,6 +232,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const value: AppContextType = {
     ...state,
     addToCart,
+    addAllToCart,
     removeFromCart,
     updateCartQuantity,
     clearCart,

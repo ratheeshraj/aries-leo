@@ -11,7 +11,7 @@ import { useScrollToTop } from '../hooks/useScrollToTop';
 
 export const Wishlist: React.FC = () => {
   useScrollToTop();
-  const { wishlist, removeFromWishlist } = useApp();
+  const { wishlist, removeFromWishlist, addAllToCart } = useApp();
 
   console.log('[DEBUG] Wishlist page - wishlist from context:', wishlist);
   console.log('[DEBUG] Wishlist page - wishlist length:', wishlist.length);
@@ -151,13 +151,7 @@ export const Wishlist: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={() => {
-                  // Add all wishlist items to cart
-                  wishlistItems.forEach(product => {
-                    if (product) {
-                      // This would typically call addToCart for each item
-                      console.log('Adding to cart:', product.name);
-                    }
-                  });
+                  addAllToCart(wishlistItems, 1, 'default-size', 'default-color');
                 }}
               >
                 Add All to Cart
