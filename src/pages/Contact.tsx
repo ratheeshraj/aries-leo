@@ -314,13 +314,13 @@ const Contact: React.FC = () => {
               <p className="text-accent-mauve text-sm mb-3">
                 For urgent matters like payment issues or order problems, call us directly.
               </p>
-              <a
-                href="tel:+15551234567"
+              {/* <a
+                href="tel:+91 80727 31783"
                 className="inline-flex items-center gap-2 text-accent-mauve font-medium hover"
               >
                 <PhoneIcon className="w-4 h-4" />
-                +1 (555) 123-4567
-              </a>
+                +91 80727 31783
+              </a> */}
             </motion.div>
           </div>
         </div>
