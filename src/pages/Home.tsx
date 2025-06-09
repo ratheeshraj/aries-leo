@@ -6,6 +6,7 @@ import { mockProducts, mockTestimonials, mockBlogPosts } from '../data/mockData'
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/ui/Button';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import logo from '../assets/aries-leo-logo.png'
 
 const Home: React.FC = () => {
   useScrollToTop();
@@ -27,7 +28,7 @@ const Home: React.FC = () => {
         >
           {/* Logo Section */}
           <div className="flex justify-center">
-            <img src="/src/assets/aries-leo-logo.png" alt="Aries Leo Logo" className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64" />
+            <img src={logo} alt="Aries Leo Logo" className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64" />
           </div>
 {/* 
           <motion.h1 

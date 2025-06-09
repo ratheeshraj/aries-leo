@@ -37,9 +37,9 @@ const Footer: React.FC = () => {
   ];
 
   const socialMedia = [
-    { name: 'LinkedIn', href: 'https://linkedin.com/company/ariesleo', IconComponent: LinkedInIcon },
-    { name: 'Instagram', href: 'https://instagram.com/ariesleo', IconComponent: InstagramIcon },
-    { name: 'Facebook', href: 'https://facebook.com/ariesleo', IconComponent: FacebookIcon },
+    // { name: 'LinkedIn', href: 'https://linkedin.com/company/ariesleo', IconComponent: LinkedInIcon },
+    { name: 'Instagram', href: 'https://www.instagram.com/officialariesleo/?hl=en', IconComponent: InstagramIcon },
+    { name: 'Facebook', href: 'https://www.facebook.com/ariesleoshop', IconComponent: FacebookIcon },
   ];
 
   const currentYear = new Date().getFullYear();

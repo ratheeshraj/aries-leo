@@ -154,8 +154,8 @@ const About: React.FC = () => {
               viewport={{ once: true }}
             >
               <img
-                src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt="Aries Leo design studio"
+                src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                alt="Women wearing stylish bottoms"
                 className="rounded-2xl shadow-2xl w-full h-auto"
               />
             </motion.div>

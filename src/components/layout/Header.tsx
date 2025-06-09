@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useApp } from '../../context/AppContext';
 import Button from '../ui/Button';
+import logo from '../../assets/aries-leo-logo.png'
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,7 +73,7 @@ const Header: React.FC = () => {
           {/* Logo Section */}
           <div className="flex items-center">
             <Link to="/">
-              <img src="/src/assets/aries-leo-logo.png" alt="Aries Leo Logo" className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32" />
+              <img src={logo} alt="Aries Leo Logo" className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32" />
             </Link>
           </div>
 

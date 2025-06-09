@@ -59,16 +59,15 @@ const Contact: React.FC = () => {
       icon: <MapPinIcon className="w-6 h-6" />,
       title: "Visit Our Showroom",
       details: [
-        "123 Fashion District",
-        "New York, NY 10001",
-        "United States"
+        "17 D, VOC St,",
+        "Arani, Tamil Nadu 632301"
       ]
     },
     {
       icon: <PhoneIcon className="w-6 h-6" />,
       title: "Call Us",
       details: [
-        "+1 (555) 123-4567",
+        "+91 80727 31783",
         "Mon-Fri: 9AM-6PM EST",
         "Weekend: 10AM-4PM EST"
       ]
@@ -317,7 +316,7 @@ const Contact: React.FC = () => {
               </p>
               <a
                 href="tel:+15551234567"
-                className="inline-flex items-center gap-2 text-accent-mauve font-medium hover:text-accent-dark"
+                className="inline-flex items-center gap-2 text-accent-mauve font-medium hover"
               >
                 <PhoneIcon className="w-4 h-4" />
                 +1 (555) 123-4567
@@ -328,26 +327,21 @@ const Contact: React.FC = () => {
 
         {/* Map Section */}
         <motion.section
-          className="mt-16"
+          className="mt-16 w-full h-[400px] sm:h-[200px] md:h-[200px] lg:h-[400px]"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1 }}
         >
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Visit Our Showroom</h2>
-              <p className="text-gray-600 mb-6">
-                Come see and feel our pants in person. Our showroom is open Monday through Saturday.
-              </p>
-            </div>
-            <div className="h-64 bg-gray-200 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <MapPinIcon className="w-12 h-12 mx-auto mb-2" />
-                <p>Interactive map would be integrated here</p>
-                <p className="text-sm">123 Fashion District, New York, NY 10001</p>
-              </div>
-            </div>
-          </div>
+          <iframe 
+            src='https://maps.google.com/maps?q=12.6714488,79.2864813&z=14&output=embed'
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Google Map Location"
+            className="w-full h-full rounded-lg shadow-lg"
+          ></iframe>
         </motion.section>
 
         {/* Newsletter Signup */}

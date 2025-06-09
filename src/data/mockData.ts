@@ -89,7 +89,7 @@ export const mockProducts: Product[] = [
     description: 'Ultra-soft joggers designed for maximum comfort. Perfect for lounging or light workouts. Flattering fit for every body type.',
     price: 59.99,
     images: [
-      'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=500&h=600&fit=crop'
+      'https://images.unsplash.com/photo-1602573991155-21f0143bb45c?q=80&w=3114&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     ],
     category: 'Joggers',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -108,7 +108,7 @@ export const mockProducts: Product[] = [
     description: 'High-tech performance leggings with moisture-wicking properties and four-way stretch. Perfect for workouts or everyday comfort.',
     price: 79.99,
     images: [
-      'https://images.unsplash.com/photo-1506629905607-d33c8b043b7e?w=500&h=600&fit=crop'
+      'https://images.unsplash.com/photo-1648748571003-98d6ff522019?q=80&w=3126&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
     ],
     category: 'Leggings',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
