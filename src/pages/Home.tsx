@@ -25,6 +25,11 @@ const Home: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* Logo Section */}
+          <div className="flex justify-center">
+            <img src="/src/assets/aries-leo-logo.png" alt="Aries Leo Logo" className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64" />
+          </div>
+{/* 
           <motion.h1 
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 sm:mb-6"
             initial={{ opacity: 0, y: 30 }}
@@ -32,7 +37,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Aries Leo
-          </motion.h1>
+          </motion.h1> */}
           
           <motion.p 
             className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-700 mb-6 sm:mb-8 font-light px-4"
@@ -173,6 +178,56 @@ const Home: React.FC = () => {
             <Link to="/shop">
               <Button size="lg" variant="outline">
                 View All Products
+                <ArrowRightIcon className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* New Arrivals or Promotions */}
+      <section className="py-20 bg-accent-light">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Promotions</h2>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              Don't miss out on our exclusive deals and latest arrivals!
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {mockProducts.slice(4, 8).map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <ProductCard 
+                  product={product}
+                  onView={() => {}}
+                />
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div 
+            className="text-center mt-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Link to="/shop">
+              <Button size="lg" variant="primary">
+                Explore Promotions
                 <ArrowRightIcon className="w-5 h-5 ml-2" />
               </Button>
             </Link>
@@ -331,6 +386,7 @@ const Home: React.FC = () => {
           </motion.div>
         </div>
       </section>
+      
     </div>
   );
 };

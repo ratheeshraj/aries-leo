@@ -3,7 +3,7 @@ import type { Product, BlogPost, Testimonial } from '../types';
 export const mockProducts: Product[] = [
   {
     id: '1',
-    name: 'Freedom Flex Wide-Leg Pants',
+    name: 'Wide-Leg Pants',
     description: 'Ultra-comfortable wide-leg pants made from premium cotton blend. Perfect for work or weekend adventures. Features flattering fit and deep pockets.',
     price: 89.99,
     originalPrice: 119.99,

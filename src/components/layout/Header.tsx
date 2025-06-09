@@ -69,12 +69,10 @@ const Header: React.FC = () => {
             </Button>
           </div>
 
-          {/* Logo */}
-          <div className="flex-shrink-0 flex-1 sm:flex-none text-center sm:text-left">
-            <Link to="/" className="flex items-center justify-center sm:justify-start">
-              <div className="text-lg sm:text-xl md:text-2xl font-display font-bold text-gray-900">
-                Aries Leo
-              </div>
+          {/* Logo Section */}
+          <div className="flex items-center">
+            <Link to="/">
+              <img src="/src/assets/aries-leo-logo.png" alt="Aries Leo Logo" className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32" />
             </Link>
           </div>
 

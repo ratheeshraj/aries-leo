@@ -7,7 +7,6 @@ import {
   EnvelopeIcon, 
   LockClosedIcon,
   ShieldCheckIcon,
-  SparklesIcon,
   ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
@@ -96,7 +95,7 @@ export const Login: React.FC = () => {
   useScrollToTop();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="h-screen bg-white flex flex-col justify-center items-center">
       {/* Back Button */}
       <div className="absolute top-6 left-6 z-20">
         <button
@@ -108,20 +107,16 @@ export const Login: React.FC = () => {
         </button>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-accent-rose to-accent-mauve rounded-2xl flex items-center justify-center shadow-lg">
-              <SparklesIcon className="w-8 h-8 text-black" />
-            </div>
+          {/* Logo Section */}
+          <div className="flex justify-center">
+            <img src="/src/assets/aries-leo-logo.png" alt="Aries Leo Logo" className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-6">
-            Aries Leo
-          </h1>
           <motion.h2 
             key={isLogin ? 'login' : 'signup'}
             initial={{ opacity: 0, y: 10 }}
@@ -145,9 +140,9 @@ export const Login: React.FC = () => {
         </motion.div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md relative">
         <motion.div
-          className="bg-white py-10 px-6 shadow-xl border border-gray-200 sm:rounded-2xl sm:px-12"
+          className="bg-white py-4 px-4 shadow-xl border border-gray-200 sm:rounded-2xl sm:px-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
