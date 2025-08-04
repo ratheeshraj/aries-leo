@@ -1,0 +1,15 @@
+This directory contains placeholder images for sarees.
+
+In a production environment, you would replace these with actual product images.
+
+The seeder script references the following image paths:
+- /images/saree1.jpg, /images/saree1-2.jpg, /images/saree1-3.jpg
+- /images/saree2.jpg, /images/saree2-2.jpg, /images/saree2-3.jpg
+- /images/saree3.jpg, /images/saree3-2.jpg, /images/saree3-3.jpg
+- /images/saree4.jpg, /images/saree4-2.jpg
+- /images/saree5.jpg, /images/saree5-2.jpg
+- /images/saree6.jpg, /images/saree6-2.jpg
+- /images/saree7.jpg, /images/saree7-2.jpg
+- /images/saree8.jpg, /images/saree8-2.jpg
+
+For development purposes, you can use placeholder images or actual saree images.
