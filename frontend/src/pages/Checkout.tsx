@@ -5,18 +5,14 @@ import {
   CreditCardIcon,
   TruckIcon,
   ShieldCheckIcon,
-  CheckIcon,
-  XMarkIcon,
-  PlusIcon,
-  MinusIcon,
-  TrashIcon
+  CheckIcon
 } from '@heroicons/react/24/outline';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { formatCurrency, calculateShipping, calculateTax } from '../utils/helpers';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import type { ShippingAddress, Order } from '../types';
+import type { ShippingAddress, Product } from '../types';
 
 interface CheckoutStep {
   id: string;
@@ -78,10 +74,9 @@ const Checkout: React.FC = () => {
   }, [cart.items, navigate, orderComplete]);
 
   // Calculate totals
-  const subtotal = cart.items.reduce((sum: number, item: any) => sum + (item.product.price || 0) * item.quantity, 0);
+  const subtotal = cart.items.reduce((sum: number, item: { product: Product; quantity: number }) => sum + ((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity), 0);
   const shipping = calculateShipping(subtotal, 'IN');
-  const tax = calculateTax(subtotal, shippingAddress.state);
-  const total = subtotal + shipping + tax;
+  const total = subtotal + shipping;
 
   const steps: CheckoutStep[] = [
     {
@@ -519,13 +514,13 @@ const Checkout: React.FC = () => {
                   
                   {/* Order Items */}
                   <div className="space-y-4 mb-6">
-                    {cart.items.map((item: any, index: number) => (
+                    {cart.items.map((item: { product: Product; quantity: number }, index: number) => (
                       <div key={index} className="flex items-center p-4 border rounded-lg">
                         <img
                           src={Array.isArray(item.product.images) && item.product.images.length > 0
                             ? (typeof item.product.images[0] === 'string' 
                                 ? item.product.images[0] 
-                                : item.product.images[0].original || item.product.images[0].medium)
+                                : item.product.images[0].original || item.product.images[0].medium || item.product.images[0].thumb)
                             : '/placeholder-product.jpg'
                           }
                           alt={item.product.name}
@@ -539,7 +534,7 @@ const Checkout: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <p className="font-medium text-gray-900">
-                            {formatCurrency((item.product.price || 0) * item.quantity)}
+                            {formatCurrency((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity)}
                           </p>
                         </div>
                       </div>
@@ -616,13 +611,13 @@ const Checkout: React.FC = () => {
               
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cart.items.map((item: any, index: number) => (
+                {cart.items.map((item: { product: Product; quantity: number }, index: number) => (
                   <div key={index} className="flex items-start gap-3">
                     <img
                       src={Array.isArray(item.product.images) && item.product.images.length > 0
                         ? (typeof item.product.images[0] === 'string' 
                             ? item.product.images[0] 
-                            : item.product.images[0].original || item.product.images[0].medium)
+                            : item.product.images[0].original || item.product.images[0].medium || item.product.images[0].thumb)
                         : '/placeholder-product.jpg'
                       }
                       alt={item.product.name}
@@ -631,11 +626,11 @@ const Checkout: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-gray-900 truncate">{item.product.name}</h4>
                       <p className="text-xs text-gray-600">
-                        Qty: {item.quantity} × {formatCurrency(item.product.price || 0)}
+                        Qty: {item.quantity} × {formatCurrency(item.product.compareAtPrice || item.product.costPrice || 0)}
                       </p>
                     </div>
                     <p className="text-sm font-medium text-gray-900 flex-shrink-0">
-                      {formatCurrency((item.product.price || 0) * item.quantity)}
+                      {formatCurrency((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity)}
                     </p>
                   </div>
                 ))}
@@ -663,10 +658,10 @@ const Checkout: React.FC = () => {
                     Add {formatCurrency(2000 - subtotal)} more for free shipping
                   </p>
                 )}
-                <div className="flex justify-between text-sm">
+                {/* <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax</span>
                   <span className="text-gray-900">{formatCurrency(tax)}</span>
-                </div>
+                </div> */}
                 <div className="border-t pt-3 flex justify-between font-semibold">
                   <span className="text-gray-900">Total</span>
                   <span className="text-gray-900">{formatCurrency(total)}</span>
@@ -691,4 +686,4 @@ const Checkout: React.FC = () => {
   );
 };
 
-export default Checkout; 
+export default Checkout;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { HeartIcon, ShoppingCartIcon, StarIcon } from '@heroicons/react/24/outline';
@@ -25,17 +25,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || '');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const carouselInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Handle both old and new image formats
+  interface ProductImage {
+    original?: string;
+    medium?: string;
+    thumb?: string;
+  }
+  
   const productImages = Array.isArray(product.images) 
-    ? product.images.map((img: any) => typeof img === 'string' ? img : img.original || img.medium || img.thumb)
+    ? product.images.map((img: string | ProductImage) => 
+        typeof img === 'string' ? img : img.original || img.medium || img.thumb
+      ).filter(Boolean)
     : [];
 
   const productId = product.id || product._id;
   const isWishlisted = isInWishlist(productId);
-  const hasDiscount = product.originalPrice && product.originalPrice > (product.price || 0);
+  const hasDiscount = product.compareAtPrice && product.compareAtPrice < (product.costPrice || 0);
   const discountPercentage = hasDiscount 
-    ? calculateDiscount(product.originalPrice!, product.price || 0)
+    ? calculateDiscount(product.costPrice!, product.compareAtPrice || 0)
     : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -81,10 +91,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
     setIsImageLoading(false);
   };
 
+  // Automatic carousel
+  useEffect(() => {
+    if (!isHovered && productImages.length > 1) {
+      carouselInterval.current = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => 
+          prevIndex === productImages.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 3000); // Change image every 3 seconds
+    }
+
+    return () => {
+      if (carouselInterval.current) {
+        clearInterval(carouselInterval.current);
+      }
+    };
+  }, [isHovered, productImages.length]);
+
   return (
     <motion.div
       whileHover={{ y: -4 }}
       className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive h-full flex flex-col ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="block">
         {/* Product Image */}
@@ -138,21 +167,54 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
               {/* Image Navigation */}
               {productImages.length > 1 && (
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  {productImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setCurrentImageIndex(index);
-                      }}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2 bg-black/20 rounded-full px-3 py-1.5">
+                    {productImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCurrentImageIndex(index);
+                        }}
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                          index === currentImageIndex 
+                            ? 'bg-white scale-110' 
+                            : 'bg-white/50 hover:bg-white/75'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  {/* Navigation Arrows */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCurrentImageIndex(prev => 
+                        prev === 0 ? productImages.length - 1 : prev - 1
+                      );
+                    }}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1 bg-black/20 rounded-full hover:bg-black/30 transition-colors duration-200"
+                  >
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCurrentImageIndex(prev => 
+                        prev === productImages.length - 1 ? 0 : prev + 1
+                      );
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 bg-black/20 rounded-full hover:bg-black/30 transition-colors duration-200"
+                  >
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -178,13 +240,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
               <div className="mt-auto">
                 {/* Rating */}
-                <div className="flex items-center mb-2">
+                {/* <div className="flex items-center mb-2">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
                       <StarIcon
                         key={i}
                         className={`w-4 h-4 ${
-                          i < Math.floor(product.rating || 0)
+                          i < Math.round(averageRating)
                             ? 'text-yellow-400 fill-current'
                             : 'text-gray-300'
                         }`}
@@ -192,18 +254,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     ))}
                   </div>
                   <span className="text-sm text-gray-600 ml-1">
-                    ({product.reviewCount || 0})
+                    {averageRating.toFixed(1)} ({reviewCount} reviews)
                   </span>
-                </div>
+                </div> */}
+                {/* Review Snippet */}
+                {/* {reviews.length > 0 ? (
+                  <div className="text-xs text-gray-700 italic mb-2 line-clamp-2">
+                    "{reviews[0].comment}"
+                    {reviews[0].user && (
+                      <span className="ml-1 text-gray-400">- {reviews[0].user}</span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-400 italic mb-2">No reviews yet</div>
+                )} */}
 
                 {/* Price */}
                 <div className="flex items-center space-x-2 mb-3">
                   <span className="text-xl font-bold text-gray-900">
-                    {formatCurrency(product.price || 0)}
+                    {formatCurrency(product.compareAtPrice || 0)}
                   </span>
                   {hasDiscount && (
                     <span className="text-sm text-gray-500 line-through">
-                      {formatCurrency(product.originalPrice || 0)}
+                      {formatCurrency(product.costPrice || 0)}
                     </span>
                   )}
                 </div>

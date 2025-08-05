@@ -94,6 +94,7 @@ const Shop: React.FC = () => {
       };
 
       const response = await productAPI.getProducts(apiFilters);
+      console.log('Fetched products:', response.products);
       
       // Transform backend products to frontend format
       const transformedProducts = transformProducts(response.products || []);
@@ -591,8 +592,8 @@ const Shop: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  {/* View Mode Toggle */}
+                {/* <div className="flex items-center gap-4">
+                 
                   <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -632,7 +633,7 @@ const Shop: React.FC = () => {
                       <option value="featured">Featured</option>
                     </select>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 

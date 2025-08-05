@@ -141,7 +141,10 @@ export const Wishlist: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900">Wishlist Summary</h3>
               <p className="text-gray-600">
                 Total value: {formatCurrency(
-                  wishlistItems.reduce((sum, product) => sum + (product?.price || 0), 0)
+                  wishlistItems.reduce((sum, product) => {
+                    const price = product?.compareAtPrice ?? product?.costPrice ?? product?.price ?? 0;
+                    return sum + price;
+                  }, 0)
                 )}
               </p>
             </div>

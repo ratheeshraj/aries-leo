@@ -108,7 +108,11 @@ const appReducer = (state: any, action: any) => {
         0
       );
       const totalPrice = updatedItems.reduce(
-        (total: number, item: any) => total + item.product.price * item.quantity,
+        (total: number, item: any) => {
+          const p = item.product;
+          const price = p.compareAtPrice ?? p.costPrice ?? p.price ?? 0;
+          return total + price * item.quantity;
+        },
         0
       );
 
@@ -127,7 +131,11 @@ const appReducer = (state: any, action: any) => {
         0
       );
       const totalPrice = updatedItems.reduce(
-        (total: number, item: any) => total + item.product.price * item.quantity,
+        (total: number, item: any) => {
+          const p = item.product;
+          const price = p.compareAtPrice ?? p.costPrice ?? p.price ?? 0;
+          return total + price * item.quantity;
+        },
         0
       );
 
@@ -146,7 +154,11 @@ const appReducer = (state: any, action: any) => {
         0
       );
       const totalPrice = updatedItems.reduce(
-        (total: number, item: any) => total + item.product.price * item.quantity,
+        (total: number, item: any) => {
+          const p = item.product;
+          const price = p.compareAtPrice ?? p.costPrice ?? p.price ?? 0;
+          return total + price * item.quantity;
+        },
         0
       );
 

@@ -20,7 +20,69 @@ import { productAPI, reviewAPI } from '../../utils/api';
 import Button from '../../components/ui/Button';
 import ProductCard from '../../components/product/ProductCard';
 import SizeGuide from '../../components/product/SizeGuide';
+import colorNamer from 'color-namer';
 import type { Product } from '../../types';
+
+// Define Inventory type
+interface InventoryItem {
+  _id: string;
+  product: string;
+  sku: string;
+  barcode: string;
+  stockQuantity: number;
+  trackInventory: boolean;
+  status: string;
+  color?: string;
+  size?: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  business: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+interface Review {
+  id?: string;
+  _id?: string;
+  user: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt?: string;
+  isPending?: boolean;
+}
+
+function isHexColor(str: string) {
+  return /^#([0-9A-Fa-f]{3}){1,2}$/.test(str);
+}
+
+// Utility to get color name from hex
+function hexToColorName(hex: string): string {
+  try {
+    const result = colorNamer(hex);
+    // Use the first name from the 'ntc' palette, fallback to basic if not found
+    if (result.ntc && result.ntc.length > 0) {
+      return result.ntc[0].name;
+    } else if (result.basic && result.basic.length > 0) {
+      return result.basic[0].name;
+    } else if (result.html && result.html.length > 0) {
+      return result.html[0].name;
+    }
+    return hex;
+  } catch {
+    return hex;
+  }
+}
+
+// Helper to get inventory for selected size and color
+function getSelectedInventory(inventory: InventoryItem[], size: string, color: string) {
+  return inventory.find(
+    (item) =>
+      (!size || item.size === size) &&
+      (!color || item.color === color)
+  );
+}
 
 const ProductDetail: React.FC = () => {
   useScrollToTop();
@@ -41,7 +103,7 @@ const ProductDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [averageRating, setAverageRating] = useState(0);
@@ -52,6 +114,9 @@ const ProductDetail: React.FC = () => {
   const [reviewSubmitLoading, setReviewSubmitLoading] = useState(false);
   const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(null);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]); // Add inventory state
+  const [maxQuantity, setMaxQuantity] = useState<number>(1); // Track max quantity
+  const [quantityWarning, setQuantityWarning] = useState<string>(''); // Inline quantity warning
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -65,6 +130,9 @@ const ProductDetail: React.FC = () => {
         const transformedProduct = transformProduct(response.data.product);
         setProduct(transformedProduct);
         
+        // Set inventory from API response
+        setInventory(response.data.inventory || []);
+        
         // Set default selections
         if (transformedProduct.sizes && transformedProduct.sizes.length > 0) {
           setSelectedSize(transformedProduct.sizes[0]);
@@ -73,24 +141,26 @@ const ProductDetail: React.FC = () => {
           setSelectedColor(transformedProduct.colors[0]);
         }
         
+        // Set max quantity based on inventory
+        const inv = (response.data.inventory && response.data.inventory[0]) || null;
+        setMaxQuantity(inv && inv.stockQuantity ? inv.stockQuantity : 1);
+        
         // Fetch related products
         const relatedResponse = await productAPI.getProducts({
           category: transformedProduct.category
         });
         const transformedRelated = transformProducts(relatedResponse.products || []);
-        setRelatedProducts(transformedRelated.filter(p => p._id !== id));
+        setRelatedProducts(transformedRelated.filter((p: Product) => p._id !== id));
         
         // Fetch reviews
         setReviewsLoading(true);
         try {
-          console.log('Fetching reviews for product ID:', id);
           const reviewsResponse = await reviewAPI.getReviews(id);
-          console.log('Reviews response:', reviewsResponse);
           setReviews(reviewsResponse.reviews || []);
           
           // Calculate average rating
           if (reviewsResponse.reviews && reviewsResponse.reviews.length > 0) {
-            const avg = reviewsResponse.reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviewsResponse.reviews.length;
+            const avg = reviewsResponse.reviews.reduce((sum: number, review: Review) => sum + review.rating, 0) / reviewsResponse.reviews.length;
             setAverageRating(avg);
           }
 
@@ -103,7 +173,7 @@ const ProductDetail: React.FC = () => {
                 const tokenPayload = JSON.parse(atob(userToken.split('.')[1]));
                 const userId = tokenPayload.id || tokenPayload._id;
                 
-                const userReview = reviewsResponse.reviews.find((review: any) => 
+                const userReview = reviewsResponse.reviews.find((review: Review) => 
                   review.user === userId || review.user === tokenPayload.email
                 );
                 setHasUserReviewed(!!userReview);
@@ -128,7 +198,20 @@ const ProductDetail: React.FC = () => {
     };
 
     fetchProduct();
-  }, [id]);
+  }, [id, isUserAuthenticated]);
+
+  // Update maxQuantity when selectedSize or selectedColor changes (for variants)
+  useEffect(() => {
+    if (!inventory.length) return;
+    if (!selectedSize || !selectedColor) {
+      setMaxQuantity(1);
+      setQuantity(1);
+      return;
+    }
+    const inv = getSelectedInventory(inventory, selectedSize, selectedColor);
+    setMaxQuantity(inv && inv.stockQuantity ? inv.stockQuantity : 1);
+    setQuantity((q) => Math.min(q, inv && inv.stockQuantity ? inv.stockQuantity : 1));
+  }, [selectedSize, selectedColor, inventory]);
 
   if (isLoading) {
     return (
@@ -164,14 +247,16 @@ const ProductDetail: React.FC = () => {
 
   // Handle both old and new image formats
   const productImages = Array.isArray(product.images) 
-    ? product.images.map((img: any) => typeof img === 'string' ? img : img.original || img.medium || img.thumb)
+    ? product.images.map((img: string | { original?: string; medium?: string; thumb?: string }) =>
+        typeof img === 'string' ? img : img.original || img.medium || img.thumb
+      )
     : [];
 
   const productId = product.id || product._id;
   const isWishlisted = isInWishlist(productId);
-  const hasDiscount = product.originalPrice && product.originalPrice > (product.price || 0);
+  const hasDiscount = product.compareAtPrice && product.compareAtPrice < (product.costPrice || 0);
   const discountPercentage = hasDiscount 
-    ? Math.round(((product.originalPrice! - (product.price || 0)) / product.originalPrice!) * 100)
+    ? Math.round(((product.costPrice! - (product.compareAtPrice || 0)) / product.costPrice!) * 100)
     : 0;
 
   const handleAddToCart = () => {
@@ -269,7 +354,7 @@ const ProductDetail: React.FC = () => {
       
       // Update average rating immediately
       const newReviews = [newReview, ...reviews];
-      const newAvg = newReviews.reduce((sum: number, review: any) => sum + review.rating, 0) / newReviews.length;
+      const newAvg = newReviews.reduce((sum: number, review: Review) => sum + review.rating, 0) / newReviews.length;
       setAverageRating(newAvg);
 
       // Submit to server
@@ -320,8 +405,8 @@ const ProductDetail: React.FC = () => {
       
       // Revert average rating
       const originalReviews = reviews.filter(review => !review.isPending);
-      const originalAvg = originalReviews.length > 0 
-        ? originalReviews.reduce((sum: number, review: any) => sum + review.rating, 0) / originalReviews.length 
+      const originalAvg = originalReviews.length > 0
+        ? originalReviews.reduce((sum: number, review: Review) => sum + review.rating, 0) / originalReviews.length
         : 0;
       setAverageRating(originalAvg);
       
@@ -329,6 +414,38 @@ const ProductDetail: React.FC = () => {
     } finally {
       setReviewSubmitLoading(false);
     }
+  };
+
+  // Extract sizes and colors from inventory
+  const inventorySizes = Array.from(new Set(inventory.map(item => item.size).filter(Boolean)));
+  const inventoryColors = Array.from(new Set(inventory.map(item => item.color).filter(Boolean)));
+
+  // Quantity change handlers with validation
+  const handleDecreaseQuantity = () => {
+    if (!selectedSize || !selectedColor) {
+      setQuantityWarning('Please select size and color first');
+      return;
+    }
+    setQuantity((q) => {
+      const newQ = Math.max(1, q - 1);
+      if (quantityWarning) setQuantityWarning('');
+      return newQ;
+    });
+  };
+  const handleIncreaseQuantity = () => {
+    if (!selectedSize || !selectedColor) {
+      setQuantityWarning('Please select size and color first');
+      return;
+    }
+    if (quantity >= maxQuantity) {
+      setQuantityWarning('No more stock available for the selected variant');
+      return;
+    }
+    setQuantity((q) => {
+      const newQ = Math.min(maxQuantity, q + 1);
+      if (quantityWarning) setQuantityWarning('');
+      return newQ;
+    });
   };
 
   return (
@@ -464,11 +581,11 @@ const ProductDetail: React.FC = () => {
 
               <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <span className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {formatCurrency(product.price || 0)}
+                  {formatCurrency(product.compareAtPrice || product.costPrice || 0)}
                 </span>
-                {product.originalPrice && (
+                {hasDiscount && (
                   <span className="text-lg sm:text-xl text-gray-500 line-through">
-                    {formatCurrency(product.originalPrice)}
+                    {formatCurrency(product.costPrice || 0)}
                   </span>
                 )}
               </div>
@@ -479,33 +596,33 @@ const ProductDetail: React.FC = () => {
             </motion.div>
 
             {/* Size Selection */}
-            {product.sizes && product.sizes.length > 0 && (
+            {(inventorySizes.length > 0) && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
                 <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Size</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">SIZE</h3>
                   <button
                     onClick={() => setShowSizeGuide(true)}
                     className="text-sm text-accent-rose hover:text-accent-rose/80 underline font-medium"
                   >
-                    Size Guide
+                    SIZE GUIDE
                   </button>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
-                  {product.sizes.map(size => (
+                  {inventorySizes.map(size => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => setSelectedSize(size!)}
                       className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
                         selectedSize === size
                           ? 'bg-accent-rose text-white border-accent-rose'
                           : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium'
                       }`}
                     >
-                      {size}
+                      {size!.toUpperCase()}
                     </button>
                   ))}
                 </div>
@@ -513,25 +630,28 @@ const ProductDetail: React.FC = () => {
             )}
 
             {/* Color Selection */}
-            {product.colors && product.colors.length > 0 && (
+            {(inventoryColors.length > 0) && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Color</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">COLOR</h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {product.colors.map(color => (
+                  {inventoryColors.map(color => (
                     <button
                       key={color}
-                      onClick={() => setSelectedColor(color)}
+                      onClick={() => setSelectedColor(color!)}
                       className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
                         selectedColor === color
                           ? 'bg-accent-rose text-white border-accent-rose'
                           : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium'
                       }`}
                     >
-                      {color}
+                      {isHexColor(color!) ? (
+                        <span className="inline-block w-5 h-5 rounded-full border mr-2 align-middle" style={{ backgroundColor: color! }}></span>
+                      ) : null}
+                      {isHexColor(color!) ? hexToColorName(color!).toUpperCase() : color!.toUpperCase()}
                     </button>
                   ))}
                 </div>
@@ -547,8 +667,9 @@ const ProductDetail: React.FC = () => {
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Quantity</h3>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  onClick={handleDecreaseQuantity}
                   className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors touch-target"
+                  disabled={quantity <= 1}
                 >
                   <MinusIcon className="w-4 h-4" />
                 </button>
@@ -556,12 +677,16 @@ const ProductDetail: React.FC = () => {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={handleIncreaseQuantity}
                   className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors touch-target"
+                  disabled={quantity >= maxQuantity}
                 >
                   <PlusIcon className="w-4 h-4" />
                 </button>
               </div>
+              {quantityWarning && (
+                <div className="text-xs text-red-600 mt-2">{quantityWarning}</div>
+              )}
             </motion.div>
 
             {/* Add to Cart & Wishlist */}
@@ -573,11 +698,11 @@ const ProductDetail: React.FC = () => {
             >
               <Button
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={!product.inStock || maxQuantity === 0}
                 className="flex-1 btn-responsive"
                 size="lg"
               >
-                {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                {product.inStock && maxQuantity > 0 ? 'Add to Cart' : 'Out of Stock'}
               </Button>
               <button
                 onClick={handleWishlistToggle}

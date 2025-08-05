@@ -159,3 +159,10 @@ export interface Order {
   createdAt: Date;
   trackingNumber?: string;
 }
+
+export interface Review {
+  comment: string;
+  user?: string;
+  rating?: number;
+  createdAt?: string;
+}

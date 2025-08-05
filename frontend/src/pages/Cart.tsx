@@ -6,6 +6,7 @@ import { useAppContext } from '../context/AppContext';
 import { formatCurrency } from '../utils/helpers';
 import Button from '../components/ui/Button';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import type { Product } from '../types';
 
 const Cart: React.FC = () => {
   useScrollToTop();
@@ -21,8 +22,7 @@ const Cart: React.FC = () => {
   };
 
   const shipping = cart.items.length > 0 ? (cart.totalPrice >= 2000 ? 0 : 199) : 0;
-  const tax = cart.totalPrice * 0.08; // 8% tax
-  const total = cart.totalPrice + shipping + tax;
+  const total = cart.totalPrice + shipping;
 
   if (cart.items.length === 0) {
     return (
@@ -93,7 +93,7 @@ const Cart: React.FC = () => {
               </div>
 
               <div className="divide-y divide-gray-200">
-                {cart.items.map((item, index) => (
+                {cart.items.map((item: { product: Product; quantity: number }, index: number) => (
                   <motion.div
                     key={`${item.product._id}-${index}`}
                     className="p-4 sm:p-6"
@@ -105,7 +105,11 @@ const Cart: React.FC = () => {
                       {/* Product Image */}
                       <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
-                          src={item.product.images[0]}
+                          src={Array.isArray(item.product.images) && item.product.images.length > 0
+                            ? (typeof item.product.images[0] === 'string'
+                                ? item.product.images[0]
+                                : item.product.images[0].original || item.product.images[0].medium || item.product.images[0].thumb)
+                            : '/placeholder-product.jpg'}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
                         />
@@ -121,7 +125,12 @@ const Cart: React.FC = () => {
                         </Link>
                         <div className="mt-1 text-sm text-gray-600 space-y-1">
                           <p className="font-medium text-gray-900">
-                            {formatCurrency(item.product.price || 0)}
+                            {formatCurrency(item.product.compareAtPrice || item.product.costPrice || 0)}
+                            {item.product.compareAtPrice && item.product.compareAtPrice < (item.product.costPrice || 0) && (
+                              <span className="ml-2 text-xs text-gray-500 line-through">
+                                {formatCurrency(item.product.costPrice || 0)}
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -166,7 +175,7 @@ const Cart: React.FC = () => {
                       {/* Item Total */}
                       <div className="text-right flex-shrink-0">
                         <p className="text-lg font-semibold text-gray-900">
-                          {formatCurrency(item.product.price * item.quantity)}
+                          {formatCurrency((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity)}
                         </p>
                       </div>
                     </div>
@@ -207,10 +216,10 @@ const Cart: React.FC = () => {
                     Add {formatCurrency(2000 - cart.totalPrice)} more for free shipping
                   </p>
                 )}
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
                   <span className="font-medium">{formatCurrency(tax)}</span>
-                </div>
+                </div> */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total</span>
