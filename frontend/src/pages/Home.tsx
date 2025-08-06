@@ -2,11 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRightIcon, StarIcon, TruckIcon, ShieldCheckIcon, HeartIcon } from '@heroicons/react/24/outline';
-import { mockProducts, mockBlogPosts } from '../data/mockData';
-import { reviewAPI } from '../utils/api';
+import { mockBlogPosts } from '../data/mockData';
+import { reviewAPI, productAPI } from '../utils/api';
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/ui/Button';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import type { Product } from '../types';
 import logo from '../assets/aries-leo-logo.png'
 
 const Home: React.FC = () => {
@@ -15,9 +16,35 @@ const Home: React.FC = () => {
   const [bestReviews, setBestReviews] = React.useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = React.useState(false);
   const [reviewsError, setReviewsError] = React.useState<string | null>(null);
+  
+  const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
+  const [promotionsProducts, setPromotionsProducts] = React.useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = React.useState(false);
+  const [productsError, setProductsError] = React.useState<string | null>(null);
 
-  const featuredProducts = mockProducts.slice(0, 4);
+  // Newsletter subscription state
+  const [newsletterEmail, setNewsletterEmail] = React.useState('');
+  const [newsletterStatus, setNewsletterStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMessage, setNewsletterMessage] = React.useState('');
+
   const latestBlogPosts = mockBlogPosts.slice(0, 3);
+
+  // Newsletter subscription handler
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    setNewsletterStatus('loading');
+    try {
+      await reviewAPI.subscribeNewsletter(newsletterEmail);
+      setNewsletterStatus('success');
+      setNewsletterMessage('Successfully subscribed!');
+      setNewsletterEmail('');
+    } catch (error) {
+      setNewsletterStatus('error');
+      setNewsletterMessage(error instanceof Error ? error.message : 'Failed to subscribe');
+    }
+  };
 
   React.useEffect(() => {
     const fetchBestReviews = async () => {
@@ -34,7 +61,64 @@ const Home: React.FC = () => {
       }
     };
 
+    const fetchProducts = async () => {
+      setProductsLoading(true);
+      try {
+        // Fetch all products
+        const response = await productAPI.getProducts();
+        if (response.products) {
+          const allProducts = response.products;
+          const inventories = response.inventories || [];
+          const categories = response.categories || [];
+          
+          // Process products to include inventory data
+          const processedProducts = allProducts.map((product: Product) => {
+            // Find inventory items for this product
+            const productInventories = inventories.filter((inv: any) => inv.product === product._id);
+            
+            // Extract unique sizes and colors from inventory
+            const sizes = [...new Set(productInventories.map((inv: any) => inv.size).filter(Boolean))];
+            const colors = [...new Set(productInventories.map((inv: any) => inv.color).filter(Boolean))];
+            
+            // Calculate stock status
+            const totalStock = productInventories.reduce((sum: number, inv: any) => sum + (inv.stockQuantity || 0), 0);
+            const inStock = totalStock > 0;
+            
+            return {
+              ...product,
+              id: product._id, // Ensure id is set for compatibility
+              inventory: productInventories,
+              sizes,
+              colors,
+              inStock,
+              stockCount: totalStock
+            };
+          });
+          
+          // Filter featured products
+          const featured = processedProducts.filter((product: Product) => product.isFeatured).slice(0, 4);
+          setFeaturedProducts(featured);
+          
+          // Filter new products (created within last 30 days or has recent launchDate)
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          const newProducts = processedProducts.filter((product: Product) => {
+            const productDate = product.launchDate ? new Date(product.launchDate) : new Date(product.createdAt);
+            return productDate >= thirtyDaysAgo;
+          }).slice(0, 4);
+          
+          setPromotionsProducts(newProducts);
+        }
+      } catch (err) {
+        setProductsError('Failed to fetch products.');
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
     fetchBestReviews();
+    fetchProducts();
   }, []);
 
   return (
@@ -175,22 +259,37 @@ const Home: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <ProductCard 
-                  product={product}
-                  onView={() => {}}
-                />
-              </motion.div>
-            ))}
-          </div>
+          {productsLoading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-accent-rose"></div>
+              <p className="mt-2 text-gray-600">Loading featured products...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Failed to load featured products. Please try again later.</p>
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No featured products available at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <ProductCard 
+                    product={product}
+                    onView={() => {}}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           <motion.div 
             className="text-center mt-12"
@@ -225,22 +324,37 @@ const Home: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {mockProducts.slice(4, 8).map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <ProductCard 
-                  product={product}
-                  onView={() => {}}
-                />
-              </motion.div>
-            ))}
-          </div>
+          {productsLoading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-accent-rose"></div>
+              <p className="mt-2 text-gray-600">Loading promotions...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Failed to load promotions. Please try again later.</p>
+            </div>
+          ) : promotionsProducts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No promotions available at the moment.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {promotionsProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <ProductCard 
+                    product={product}
+                    onView={() => {}}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           <motion.div 
             className="text-center mt-12"
@@ -412,16 +526,30 @@ const Home: React.FC = () => {
             <p className="text-xl text-accent-light mb-8 max-w-2xl mx-auto">
               Be the first to know about new collections, exclusive offers, and style inspiration
             </p>
-            <div className="max-w-md mx-auto flex gap-4">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
-            />
-              <Button variant="secondary" size="lg">
-                Subscribe
+            <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto flex gap-4">
+              <input
+                type="email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
+                disabled={newsletterStatus === 'loading'}
+                required
+              />
+              <Button 
+                variant="secondary" 
+                size="lg" 
+                type="submit"
+                disabled={newsletterStatus === 'loading'}
+              >
+                {newsletterStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
               </Button>
-            </div>
+            </form>
+            {newsletterMessage && (
+              <p className={`mt-4 text-sm ${newsletterStatus === 'success' ? 'text-green-200' : 'text-red-200'}`}>
+                {newsletterMessage}
+              </p>
+            )}
           </motion.div>
         </div>
       </section>

@@ -54,7 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     
     const availableColors = new Set<string>();
     product.inventory.forEach(inv => {
-      if (inv.size === size && inv.color) {
+      if (inv.size === size && inv.color && inv.stockQuantity > 0) {
         // Convert hex color to color name if needed
         let colorName = inv.color;
         if (inv.color.startsWith('#')) {
@@ -76,6 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             '#008080': 'Teal',
             '#000080': 'Navy',
             '#219091': 'Teal',
+            '#db0a3f': 'Red',
             '#FFA500': 'Orange',
             '#FFC0CB': 'Pink',
             '#A52A2A': 'Brown',
@@ -118,8 +119,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return Array.from(availableColors);
   };
 
+  // Get available sizes for the product
+  const getAvailableSizes = (): string[] => {
+    if (!product.inventory) return product.sizes || [];
+    
+    const availableSizes = new Set<string>();
+    product.inventory.forEach(inv => {
+      if (inv.size && inv.stockQuantity > 0) {
+        availableSizes.add(inv.size);
+      }
+    });
+    
+    return Array.from(availableSizes);
+  };
+
   // Get available colors for current selected size
   const availableColors = getAvailableColorsForSize(selectedSize);
+  const availableSizes = getAvailableSizes();
 
   // Update selected color when size changes or on initial load
   useEffect(() => {
@@ -135,6 +151,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       setSelectedColor('');
     }
   }, [selectedSize, availableColors]);
+
+  // Update selected size on initial load
+  useEffect(() => {
+    if (availableSizes.length > 0 && !selectedSize) {
+      setSelectedSize(availableSizes[0]);
+    }
+  }, [availableSizes, selectedSize]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -375,7 +398,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {/* Quick Options */}
           <div className="space-y-2 mb-3">
             {/* Size Selection */}
-            {product.sizes && product.sizes.length > 0 && (
+            {availableSizes && availableSizes.length > 0 && (
               <div>
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Size:
@@ -390,7 +413,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   style={{ backgroundColor: 'white' }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {product.sizes.map((size) => (
+                  {availableSizes.map((size) => (
                     <option key={size} value={size}>
                       {size}
                     </option>

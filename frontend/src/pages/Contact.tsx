@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { reviewAPI } from '../utils/api';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 
 const Contact: React.FC = () => {
@@ -24,6 +25,11 @@ const Contact: React.FC = () => {
   });
 
   const [formType, setFormType] = useState<'general' | 'support' | 'wholesale'>('general');
+
+  // Newsletter subscription state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMessage, setNewsletterMessage] = useState('');
 
   const handleInputChange = (name: string) => (value: string) => {
     setFormData(prev => ({
@@ -52,6 +58,23 @@ const Contact: React.FC = () => {
       message: '',
       orderNumber: ''
     });
+  };
+
+  // Newsletter subscription handler
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    setNewsletterStatus('loading');
+    try {
+      await reviewAPI.subscribeNewsletter(newsletterEmail);
+      setNewsletterStatus('success');
+      setNewsletterMessage('Successfully subscribed!');
+      setNewsletterEmail('');
+    } catch (error) {
+      setNewsletterStatus('error');
+      setNewsletterMessage(error instanceof Error ? error.message : 'Failed to subscribe');
+    }
   };
 
   const contactInfo = [
@@ -357,16 +380,30 @@ const Contact: React.FC = () => {
           <p className="text-accent-light mb-6">
             Subscribe to our newsletter for updates, exclusive offers, and style tips.
           </p>
-          <div className="max-w-md mx-auto flex gap-4">
+          <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
+              disabled={newsletterStatus === 'loading'}
+              required
             />
-            <Button variant="secondary" size="lg">
-              Subscribe
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              type="submit"
+              disabled={newsletterStatus === 'loading'}
+            >
+              {newsletterStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
             </Button>
-          </div>
+          </form>
+          {newsletterMessage && (
+            <p className={`mt-4 text-sm ${newsletterStatus === 'success' ? 'text-green-200' : 'text-red-200'}`}>
+              {newsletterMessage}
+            </p>
+          )}
         </motion.section>
       </div>
     </div>

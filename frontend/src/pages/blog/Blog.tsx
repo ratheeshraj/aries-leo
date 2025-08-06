@@ -3,16 +3,39 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRightIcon, CalendarIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
 import { mockBlogPosts } from '../../data/mockData';
+import { reviewAPI } from '../../utils/api';
 import Button from '../../components/ui/Button';
 import { useScrollToTop } from '../../hooks/useScrollToTop';
 
 const Blog: React.FC = () => {
   useScrollToTop();
 
+  // Newsletter subscription state
+  const [newsletterEmail, setNewsletterEmail] = React.useState('');
+  const [newsletterStatus, setNewsletterStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMessage, setNewsletterMessage] = React.useState('');
+
   const featuredPost = mockBlogPosts[0];
   const regularPosts = mockBlogPosts.slice(1);
 
   const categories = ['All', 'Style Tips', 'Sustainability', 'Fashion Trends', 'Care Guide'];
+
+  // Newsletter subscription handler
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    setNewsletterStatus('loading');
+    try {
+      await reviewAPI.subscribeNewsletter(newsletterEmail);
+      setNewsletterStatus('success');
+      setNewsletterMessage('Successfully subscribed!');
+      setNewsletterEmail('');
+    } catch (error) {
+      setNewsletterStatus('error');
+      setNewsletterMessage(error instanceof Error ? error.message : 'Failed to subscribe');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -194,16 +217,30 @@ const Blog: React.FC = () => {
           <p className="text-accent-light mb-6 max-w-2xl mx-auto">
             Subscribe to our newsletter and be the first to read our latest articles about style, sustainability, and fashion trends.
           </p>
-          <div className="max-w-md mx-auto flex gap-4">
+          <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto flex gap-4">
             <input
               type="email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
               placeholder="Enter your email"
               className="flex-1 px-4 py-3 rounded-lg bg-white focus:border-none focus:outline-none"
+              disabled={newsletterStatus === 'loading'}
+              required
             />
-            <Button variant="secondary" size="lg">
-              Subscribe
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              type="submit"
+              disabled={newsletterStatus === 'loading'}
+            >
+              {newsletterStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
             </Button>
-          </div>
+          </form>
+          {newsletterMessage && (
+            <p className={`mt-4 text-sm ${newsletterStatus === 'success' ? 'text-green-200' : 'text-red-200'}`}>
+              {newsletterMessage}
+            </p>
+          )}
         </motion.section>
       </div>
     </div>

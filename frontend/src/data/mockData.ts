@@ -3,14 +3,27 @@ import type { Product, BlogPost, Testimonial } from '../types';
 export const mockProducts: Product[] = [
   {
     id: '1',
+    _id: '1',
     name: 'Wide-Leg Pants',
     description: 'Ultra-comfortable wide-leg pants made from premium cotton blend. Perfect for work or weekend adventures. Features flattering fit and deep pockets.',
     price: 89.99,
     originalPrice: 119.99,
     images: [
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&h=600&fit=crop'
+      {
+        original: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=360&fit=crop'
+      },
+      {
+        original: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&h=360&fit=crop'
+      },
+      {
+        original: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=360&fit=crop'
+      }
     ],
     category: 'Wide-Leg',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -21,16 +34,33 @@ export const mockProducts: Product[] = [
     rating: 4.8,
     reviewCount: 124,
     tags: ['bestseller', 'comfort', 'versatile'],
-    featured: true
+    featured: true,
+    isActive: true,
+    isVisible: true,
+    isFeatured: true,
+    status: 'active',
+    isDeleted: false,
+    business: 'mock-business',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: '2',
+    _id: '2',
     name: 'High-Waisted Cargo Pants',
     description: 'Trendy high-waisted cargo pants built for style and function. Multiple pockets for all your essentials. Cotton construction with modern fit.',
     price: 94.99,
     images: [
-      'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop'
+      {
+        original: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=300&h=360&fit=crop'
+      },
+      {
+        original: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=360&fit=crop'
+      }
     ],
     category: 'Cargo',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -41,17 +71,34 @@ export const mockProducts: Product[] = [
     rating: 4.6,
     reviewCount: 89,
     tags: ['trendy', 'utility', 'high-waisted'],
-    featured: true
+    featured: true,
+    isActive: true,
+    isVisible: true,
+    isFeatured: true,
+    status: 'active',
+    isDeleted: false,
+    business: 'mock-business',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: '3',
+    _id: '3',
     name: 'Classic Straight-Leg Jeans',
     description: 'Timeless straight-leg denim with a modern comfort twist. Soft cotton denim with just the right amount of stretch. Perfect fit for every body type.',
     price: 79.99,
     originalPrice: 99.99,
     images: [
-      'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=500&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop'
+      {
+        original: 'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=300&h=360&fit=crop'
+      },
+      {
+        original: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=300&h=360&fit=crop'
+      }
     ],
     category: 'Jeans',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -62,15 +109,28 @@ export const mockProducts: Product[] = [
     rating: 4.7,
     reviewCount: 156,
     tags: ['classic', 'everyday', 'comfortable'],
-    featured: false
+    featured: false,
+    isActive: true,
+    isVisible: true,
+    isFeatured: false,
+    status: 'active',
+    isDeleted: false,
+    business: 'mock-business',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: '4',
+    _id: '4',
     name: 'High-Waisted Trousers',
     description: 'Professional high-waisted trousers that combine style and comfort. Tailored fit with premium materials. Perfect for the office or special occasions.',
     price: 109.99,
     images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop'
+      {
+        original: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop',
+        thumb: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&h=240&fit=crop',
+        medium: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&h=360&fit=crop'
+      }
     ],
     category: 'Trousers',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
@@ -81,15 +141,28 @@ export const mockProducts: Product[] = [
     rating: 4.9,
     reviewCount: 67,
     tags: ['professional', 'premium', 'tailored'],
-    featured: true
+    featured: true,
+    isActive: true,
+    isVisible: true,
+    isFeatured: true,
+    status: 'active',
+    isDeleted: false,
+    business: 'mock-business',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
   {
     id: '5',
+    _id: '5',
     name: 'Cozy Joggers',
     description: 'Ultra-soft joggers designed for maximum comfort. Perfect for lounging or light workouts. Flattering fit for every body type.',
     price: 59.99,
     images: [
-      'https://images.unsplash.com/photo-1602573991155-21f0143bb45c?q=80&w=3114&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+      {
+        original: 'https://images.unsplash.com/photo-1602573991155-21f0143bb45c?q=80&w=3114&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        thumb: 'https://images.unsplash.com/photo-1602573991155-21f0143bb45c?q=80&w=200&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        medium: 'https://images.unsplash.com/photo-1602573991155-21f0143bb45c?q=80&w=300&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+      }
     ],
     category: 'Joggers',
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
@@ -100,141 +173,16 @@ export const mockProducts: Product[] = [
     rating: 4.5,
     reviewCount: 203,
     tags: ['casual', 'comfort', 'relaxed'],
-    featured: false
+    featured: false,
+    isActive: true,
+    isVisible: true,
+    isFeatured: false,
+    status: 'active',
+    isDeleted: false,
+    business: 'mock-business',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
   },
-  {
-    id: '6',
-    name: 'Performance Leggings',
-    description: 'High-tech performance leggings with moisture-wicking properties and four-way stretch. Perfect for workouts or everyday comfort.',
-    price: 79.99,
-    images: [
-      'https://images.unsplash.com/photo-1648748571003-98d6ff522019?q=80&w=3126&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-    ],
-    category: 'Leggings',
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Midnight Blue', 'Charcoal', 'Black'],
-    material: 'Technical Fabric Blend',
-    inStock: true,
-    stockCount: 40,
-    rating: 4.8,
-    reviewCount: 145,
-    tags: ['performance', 'activewear', 'stretch'],
-    featured: true
-  },
-  {
-    id: '7',
-    name: 'Palazzo Wide-Leg Pants',
-    description: 'Flowing palazzo pants with an ultra-wide leg design. Perfect for summer days or special occasions. Features drawstring waist for comfort.',
-    price: 69.99,
-    images: [
-      'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&h=600&fit=crop'
-    ],
-    category: 'Wide-Leg',
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Terracotta', 'Sage Green', 'Cream', 'Navy'],
-    material: 'Lightweight Cotton',
-    inStock: true,
-    stockCount: 30,
-    rating: 4.6,
-    reviewCount: 89,
-    tags: ['flowy', 'summer', 'comfortable'],
-    featured: false
-  },
-  {
-    id: '8',
-    name: 'High-Rise Skinny Jeans',
-    description: 'Classic high-rise skinny jeans with superior stretch and recovery. Flattering fit that holds its shape all day long.',
-    price: 84.99,
-    images: [
-      'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=500&h=600&fit=crop'
-    ],
-    category: 'Jeans',
-    sizes: ['24', '26', '28', '30', '32', '34'],
-    colors: ['Dark Indigo', 'Vintage Black', 'Medium Wash'],
-    material: 'Stretch Denim',
-    inStock: true,
-    stockCount: 45,
-    rating: 4.7,
-    reviewCount: 156,
-    tags: ['skinny', 'high-rise', 'stretch'],
-    featured: true
-  },
-  {
-    id: '9',
-    name: 'Cropped Wide-Leg Pants',
-    description: 'Modern cropped wide-leg pants perfect for showing off your favorite shoes. Professional yet comfortable for all-day wear.',
-    price: 79.99,
-    images: [
-      'https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&h=600&fit=crop'
-    ],
-    category: 'Wide-Leg',
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Black', 'Camel', 'Navy', 'White'],
-    material: 'Cotton Twill',
-    inStock: true,
-    stockCount: 35,
-    rating: 4.5,
-    reviewCount: 78,
-    tags: ['cropped', 'modern', 'versatile'],
-    featured: false
-  },
-  {
-    id: '10',
-    name: 'Yoga Leggings',
-    description: 'Ultra-soft yoga leggings with four-way stretch and moisture-wicking technology. Perfect for yoga, pilates, or everyday wear.',
-    price: 65.99,
-    images: [
-      'https://images.unsplash.com/photo-1506629905607-d33c8b043b7e?w=500&h=600&fit=crop'
-    ],
-    category: 'Leggings',
-    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Black', 'Burgundy', 'Navy', 'Charcoal'],
-    material: 'Performance Blend',
-    inStock: true,
-    stockCount: 55,
-    rating: 4.8,
-    reviewCount: 234,
-    tags: ['yoga', 'activewear', 'moisture-wicking'],
-    featured: true
-  },
-  {
-    id: '11',
-    name: 'Paperbag Waist Trousers',
-    description: 'Trendy paperbag waist trousers with a relaxed fit and tie belt. Perfect for creating a chic, effortless look.',
-    price: 89.99,
-    images: [
-      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=600&fit=crop'
-    ],
-    category: 'Trousers',
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Blush', 'Sage Green', 'Cream', 'Black'],
-    material: 'Linen Blend',
-    inStock: true,
-    stockCount: 28,
-    rating: 4.6,
-    reviewCount: 92,
-    tags: ['trendy', 'paperbag', 'relaxed'],
-    featured: false
-  },
-  {
-    id: '12',
-    name: 'Bootcut Jeans',
-    description: 'Classic bootcut jeans with a flattering fit through the hips and thighs. Slight flare at the bottom for a timeless silhouette.',
-    price: 74.99,
-    images: [
-      'https://images.unsplash.com/photo-1565084888279-aca607ecce0c?w=500&h=600&fit=crop'
-    ],
-    category: 'Jeans',
-    sizes: ['24', '26', '28', '30', '32', '34'],
-    colors: ['Medium Wash', 'Dark Wash', 'Light Wash'],
-    material: 'Cotton Denim',
-    inStock: true,
-    stockCount: 40,
-    rating: 4.4,
-    reviewCount: 123,
-    tags: ['bootcut', 'classic', 'flattering'],
-    featured: false
-  }
 ];
 
 export const mockBlogPosts: BlogPost[] = [
