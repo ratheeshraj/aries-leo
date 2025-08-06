@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { HeartIcon, ShoppingCartIcon, StarIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import type { Product } from '../../types';
 import { useAppContext } from '../../context/AppContext';
@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useAppContext();
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || '');
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || '');
+  const [selectedColor, setSelectedColor] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -47,6 +47,94 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const discountPercentage = hasDiscount 
     ? calculateDiscount(product.costPrice!, product.compareAtPrice || 0)
     : 0;
+
+  // Get available colors for the selected size
+  const getAvailableColorsForSize = (size: string): string[] => {
+    if (!product.inventory || !size) return product.colors || [];
+    
+    const availableColors = new Set<string>();
+    product.inventory.forEach(inv => {
+      if (inv.size === size && inv.color) {
+        // Convert hex color to color name if needed
+        let colorName = inv.color;
+        if (inv.color.startsWith('#')) {
+          const colorMap: { [key: string]: string } = {
+            '#000000': 'Black',
+            '#FFFFFF': 'White',
+            '#FF0000': 'Red',
+            '#00FF00': 'Green',
+            '#0000FF': 'Blue',
+            '#FFFF00': 'Yellow',
+            '#FF00FF': 'Magenta',
+            '#00FFFF': 'Cyan',
+            '#808080': 'Gray',
+            '#C0C0C0': 'Silver',
+            '#800000': 'Maroon',
+            '#808000': 'Olive',
+            '#008000': 'Green',
+            '#800080': 'Purple',
+            '#008080': 'Teal',
+            '#000080': 'Navy',
+            '#219091': 'Teal',
+            '#FFA500': 'Orange',
+            '#FFC0CB': 'Pink',
+            '#A52A2A': 'Brown',
+            '#FFD700': 'Gold',
+            '#FF6347': 'Tomato',
+            '#32CD32': 'Lime Green',
+            '#4169E1': 'Royal Blue',
+            '#8A2BE2': 'Blue Violet',
+            '#DC143C': 'Crimson',
+            '#00CED1': 'Dark Turquoise',
+            '#FF1493': 'Deep Pink',
+            '#228B22': 'Forest Green',
+            '#DAA520': 'Goldenrod',
+            '#FF69B4': 'Hot Pink',
+            '#4B0082': 'Indigo',
+            '#F0E68C': 'Khaki',
+            '#7CFC00': 'Lawn Green',
+            '#FF4500': 'Orange Red',
+            '#DA70D6': 'Orchid',
+            '#CD853F': 'Peru',
+            '#DDA0DD': 'Plum',
+            '#F5DEB3': 'Wheat',
+            '#FFB6C1': 'Light Pink',
+            '#87CEEB': 'Sky Blue',
+            '#98FB98': 'Pale Green',
+            '#FFA07A': 'Light Salmon',
+            '#20B2AA': 'Light Sea Green',
+            '#87CEFA': 'Light Sky Blue',
+            '#778899': 'Light Slate Gray',
+            '#B0C4DE': 'Light Steel Blue',
+            '#FFFFE0': 'Light Yellow',
+            '#EE82EE': 'Violet',
+          };
+          colorName = colorMap[inv.color.toUpperCase()] || inv.color;
+        }
+        availableColors.add(colorName);
+      }
+    });
+    
+    return Array.from(availableColors);
+  };
+
+  // Get available colors for current selected size
+  const availableColors = getAvailableColorsForSize(selectedSize);
+
+  // Update selected color when size changes or on initial load
+  useEffect(() => {
+    if (selectedSize && availableColors.length > 0) {
+      // If current selected color is not available for the new size, select the first available
+      if (!availableColors.includes(selectedColor)) {
+        setSelectedColor(availableColors[0]);
+      }
+    } else if (availableColors.length > 0 && selectedColor === '') {
+      // On initial load, select the first available color
+      setSelectedColor(availableColors[0]);
+    } else if (availableColors.length === 0) {
+      setSelectedColor('');
+    }
+  }, [selectedSize, availableColors]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -312,7 +400,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
 
             {/* Color Selection */}
-            {product.colors && product.colors.length > 0 && (
+            {availableColors && availableColors.length > 0 && (
               <div>
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Color:
@@ -327,7 +415,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   style={{ backgroundColor: 'white' }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {product.colors.map((color) => (
+                  {availableColors.map((color) => (
                     <option key={color} value={color}>
                       {color}
                     </option>

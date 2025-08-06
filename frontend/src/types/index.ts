@@ -70,6 +70,23 @@ export interface Product {
   rating?: number;
   reviewCount?: number;
   featured?: boolean;
+  inventory?: Array<{
+    _id: string;
+    product: string;
+    sku: string;
+    barcode: string;
+    stockQuantity: number;
+    trackInventory: boolean;
+    status: string;
+    color?: string;
+    size?: string;
+    isActive: boolean;
+    isDeleted: boolean;
+    business: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  }>;
 }
 
 export interface CartItem {

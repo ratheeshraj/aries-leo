@@ -6,7 +6,7 @@ const { getBbifyCategoryModel } = require("../config/db");
 const getSilkCollections = async (req, res) => {
   try {
     const CategoryBbify = getBbifyCategoryModel();
-    const businessId = "6856bf66d2b1c6054d2fe93b";
+    const businessId = "68905add43720ae25de1b80a";
     const silkCollections = await CategoryBbify.find({
       business: businessId,
       isDeleted: false,
@@ -25,7 +25,7 @@ const getSilkCollections = async (req, res) => {
 const getAllCategories = async (req, res) => {
   try {
     const CategoryBbify = getBbifyCategoryModel();
-    const businessId = "6856bf66d2b1c6054d2fe93b";
+    const businessId = "68905add43720ae25de1b80a";
     const categories = await CategoryBbify.find({
       business: businessId,
       isActive: true,

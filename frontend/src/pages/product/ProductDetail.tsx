@@ -84,6 +84,76 @@ function getSelectedInventory(inventory: InventoryItem[], size: string, color: s
   );
 }
 
+// Helper to get available colors for a specific size
+function getAvailableColorsForSize(inventory: InventoryItem[], size: string): string[] {
+  if (!inventory || !size) return [];
+  
+  const availableColors = new Set<string>();
+  inventory.forEach(inv => {
+    if (inv.size === size && inv.color) {
+      // Convert hex color to color name if needed
+      let colorName = inv.color;
+      if (inv.color.startsWith('#')) {
+        const colorMap: { [key: string]: string } = {
+          '#000000': 'Black',
+          '#FFFFFF': 'White',
+          '#FF0000': 'Red',
+          '#00FF00': 'Green',
+          '#0000FF': 'Blue',
+          '#FFFF00': 'Yellow',
+          '#FF00FF': 'Magenta',
+          '#00FFFF': 'Cyan',
+          '#808080': 'Gray',
+          '#C0C0C0': 'Silver',
+          '#800000': 'Maroon',
+          '#808000': 'Olive',
+          '#008000': 'Green',
+          '#800080': 'Purple',
+          '#008080': 'Teal',
+          '#000080': 'Navy',
+          '#219091': 'Teal',
+          '#FFA500': 'Orange',
+          '#FFC0CB': 'Pink',
+          '#A52A2A': 'Brown',
+          '#FFD700': 'Gold',
+          '#FF6347': 'Tomato',
+          '#32CD32': 'Lime Green',
+          '#4169E1': 'Royal Blue',
+          '#8A2BE2': 'Blue Violet',
+          '#DC143C': 'Crimson',
+          '#00CED1': 'Dark Turquoise',
+          '#FF1493': 'Deep Pink',
+          '#228B22': 'Forest Green',
+          '#DAA520': 'Goldenrod',
+          '#FF69B4': 'Hot Pink',
+          '#4B0082': 'Indigo',
+          '#F0E68C': 'Khaki',
+          '#7CFC00': 'Lawn Green',
+          '#FF4500': 'Orange Red',
+          '#DA70D6': 'Orchid',
+          '#CD853F': 'Peru',
+          '#DDA0DD': 'Plum',
+          '#F5DEB3': 'Wheat',
+          '#FFB6C1': 'Light Pink',
+          '#87CEEB': 'Sky Blue',
+          '#98FB98': 'Pale Green',
+          '#FFA07A': 'Light Salmon',
+          '#20B2AA': 'Light Sea Green',
+          '#87CEFA': 'Light Sky Blue',
+          '#778899': 'Light Slate Gray',
+          '#B0C4DE': 'Light Steel Blue',
+          '#FFFFE0': 'Light Yellow',
+          '#EE82EE': 'Violet',
+        };
+        colorName = colorMap[inv.color.toUpperCase()] || inv.color;
+      }
+      availableColors.add(colorName);
+    }
+  });
+  
+  return Array.from(availableColors);
+}
+
 const ProductDetail: React.FC = () => {
   useScrollToTop();
   
@@ -137,9 +207,7 @@ const ProductDetail: React.FC = () => {
         if (transformedProduct.sizes && transformedProduct.sizes.length > 0) {
           setSelectedSize(transformedProduct.sizes[0]);
         }
-        if (transformedProduct.colors && transformedProduct.colors.length > 0) {
-          setSelectedColor(transformedProduct.colors[0]);
-        }
+        // Color selection will be handled by useEffect based on selected size
         
         // Set max quantity based on inventory
         const inv = (response.data.inventory && response.data.inventory[0]) || null;
@@ -212,6 +280,31 @@ const ProductDetail: React.FC = () => {
     setMaxQuantity(inv && inv.stockQuantity ? inv.stockQuantity : 1);
     setQuantity((q) => Math.min(q, inv && inv.stockQuantity ? inv.stockQuantity : 1));
   }, [selectedSize, selectedColor, inventory]);
+
+  // Update selected color when size changes or on initial load
+  useEffect(() => {
+    if (selectedSize && inventory.length > 0) {
+      const availableColors = getAvailableColorsForSize(inventory, selectedSize);
+      if (availableColors.length > 0) {
+        // If current selected color is not available for the new size, select the first available
+        if (!availableColors.includes(selectedColor)) {
+          setSelectedColor(availableColors[0]);
+        }
+      } else if (selectedColor !== '') {
+        // If no colors available for this size, clear the selection
+        setSelectedColor('');
+      }
+    } else if (inventory.length > 0 && selectedColor === '' && selectedSize === '') {
+      // On initial load, select the first available color for the first size
+      const firstSize = inventory.find(inv => inv.size)?.size;
+      if (firstSize) {
+        const availableColors = getAvailableColorsForSize(inventory, firstSize);
+        if (availableColors.length > 0) {
+          setSelectedColor(availableColors[0]);
+        }
+      }
+    }
+  }, [selectedSize, inventory]);
 
   if (isLoading) {
     return (
@@ -418,7 +511,7 @@ const ProductDetail: React.FC = () => {
 
   // Extract sizes and colors from inventory
   const inventorySizes = Array.from(new Set(inventory.map(item => item.size).filter(Boolean)));
-  const inventoryColors = Array.from(new Set(inventory.map(item => item.color).filter(Boolean)));
+  const inventoryColors = getAvailableColorsForSize(inventory, selectedSize);
 
   // Quantity change handlers with validation
   const handleDecreaseQuantity = () => {
@@ -641,17 +734,21 @@ const ProductDetail: React.FC = () => {
                   {inventoryColors.map(color => (
                     <button
                       key={color}
-                      onClick={() => setSelectedColor(color!)}
+                      onClick={() => setSelectedColor(color)}
                       className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
                         selectedColor === color
                           ? 'bg-accent-rose text-white border-accent-rose'
                           : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium'
                       }`}
                     >
-                      {isHexColor(color!) ? (
-                        <span className="inline-block w-5 h-5 rounded-full border mr-2 align-middle" style={{ backgroundColor: color! }}></span>
-                      ) : null}
-                      {isHexColor(color!) ? hexToColorName(color!).toUpperCase() : color!.toUpperCase()}
+                      {color.startsWith('#') ? (
+                        <>
+                          <span className="inline-block w-5 h-5 rounded-full border mr-2 align-middle" style={{ backgroundColor: color }}></span>
+                          {hexToColorName(color).toUpperCase()}
+                        </>
+                      ) : (
+                        color.toUpperCase()
+                      )}
                     </button>
                   ))}
                 </div>

@@ -6,6 +6,7 @@ const {
   getUserProfile,
   updateUserProfile,
   addUserAddress,
+  deleteUserAddress,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -18,6 +19,9 @@ router.route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
 
-router.post('/address', protect, addUserAddress);
+router.route('/address')
+  .post(protect, addUserAddress);
+
+router.delete('/address/:addressId', protect, deleteUserAddress);
 
 module.exports = router;

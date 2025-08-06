@@ -94,10 +94,13 @@ const Shop: React.FC = () => {
       };
 
       const response = await productAPI.getProducts(apiFilters);
-      console.log('Fetched products:', response.products);
+      console.log('Fetched products:', response);
       
-      // Transform backend products to frontend format
-      const transformedProducts = transformProducts(response.products || []);
+      // Transform backend products to frontend format, including inventory data
+      const transformedProducts = transformProducts(
+        response.products || [], 
+        response.inventories || []
+      );
       setProducts(transformedProducts);
     } catch (err) {
       console.error('Error fetching products:', err);

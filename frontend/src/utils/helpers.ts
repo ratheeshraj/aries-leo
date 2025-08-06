@@ -203,7 +203,95 @@ export const storage = {
 };
 
 // Transform backend product to frontend format
-export const transformProduct = (backendProduct: any): Product => {
+export const transformProduct = (backendProduct: any, inventories?: any[]): Product => {
+  // Extract sizes and colors from inventory
+  let sizes: string[] = [];
+  let colors: string[] = [];
+  let productInventory: any[] = [];
+  
+  if (inventories && inventories.length > 0) {
+    // Filter inventories for this product
+    productInventory = inventories.filter(inv => inv.product === backendProduct._id);
+    
+    // Extract unique sizes and colors
+    const uniqueSizes = new Set<string>();
+    const uniqueColors = new Set<string>();
+    
+    productInventory.forEach(inv => {
+      if (inv.size) {
+        uniqueSizes.add(inv.size);
+      }
+      if (inv.color) {
+        // Convert hex color to color name if possible
+        if (inv.color.startsWith('#')) {
+          try {
+            // Enhanced hex to color name mapping
+            const colorMap: { [key: string]: string } = {
+              '#000000': 'Black',
+              '#FFFFFF': 'White',
+              '#FF0000': 'Red',
+              '#00FF00': 'Green',
+              '#0000FF': 'Blue',
+              '#FFFF00': 'Yellow',
+              '#FF00FF': 'Magenta',
+              '#00FFFF': 'Cyan',
+              '#808080': 'Gray',
+              '#C0C0C0': 'Silver',
+              '#800000': 'Maroon',
+              '#808000': 'Olive',
+              '#008000': 'Green',
+              '#800080': 'Purple',
+              '#008080': 'Teal',
+              '#000080': 'Navy',
+              '#219091': 'Teal', // From the example data
+              '#FFA500': 'Orange',
+              '#FFC0CB': 'Pink',
+              '#A52A2A': 'Brown',
+              '#FFD700': 'Gold',
+              '#FF6347': 'Tomato',
+              '#32CD32': 'Lime Green',
+              '#4169E1': 'Royal Blue',
+              '#8A2BE2': 'Blue Violet',
+              '#DC143C': 'Crimson',
+              '#00CED1': 'Dark Turquoise',
+              '#FF1493': 'Deep Pink',
+              '#228B22': 'Forest Green',
+              '#DAA520': 'Goldenrod',
+              '#FF69B4': 'Hot Pink',
+              '#4B0082': 'Indigo',
+              '#F0E68C': 'Khaki',
+              '#7CFC00': 'Lawn Green',
+              '#FF4500': 'Orange Red',
+              '#DA70D6': 'Orchid',
+              '#CD853F': 'Peru',
+              '#DDA0DD': 'Plum',
+              '#F5DEB3': 'Wheat',
+              '#FFB6C1': 'Light Pink',
+              '#87CEEB': 'Sky Blue',
+              '#98FB98': 'Pale Green',
+              '#FFA07A': 'Light Salmon',
+              '#20B2AA': 'Light Sea Green',
+              '#87CEFA': 'Light Sky Blue',
+              '#778899': 'Light Slate Gray',
+              '#B0C4DE': 'Light Steel Blue',
+              '#FFFFE0': 'Light Yellow',
+              '#EE82EE': 'Violet',
+            };
+            const colorName = colorMap[inv.color.toUpperCase()] || inv.color;
+            uniqueColors.add(colorName);
+          } catch {
+            uniqueColors.add(inv.color);
+          }
+        } else {
+          uniqueColors.add(inv.color);
+        }
+      }
+    });
+    
+    sizes = Array.from(uniqueSizes);
+    colors = Array.from(uniqueColors);
+  }
+
   return {
     ...backendProduct,
     id: backendProduct._id, // Add id for compatibility
@@ -214,12 +302,13 @@ export const transformProduct = (backendProduct: any): Product => {
     stockCount: 0, // Default since backend doesn't have this field
     rating: 0, // Default since backend doesn't have this field
     reviewCount: 0, // Default since backend doesn't have this field
-    sizes: [], // Default since backend doesn't have this field
-    colors: [], // Default since backend doesn't have this field
+    sizes: sizes, // Use extracted sizes from inventory
+    colors: colors, // Use extracted colors from inventory
+    inventory: productInventory, // Store actual inventory data for filtering
   };
 };
 
 // Transform backend products array to frontend format
-export const transformProducts = (backendProducts: any[]): Product[] => {
-  return backendProducts.map(transformProduct);
+export const transformProducts = (backendProducts: any[], inventories?: any[]): Product[] => {
+  return backendProducts.map(product => transformProduct(product, inventories));
 };

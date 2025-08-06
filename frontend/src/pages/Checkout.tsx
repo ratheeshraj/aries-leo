@@ -10,6 +10,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { formatCurrency, calculateShipping, calculateTax } from '../utils/helpers';
+import { orderAPI } from '../utils/api';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import type { ShippingAddress, Product } from '../types';
@@ -23,7 +24,7 @@ interface CheckoutStep {
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, clearCart } = useAppContext();
+  const { cart, clearCart, token, isAuthenticated } = useAppContext();
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -72,6 +73,13 @@ const Checkout: React.FC = () => {
       navigate('/cart');
     }
   }, [cart.items, navigate, orderComplete]);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Calculate totals
   const subtotal = cart.items.reduce((sum: number, item: { product: Product; quantity: number }) => sum + ((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity), 0);
@@ -128,11 +136,43 @@ const Checkout: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Simulate order processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate order number
-      const newOrderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const orderData = {
+        orderItems: cart.items.map((item: { product: Product; quantity: number }) => ({
+          name: item.product.name,
+          qty: item.quantity,
+          image: Array.isArray(item.product.images) && item.product.images.length > 0
+            ? (typeof item.product.images[0] === 'string' 
+                ? item.product.images[0] 
+                : item.product.images[0].original || item.product.images[0].medium || item.product.images[0].thumb)
+            : '/placeholder-product.jpg',
+          price: item.product.compareAtPrice || item.product.costPrice || 0,
+          salePrice: item.product.salePrice || 0,
+          discountPercentage: 0, // Will be calculated by backend if needed
+          inventory: item.product._id, // Using _id as inventory reference
+        })),
+        shippingAddress: {
+          firstName: shippingAddress.firstName,
+          lastName: shippingAddress.lastName,
+          street: shippingAddress.address1,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          postalCode: shippingAddress.postalCode,
+          country: shippingAddress.country,
+          phone: shippingAddress.phone,
+        },
+        paymentMethod: paymentMethod === 'card' ? 'Razorpay' : paymentMethod,
+        itemsPrice: subtotal,
+        taxPrice: 0, // Will be calculated by backend
+        shippingPrice: shipping,
+        totalPrice: total,
+      };
+
+      const response = await orderAPI.createOrder(orderData, token);
+      const newOrderNumber = response._id || `ORD-${Date.now()}`;
       setOrderNumber(newOrderNumber);
       
       // Clear cart and show success

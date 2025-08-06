@@ -102,6 +102,24 @@ export const authAPI = {
 
     return response.json();
   },
+
+  // Delete user address (requires authentication)
+  deleteAddress: async (token: string, addressId: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/address/${addressId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to delete address');
+    }
+
+    return response.json();
+  },
 };
 
 // Product API functions
@@ -311,6 +329,64 @@ export const reviewAPI = {
   },
 };
 
+// Order API functions
+export const orderAPI = {
+  // Create a new order
+  createOrder: async (orderData: any, token: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create order');
+    }
+
+    return response.json();
+  },
+
+  // Get user's orders
+  getMyOrders: async (token: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders/myorders`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch orders');
+    }
+
+    return response.json();
+  },
+
+  // Get order by ID
+  getOrderById: async (orderId: string, token: string) => {
+    const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch order');
+    }
+
+    return response.json();
+  },
+};
+
 // Legacy API functions - keeping for backward compatibility
 export const api = {
   // Products - now using real API
@@ -341,12 +417,12 @@ export const api = {
     return reviewAPI.getReviews(productId);
   },
 
-  // Orders
-  createOrder: async (orderData: any) => {
-    // TODO: Replace with actual API call
-    // return fetch(`${API_BASE_URL}/orders`, { method: 'POST', ... });
-    console.log('Mock API: createOrder called with orderData:', orderData);
-    return new Promise(resolve => setTimeout(resolve, 500));
+  // Orders - now using real API
+  createOrder: async (orderData: any, token?: string) => {
+    if (!token) {
+      throw new Error('Authentication token required');
+    }
+    return orderAPI.createOrder(orderData, token);
   },
 
   // Newsletter - now using real API

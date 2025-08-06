@@ -167,10 +167,47 @@ const addUserAddress = async (req, res) => {
   }
 };
 
+// @desc    Delete user address
+// @route   DELETE /api/auth/address/:addressId
+// @access  Private
+const deleteUserAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const { addressId } = req.params;
+
+    if (!user) {
+      res.status(404);
+      throw new Error('User not found');
+    }
+
+    // Find the address index using the _id
+    const addressIndex = user.addresses.findIndex(
+      address => address._id.toString() === addressId
+    );
+
+    if (addressIndex === -1) {
+      res.status(404);
+      throw new Error('Address not found');
+    }
+
+    // Remove the address from the array
+    user.addresses.splice(addressIndex, 1);
+    await user.save();
+    
+    res.json({ 
+      message: 'Address deleted successfully', 
+      addresses: user.addresses 
+    });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
 module.exports = {
   loginUser,
   registerUser,
   getUserProfile,
   updateUserProfile,
   addUserAddress,
+  deleteUserAddress,
 };

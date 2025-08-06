@@ -70,7 +70,7 @@ const getProducts = async (req, res) => {
     const InventoryBbify = getBbifyInventoryModel();
     const CategoryBbify = getBbifyCategoryModel();
 
-    const businessId = "6856bf66d2b1c6054d2fe93b";
+    const businessId = "68905add43720ae25de1b80a";
 
     // Fetch products, inventories, and categories for the specific business
     const [products, inventories, categories] = await Promise.all([
