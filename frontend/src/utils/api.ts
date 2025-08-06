@@ -1,3 +1,5 @@
+import type { ContactFormData, ContactSubmission } from '../types';
+
 // API base URL - ready for backend integration
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -126,21 +128,39 @@ export const authAPI = {
 export const productAPI = {
   // Get all products with optional filters
   getProducts: async (filters?: {
-    category?: string;
+    category?: string | string[];
     priceRange?: [number, number];
     sizes?: string[];
     colors?: string[];
     inStock?: boolean;
     rating?: number;
     onSale?: boolean;
+    featured?: boolean;
+    newArrivals?: boolean;
     search?: string;
+    material?: string[];
+    brand?: string[];
+    gender?: string[];
+    status?: string[];
   }) => {
     const params = new URLSearchParams();
     
-    if (filters?.category) params.append('category', filters.category);
+    // Handle category - can be string or array
+    if (filters?.category) {
+      if (Array.isArray(filters.category)) {
+        if (filters.category.length > 0) {
+          params.append('category', filters.category.join(','));
+        }
+      } else {
+        params.append('category', filters.category);
+      }
+    }
+    
     if (filters?.search) params.append('search', filters.search);
     if (filters?.inStock) params.append('inStock', 'true');
     if (filters?.onSale) params.append('onSale', 'true');
+    if (filters?.featured) params.append('featured', 'true');
+    if (filters?.newArrivals) params.append('newArrivals', 'true');
     if (filters?.rating) params.append('rating', filters.rating.toString());
     if (filters?.priceRange) {
       params.append('minPrice', filters.priceRange[0].toString());
@@ -148,6 +168,10 @@ export const productAPI = {
     }
     if (filters?.sizes?.length) params.append('sizes', filters.sizes.join(','));
     if (filters?.colors?.length) params.append('colors', filters.colors.join(','));
+    if (filters?.material?.length) params.append('material', filters.material.join(','));
+    if (filters?.brand?.length) params.append('brand', filters.brand.join(','));
+    if (filters?.gender?.length) params.append('gender', filters.gender.join(','));
+    if (filters?.status?.length) params.append('status', filters.status.join(','));
 
     const url = `${API_BASE_URL}/products${params.toString() ? `?${params.toString()}` : ''}`;
     
@@ -387,6 +411,100 @@ export const orderAPI = {
   },
 };
 
+// Contact API functions
+export const contactAPI = {
+  // Submit a contact form
+  submitContactForm: async (formData: ContactFormData) => {
+    const response = await fetch(`${API_BASE_URL}/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to submit contact form');
+    }
+
+    return response.json();
+  },
+
+  // Get all contact submissions (admin only)
+  getAllContacts: async (token: string): Promise<{ success: boolean; count: number; contacts: ContactSubmission[] }> => {
+    const response = await fetch(`${API_BASE_URL}/contact`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch contacts');
+    }
+
+    return response.json();
+  },
+
+  // Get a single contact submission by ID (admin only)
+  getContactById: async (contactId: string, token: string): Promise<{ success: boolean; contact: ContactSubmission }> => {
+    const response = await fetch(`${API_BASE_URL}/contact/${contactId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch contact');
+    }
+
+    return response.json();
+  },
+
+  // Update contact status (admin only)
+  updateContactStatus: async (contactId: string, status: ContactSubmission['status'], token: string): Promise<{ success: boolean; message: string; contact: ContactSubmission }> => {
+    const response = await fetch(`${API_BASE_URL}/contact/${contactId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update contact status');
+    }
+
+    return response.json();
+  },
+
+  // Delete a contact submission (admin only)
+  deleteContact: async (contactId: string, token: string): Promise<{ success: boolean; message: string }> => {
+    const response = await fetch(`${API_BASE_URL}/contact/${contactId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to delete contact');
+    }
+
+    return response.json();
+  },
+};
+
 // Legacy API functions - keeping for backward compatibility
 export const api = {
   // Products - now using real API
@@ -432,9 +550,6 @@ export const api = {
 
   // Contact
   sendContactForm: async (formData: any) => {
-    // TODO: Replace with actual API call
-    // return fetch(`${API_BASE_URL}/contact`, { method: 'POST', ... });
-    console.log('Mock API: sendContactForm called with formData:', formData);
-    return new Promise(resolve => setTimeout(resolve, 500));
+    return contactAPI.submitContactForm(formData);
   }
 };

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AdjustmentsHorizontalIcon, 
@@ -13,8 +13,7 @@ import {
   FireIcon,
   TagIcon
 } from '@heroicons/react/24/outline';
-import { productCategories } from '../../data/mockData';
-import { sortProducts, transformProducts } from '../../utils/helpers';
+import { sortProducts, transformProducts, hexToColorName } from '../../utils/helpers';
 import { useScrollToTop } from '../../hooks/useScrollToTop';
 import ProductCard from '../../components/product/ProductCard';
 import Button from '../../components/ui/Button';
@@ -22,7 +21,7 @@ import { productAPI } from '../../utils/api';
 import type { Product } from '../../types';
 
 interface ShopFilters {
-  category: string;
+  category: string[];
   priceRange: [number, number];
   sizes: string[];
   colors: string[];
@@ -31,13 +30,51 @@ interface ShopFilters {
   onSale: boolean;
   featured: boolean;
   newArrivals: boolean;
-  material: string;
-  brand: string;
+  material: string[];
+  brand: string[];
+  gender: string[];
+  status: string[];
 }
 
 type SortOption = 'name' | 'price_low_high' | 'price_high_low' | 'rating' | 'newest' | 'popularity' | 'featured';
 
 const PRODUCTS_PER_PAGE = 12;
+
+// Memoized FilterSection component
+const FilterSection = memo<{ title: string; children: React.ReactNode; filterKey: string; isExpanded: boolean; onToggle: (key: string) => void }>(
+  ({ title, children, filterKey, isExpanded, onToggle }) => {
+    return (
+      <div className="mb-6 border-b border-gray-200 pb-4 last:border-b-0">
+        <button
+          onClick={() => onToggle(filterKey)}
+          className="flex items-center justify-between w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors group"
+        >
+          <label className="block text-sm font-semibold text-gray-900 group-hover:text-gray-700">{title}</label>
+          {isExpanded ? (
+            <ChevronUpIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
+          ) : (
+            <ChevronDownIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-700 transition-colors" />
+          )}
+        </button>
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              className="mt-3"
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+);
+
+FilterSection.displayName = 'FilterSection';
 
 const Shop: React.FC = () => {
   useScrollToTop();
@@ -49,12 +86,13 @@ const Shop: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(new Set(['category', 'price']));
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Array<{_id: string, name: string}>>([]);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   const [filters, setFilters] = useState<ShopFilters>({
-    category: '',
-    priceRange: [0, 1000],
+    category: [],
+    priceRange: [0, 10000],
     sizes: [],
     colors: [],
     inStock: false,
@@ -62,35 +100,92 @@ const Shop: React.FC = () => {
     onSale: false,
     featured: false,
     newArrivals: false,
-    material: '',
-    brand: '',
+    material: [],
+    brand: [],
+    gender: [],
+    status: [],
   });
 
-  const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '24', '26', '28', '30', '32', '34'];
-  const availableColors = [
-    'Black', 'Navy', 'Gray', 'Charcoal', 'White', 'Cream', 
-    'Dusty Rose', 'Blush', 'Sage Green', 'Terracotta', 
-    'Denim Blue', 'Khaki', 'Beige', 'Burgundy', 'Olive'
-  ];
-  const availableMaterials = ['Cotton', 'Polyester', 'Silk', 'Wool', 'Linen', 'Denim', 'Velvet', 'Satin'];
-  const availableBrands = ['Aries Leo', 'Premium Collection', 'Essentials', 'Luxury Line'];
+  // Use refs to track the latest state for API calls
+  const filtersRef = useRef(filters);
+  const searchQueryRef = useRef(searchQuery);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isFetchingRef = useRef(false);
+  const debouncedFetchProductsRef = useRef<(() => void) | null>(null);
+
+  // Update refs when state changes
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  useEffect(() => {
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+
+  // Extract available options from products data
+  const availableOptions = useMemo(() => {
+    const sizes = new Set<string>();
+    const colors = new Set<string>();
+    const materials = new Set<string>();
+    const brands = new Set<string>();
+    const genders = new Set<string>();
+    const statuses = new Set<string>();
+
+    products.forEach(product => {
+      // Extract sizes and colors from inventory
+      if (product.inventory) {
+        product.inventory.forEach((inv: any) => {
+          if (inv.size) sizes.add(inv.size);
+          if (inv.color) {
+            const colorName = hexToColorName(inv.color);
+            colors.add(colorName);
+          }
+        });
+      }
+
+      // Extract other properties
+      if (product.material) materials.add(product.material);
+      if (product.brand) brands.add(product.brand);
+      if (product.gender) genders.add(product.gender);
+      if (product.status) statuses.add(product.status);
+    });
+
+    return {
+      sizes: Array.from(sizes).sort(),
+      colors: Array.from(colors).sort(),
+      materials: Array.from(materials).sort(),
+      brands: Array.from(brands).sort(),
+      genders: Array.from(genders).sort(),
+      statuses: Array.from(statuses).sort(),
+    };
+  }, [products]);
 
   // Fetch products from API
   const fetchProducts = useCallback(async () => {
+    if (isFetchingRef.current) return; // Prevent multiple simultaneous requests
+    
+    isFetchingRef.current = true;
     setIsLoading(true);
     setError(null);
     
     try {
+      const currentFilters = filtersRef.current;
+      const currentSearchQuery = searchQueryRef.current;
+      
       const apiFilters = {
-        category: filters.category || undefined,
-        priceRange: filters.priceRange,
-        sizes: filters.sizes.length > 0 ? filters.sizes : undefined,
-        colors: filters.colors.length > 0 ? filters.colors : undefined,
-        inStock: filters.inStock || undefined,
-        rating: filters.rating > 0 ? filters.rating : undefined,
-        onSale: filters.onSale || undefined,
-        featured: filters.featured || undefined,
-        search: searchQuery || undefined,
+        category: currentFilters.category.length > 0 ? currentFilters.category : undefined,
+        priceRange: currentFilters.priceRange,
+        sizes: currentFilters.sizes.length > 0 ? currentFilters.sizes : undefined,
+        colors: currentFilters.colors.length > 0 ? currentFilters.colors : undefined,
+        inStock: currentFilters.inStock || undefined,
+        rating: currentFilters.rating > 0 ? currentFilters.rating : undefined,
+        onSale: currentFilters.onSale || undefined,
+        featured: currentFilters.featured || undefined,
+        search: currentSearchQuery || undefined,
+        material: currentFilters.material.length > 0 ? currentFilters.material : undefined,
+        brand: currentFilters.brand.length > 0 ? currentFilters.brand : undefined,
+        gender: currentFilters.gender.length > 0 ? currentFilters.gender : undefined,
+        status: currentFilters.status.length > 0 ? currentFilters.status : undefined,
       };
 
       const response = await productAPI.getProducts(apiFilters);
@@ -102,19 +197,48 @@ const Shop: React.FC = () => {
         response.inventories || []
       );
       setProducts(transformedProducts);
+      
+      // Set categories from response
+      if (response.categories) {
+        setCategories(response.categories);
+      }
     } catch (err) {
       console.error('Error fetching products:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
       setProducts([]);
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
-  }, [filters, searchQuery]);
+  }, []);
+
+  // Debounced fetch products
+  const debouncedFetchProducts = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      fetchProducts();
+    }, 300); // Increased debounce time for better performance
+  }, [fetchProducts]);
+
+  // Update the ref with the latest debounced function
+  useEffect(() => {
+    debouncedFetchProductsRef.current = debouncedFetchProducts;
+  }, [debouncedFetchProducts]);
 
   // Fetch products on component mount and when filters change
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    if (debouncedFetchProductsRef.current) {
+      debouncedFetchProductsRef.current();
+    }
+    
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [filters, searchQuery]);
 
   // Enhanced filtering and sorting with loading simulation
   const filteredAndSortedProducts = useMemo(() => {
@@ -130,46 +254,78 @@ const Shop: React.FC = () => {
     }
 
     // Apply category filter
-    if (filters.category) {
-      filteredProducts = filteredProducts.filter(product => product.category === filters.category);
+    if (filters.category.length > 0) {
+      filteredProducts = filteredProducts.filter(product => 
+        filters.category.some(cat => {
+          // Convert both category values to strings for comparison
+          const productCategory = String(product.category || '');
+          const filterCategory = String(cat);
+          return productCategory === filterCategory;
+        })
+      );
     }
 
     // Apply price range filter
-    filteredProducts = filteredProducts.filter(product => 
-      (product.price || 0) >= filters.priceRange[0] && (product.price || 0) <= filters.priceRange[1]
-    );
+    filteredProducts = filteredProducts.filter(product => {
+      const price = product.price || product.retailPrice || 0;
+      return price >= filters.priceRange[0] && price <= filters.priceRange[1];
+    });
 
     // Apply size filter
     if (filters.sizes.length > 0) {
       filteredProducts = filteredProducts.filter(product => 
-        product.sizes && product.sizes.some(size => filters.sizes.includes(size))
+        product.inventory && product.inventory.some((inv: any) => 
+          inv.size && filters.sizes.includes(inv.size)
+        )
       );
     }
 
     // Apply color filter
     if (filters.colors.length > 0) {
       filteredProducts = filteredProducts.filter(product => 
-        product.colors && product.colors.some(color => filters.colors.includes(color))
+        product.inventory && product.inventory.some((inv: any) => {
+          if (!inv.color) return false;
+          const colorName = hexToColorName(inv.color);
+          return filters.colors.includes(colorName);
+        })
       );
     }
 
     // Apply material filter
-    if (filters.material) {
+    if (filters.material.length > 0) {
       filteredProducts = filteredProducts.filter(product => 
-        product.material && product.material.toLowerCase().includes(filters.material.toLowerCase())
+        filters.material.some(mat => product.material && product.material.toLowerCase().includes(mat.toLowerCase()))
       );
     }
 
     // Apply brand filter
-    if (filters.brand) {
+    if (filters.brand.length > 0) {
       filteredProducts = filteredProducts.filter(product => 
-        product.brand && product.brand.toLowerCase().includes(filters.brand.toLowerCase())
+        filters.brand.some(brand => product.brand && product.brand.toLowerCase().includes(brand.toLowerCase()))
       );
     }
 
-    // Apply in stock filter only when explicitly checked
+    // Apply gender filter
+    if (filters.gender.length > 0) {
+      filteredProducts = filteredProducts.filter(product => 
+        filters.gender.some(gender => product.gender && product.gender.toLowerCase() === gender.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (filters.status.length > 0) {
+      filteredProducts = filteredProducts.filter(product => 
+        filters.status.some(status => product.status && product.status.toLowerCase() === status.toLowerCase())
+      );
+    }
+
+    // Apply in stock filter
     if (filters.inStock) {
-      filteredProducts = filteredProducts.filter(product => product.inStock === true);
+      filteredProducts = filteredProducts.filter(product => 
+        product.inventory && product.inventory.some((inv: any) => 
+          inv.stockQuantity > 0 && inv.status === 'inStock'
+        )
+      );
     }
 
     // Apply rating filter
@@ -179,12 +335,14 @@ const Shop: React.FC = () => {
 
     // Apply sale filter
     if (filters.onSale) {
-      filteredProducts = filteredProducts.filter(product => product.originalPrice && product.originalPrice > (product.price || 0));
+      filteredProducts = filteredProducts.filter(product => 
+        product.salePrice && product.salePrice > 0 && product.salePrice < (product.retailPrice || 0)
+      );
     }
 
     // Apply featured filter
     if (filters.featured) {
-      filteredProducts = filteredProducts.filter(product => product.featured === true);
+      filteredProducts = filteredProducts.filter(product => product.isFeatured === true);
     }
 
     // Apply new arrivals filter
@@ -213,43 +371,118 @@ const Shop: React.FC = () => {
     setCurrentPage(1);
   }, [searchQuery, filters, sortBy]);
 
-  // Simulate loading when changing filters or page
-  const handleAsyncUpdate = useCallback((updateFn: () => void) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      updateFn();
-      setIsLoading(false);
-    }, 300);
+  const handleFilterChange = useCallback((key: keyof ShopFilters, value: any) => {
+    setFilters(prev => {
+      // Only update if the value is actually different
+      if (JSON.stringify(prev[key]) === JSON.stringify(value)) {
+        return prev;
+      }
+      return { ...prev, [key]: value };
+    });
   }, []);
 
-  const handleFilterChange = (key: keyof ShopFilters, value: any) => {
-    handleAsyncUpdate(() => {
-      setFilters(prev => ({ ...prev, [key]: value }));
-    });
-  };
-
-  const handleSizeToggle = (size: string) => {
-    setFilters(prev => ({
-      ...prev,
-      sizes: prev.sizes.includes(size)
+  const handleSizeToggle = useCallback((size: string) => {
+    setFilters(prev => {
+      const newSizes = prev.sizes.includes(size)
         ? prev.sizes.filter(s => s !== size)
-        : [...prev.sizes, size]
-    }));
-  };
+        : [...prev.sizes, size];
+      
+      // Only update if the sizes array actually changed
+      if (JSON.stringify(prev.sizes) === JSON.stringify(newSizes)) {
+        return prev;
+      }
+      return { ...prev, sizes: newSizes };
+    });
+  }, []);
 
-  const handleColorToggle = (color: string) => {
-    setFilters(prev => ({
-      ...prev,
-      colors: prev.colors.includes(color)
+  const handleColorToggle = useCallback((color: string) => {
+    setFilters(prev => {
+      const newColors = prev.colors.includes(color)
         ? prev.colors.filter(c => c !== color)
-        : [...prev.colors, color]
-    }));
-  };
+        : [...prev.colors, color];
+      
+      // Only update if the colors array actually changed
+      if (JSON.stringify(prev.colors) === JSON.stringify(newColors)) {
+        return prev;
+      }
+      return { ...prev, colors: newColors };
+    });
+  }, []);
 
-  const clearFilters = () => {
+  const handleCategoryToggle = useCallback((categoryId: string) => {
+    setFilters(prev => {
+      const newCategories = prev.category.includes(categoryId)
+        ? prev.category.filter(c => c !== categoryId)
+        : [...prev.category, categoryId];
+      
+      // Only update if the category array actually changed
+      if (JSON.stringify(prev.category) === JSON.stringify(newCategories)) {
+        return prev;
+      }
+      return { ...prev, category: newCategories };
+    });
+  }, []);
+
+  const handleBrandToggle = useCallback((brand: string) => {
+    setFilters(prev => {
+      const newBrands = prev.brand.includes(brand)
+        ? prev.brand.filter(b => b !== brand)
+        : [...prev.brand, brand];
+      
+      // Only update if the brand array actually changed
+      if (JSON.stringify(prev.brand) === JSON.stringify(newBrands)) {
+        return prev;
+      }
+      return { ...prev, brand: newBrands };
+    });
+  }, []);
+
+  const handleGenderToggle = useCallback((gender: string) => {
+    setFilters(prev => {
+      const newGenders = prev.gender.includes(gender)
+        ? prev.gender.filter(g => g !== gender)
+        : [...prev.gender, gender];
+      
+      // Only update if the gender array actually changed
+      if (JSON.stringify(prev.gender) === JSON.stringify(newGenders)) {
+        return prev;
+      }
+      return { ...prev, gender: newGenders };
+    });
+  }, []);
+
+  const handleStatusToggle = useCallback((status: string) => {
+    setFilters(prev => {
+      const newStatuses = prev.status.includes(status)
+        ? prev.status.filter(s => s !== status)
+        : [...prev.status, status];
+      
+      // Only update if the status array actually changed
+      if (JSON.stringify(prev.status) === JSON.stringify(newStatuses)) {
+        return prev;
+      }
+      return { ...prev, status: newStatuses };
+    });
+  }, []);
+
+  const handleMaterialToggle = useCallback((material: string) => {
+    setFilters(prev => {
+      const newMaterials = prev.material.includes(material)
+        ? prev.material.filter(m => m !== material)
+        : [...prev.material, material];
+      
+      // Only update if the material array actually changed
+      if (JSON.stringify(prev.material) === JSON.stringify(newMaterials)) {
+        return prev;
+      }
+      return { ...prev, material: newMaterials };
+    });
+  }, []);
+
+  const clearFilters = useCallback(() => {
     setFilters({
-      category: '',
-      priceRange: [0, 1000],
+      category: [],
+      priceRange: [0, 10000],
       sizes: [],
       colors: [],
       inStock: false,
@@ -257,14 +490,16 @@ const Shop: React.FC = () => {
       onSale: false,
       featured: false,
       newArrivals: false,
-      material: '',
-      brand: '',
+      material: [],
+      brand: [],
+      gender: [],
+      status: [],
     });
     setSearchQuery('');
     setCurrentPage(1);
-  };
+  }, []);
 
-  const toggleFilterExpansion = (filterName: string) => {
+  const toggleFilterExpansion = useCallback((filterName: string) => {
     setExpandedFilters(prev => {
       const newExpanded = new Set(prev);
       if (newExpanded.has(filterName)) {
@@ -274,10 +509,10 @@ const Shop: React.FC = () => {
       }
       return newExpanded;
     });
-  };
+  }, []);
 
-  const activeFiltersCount = 
-    (filters.category ? 1 : 0) +
+  const activeFiltersCount = useMemo(() => 
+    (filters.category.length > 0 ? 1 : 0) +
     (filters.sizes.length > 0 ? 1 : 0) +
     (filters.colors.length > 0 ? 1 : 0) +
     (filters.inStock ? 1 : 0) +
@@ -285,41 +520,69 @@ const Shop: React.FC = () => {
     (filters.onSale ? 1 : 0) +
     (filters.featured ? 1 : 0) +
     (filters.newArrivals ? 1 : 0) +
-    (filters.material ? 1 : 0) +
-    (filters.brand ? 1 : 0);
+    (filters.material.length > 0 ? 1 : 0) +
+    (filters.brand.length > 0 ? 1 : 0) +
+    (filters.gender.length > 0 ? 1 : 0) +
+    (filters.status.length > 0 ? 1 : 0), [filters]);
 
-  const FilterSection: React.FC<{ title: string; children: React.ReactNode; filterKey: string }> = ({ title, children, filterKey }) => {
-    const isExpanded = expandedFilters.has(filterKey);
-    
-    return (
-      <div className="mb-6 border-b border-gray-200 pb-4">
-        <button
-          onClick={() => toggleFilterExpansion(filterKey)}
-          className="flex items-center justify-between w-full text-left"
-        >
-          <label className="block text-sm font-medium text-gray-700">{title}</label>
-          {isExpanded ? (
-            <ChevronUpIcon className="w-4 h-4 text-gray-500" />
-          ) : (
-            <ChevronDownIcon className="w-4 h-4 text-gray-500" />
-          )}
-        </button>
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="mt-3"
-            >
-              {children}
-            </motion.div>
-          )}
-        </AnimatePresence>
+  // Memoize filter options to prevent unnecessary re-renders
+  const memoizedFilterOptions = useMemo(() => ({
+    categories,
+    availableOptions,
+    expandedFilters,
+  }), [categories, availableOptions, expandedFilters]);
+
+  // Memoize filter section content to prevent unnecessary re-renders
+  const memoizedFilterContent = useMemo(() => ({
+    categoryContent: (
+      <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+          <input
+            type="checkbox"
+            checked={filters.category.length === 0}
+            onChange={() => handleFilterChange('category', [])}
+            className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+          />
+          <span className="text-sm text-gray-700 group-hover:text-gray-900">All Categories</span>
+        </label>
+        {memoizedFilterOptions.categories.map(category => (
+          <label key={category._id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+            <input
+              type="checkbox"
+              checked={filters.category.includes(category._id)}
+              onChange={() => handleCategoryToggle(category._id)}
+              className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+            />
+            <span className="text-sm text-gray-700 group-hover:text-gray-900">{category.name}</span>
+          </label>
+        ))}
       </div>
-    );
-  };
+    ),
+    brandContent: (
+      <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+          <input
+            type="checkbox"
+            checked={filters.brand.length === 0}
+            onChange={() => handleFilterChange('brand', [])}
+            className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+          />
+          <span className="text-sm text-gray-700 group-hover:text-gray-900">All Brands</span>
+        </label>
+        {memoizedFilterOptions.availableOptions.brands.map(brand => (
+          <label key={brand} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+            <input
+              type="checkbox"
+              checked={filters.brand.includes(brand)}
+              onChange={() => handleBrandToggle(brand)}
+              className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+            />
+            <span className="text-sm text-gray-700 group-hover:text-gray-900">{brand}</span>
+          </label>
+        ))}
+      </div>
+    ),
+  }), [filters, memoizedFilterOptions, handleFilterChange, handleCategoryToggle, handleBrandToggle]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -346,21 +609,21 @@ const Shop: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* Enhanced Filters Sidebar */}
           <aside className={`lg:w-1/4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg sticky top-4">
-              <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <FunnelIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg sticky top-4 border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <FunnelIcon className="w-5 h-5 text-accent-rose" />
                   Filters
                 </h3>
                 <div className="flex items-center gap-2">
                   {activeFiltersCount > 0 && (
-                    <span className="bg-accent-light text-accent-mauve text-xs px-2 py-1 rounded-full">
+                    <span className="bg-accent-rose text-white text-xs px-2 py-1 rounded-full font-medium">
                       {activeFiltersCount}
                     </span>
                   )}
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 transition-colors"
                   >
                     <ArrowPathIcon className="w-4 h-4" />
                     Clear all
@@ -423,57 +686,116 @@ const Shop: React.FC = () => {
               </div>
 
               {/* Category Filter */}
-              <FilterSection title="Category" filterKey="category">
-                <select
-                  value={filters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
-                >
-                  <option value="">All Categories</option>
-                  {productCategories.map(category => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
+              <FilterSection 
+                title="Category" 
+                filterKey="category" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('category')} 
+                onToggle={toggleFilterExpansion}
+              >
+                {memoizedFilterContent.categoryContent}
               </FilterSection>
 
               {/* Brand Filter */}
-              <FilterSection title="Brand" filterKey="brand">
-                <select
-                  value={filters.brand}
-                  onChange={(e) => handleFilterChange('brand', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
-                >
-                  <option value="">All Brands</option>
-                  {availableBrands.map(brand => (
-                    <option key={brand} value={brand}>
-                      {brand}
-                    </option>
+              <FilterSection 
+                title="Brand" 
+                filterKey="brand" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('brand')} 
+                onToggle={toggleFilterExpansion}
+              >
+                {memoizedFilterContent.brandContent}
+              </FilterSection>
+
+              {/* Gender Filter */}
+              <FilterSection 
+                title="Gender" 
+                filterKey="gender" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('gender')} 
+                onToggle={toggleFilterExpansion}
+              >
+                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="checkbox"
+                      checked={filters.gender.length === 0}
+                      onChange={() => handleFilterChange('gender', [])}
+                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                    />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">All Genders</span>
+                  </label>
+                  {memoizedFilterOptions.availableOptions.genders.map(gender => (
+                    <label key={gender} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="checkbox"
+                        checked={filters.gender.includes(gender)}
+                        onChange={() => handleGenderToggle(gender)}
+                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">{gender.charAt(0).toUpperCase() + gender.slice(1)}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
+              </FilterSection>
+
+              {/* Status Filter */}
+              <FilterSection 
+                title="Status" 
+                filterKey="status" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('status')} 
+                onToggle={toggleFilterExpansion}
+              >
+                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="checkbox"
+                      checked={filters.status.length === 0}
+                      onChange={() => handleFilterChange('status', [])}
+                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                    />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">All Statuses</span>
+                  </label>
+                  {memoizedFilterOptions.availableOptions.statuses.map(status => (
+                    <label key={status} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="checkbox"
+                        checked={filters.status.includes(status)}
+                        onChange={() => handleStatusToggle(status)}
+                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">{status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                    </label>
+                  ))}
+                </div>
               </FilterSection>
 
               {/* Price Range */}
-              <FilterSection title={`Price: $${filters.priceRange[0]} - $${filters.priceRange[1]}`} filterKey="price">
+              <FilterSection 
+                title={`Price: ₹${filters.priceRange[0]} - ₹${filters.priceRange[1]}`} filterKey="price" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('price')} 
+                onToggle={toggleFilterExpansion}
+              >
                 <div className="space-y-3">
                   <input
                     type="range"
                     min="0"
-                    max="1000"
+                    max="10000"
                     value={filters.priceRange[1]}
                     onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
                     className="w-full accent-accent-rose"
                   />
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>$0</span>
-                    <span>$1000+</span>
+                    <span>₹0</span>
+                    <span>₹10000+</span>
                   </div>
                 </div>
               </FilterSection>
 
               {/* Rating Filter */}
-              <FilterSection title="Minimum Rating" filterKey="rating">
+              <FilterSection 
+                title="Minimum Rating" 
+                filterKey="rating" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('rating')} 
+                onToggle={toggleFilterExpansion}
+              >
                 <div className="space-y-2">
                   {[5, 4, 3, 2, 1].map(rating => (
                     <button
@@ -502,61 +824,91 @@ const Shop: React.FC = () => {
               </FilterSection>
 
               {/* Material Filter */}
-              <FilterSection title="Material" filterKey="material">
-                <select
-                  value={filters.material}
-                  onChange={(e) => handleFilterChange('material', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
-                >
-                  <option value="">All Materials</option>
-                  {availableMaterials.map(material => (
-                    <option key={material} value={material}>
-                      {material}
-                    </option>
+              <FilterSection 
+                title="Material" 
+                filterKey="material" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('material')} 
+                onToggle={toggleFilterExpansion}
+              >
+                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="checkbox"
+                      checked={filters.material.length === 0}
+                      onChange={() => handleFilterChange('material', [])}
+                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                    />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">All Materials</span>
+                  </label>
+                  {memoizedFilterOptions.availableOptions.materials.map(material => (
+                    <label key={material} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="checkbox"
+                        checked={filters.material.includes(material)}
+                        onChange={() => handleMaterialToggle(material)}
+                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">{material}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
               </FilterSection>
 
               {/* Size Filter */}
-              <FilterSection title="Size" filterKey="size">
-                <div className="grid grid-cols-3 gap-2">
-                  {availableSizes.map(size => (
-                    <button
-                      key={size}
-                      onClick={() => handleSizeToggle(size)}
-                      className={`px-3 py-2 text-sm rounded-lg border transition-all ${
-                        filters.sizes.includes(size)
-                          ? 'bg-accent-rose text-white border-accent-rose scale-105'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium hover:scale-105'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+              <FilterSection 
+                title="Size" 
+                filterKey="size" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('size')} 
+                onToggle={toggleFilterExpansion}
+              >
+                <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <div className="grid grid-cols-3 gap-2 pr-2">
+                    {memoizedFilterOptions.availableOptions.sizes.map(size => (
+                      <label key={size} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                        <input
+                          type="checkbox"
+                          checked={filters.sizes.includes(size)}
+                          onChange={() => handleSizeToggle(size)}
+                          className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900">{size}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </FilterSection>
 
               {/* Color Filter */}
-              <FilterSection title="Color" filterKey="color">
-                <div className="grid grid-cols-2 gap-2">
-                  {availableColors.map(color => (
-                    <button
-                      key={color}
-                      onClick={() => handleColorToggle(color)}
-                      className={`px-3 py-2 text-sm rounded-lg border transition-all ${
-                        filters.colors.includes(color)
-                          ? 'bg-accent-rose text-white border-accent-rose scale-105'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-accent-medium hover:scale-105'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
+              <FilterSection 
+                title="Color" 
+                filterKey="color" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('color')} 
+                onToggle={toggleFilterExpansion}
+              >
+                <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <div className="grid grid-cols-2 gap-2 pr-2">
+                    {memoizedFilterOptions.availableOptions.colors.map(color => (
+                      <label key={color} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                        <input
+                          type="checkbox"
+                          checked={filters.colors.includes(color)}
+                          onChange={() => handleColorToggle(color)}
+                          className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900">{color}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </FilterSection>
 
               {/* Additional Filters */}
-              <FilterSection title="Availability & Offers" filterKey="extras">
+              <FilterSection 
+                title="Availability & Offers" 
+                filterKey="extras" 
+                isExpanded={memoizedFilterOptions.expandedFilters.has('extras')} 
+                onToggle={toggleFilterExpansion}
+              >
                 <div className="space-y-3">
                   <label className="flex items-center">
                     <input
@@ -595,8 +947,7 @@ const Shop: React.FC = () => {
                   </span>
                 </div>
 
-                {/* <div className="flex items-center gap-4">
-                 
+                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -636,7 +987,7 @@ const Shop: React.FC = () => {
                       <option value="featured">Featured</option>
                     </select>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
 
@@ -659,7 +1010,7 @@ const Shop: React.FC = () => {
                     <p className="text-sm text-red-700 mt-1">{error}</p>
                   </div>
                   <button
-                    onClick={fetchProducts}
+                    onClick={() => fetchProducts()}
                     className="ml-auto text-sm text-red-600 hover:text-red-800 font-medium"
                   >
                     Try again

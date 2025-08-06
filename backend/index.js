@@ -27,6 +27,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const blogRoutes = require('./routes/blogRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 // Use routes
 app.use('/api/products', productRoutes);
@@ -36,6 +37,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/airTable', blogRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Serve static files from public directory
 app.use('/images', express.static(path.join(__dirname, 'public/images')));

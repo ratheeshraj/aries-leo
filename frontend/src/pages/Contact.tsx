@@ -10,13 +10,14 @@ import {
 } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { reviewAPI } from '../utils/api';
+import { reviewAPI, contactAPI } from '../utils/api';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import type { ContactFormData } from '../types';
 
 const Contact: React.FC = () => {
   useScrollToTop();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     subject: '',
@@ -25,6 +26,9 @@ const Contact: React.FC = () => {
   });
 
   const [formType, setFormType] = useState<'general' | 'support' | 'wholesale'>('general');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   // Newsletter subscription state
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -46,18 +50,44 @@ const Contact: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    alert('Thank you for your message! We\'ll get back to you soon.');
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-      orderNumber: ''
-    });
+    
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
+    try {
+      const contactData = {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        orderNumber: formData.orderNumber || undefined,
+        formType: formType
+      };
+
+      const response = await contactAPI.submitContactForm(contactData);
+      
+      setSubmitStatus('success');
+      setSubmitMessage(response.message || 'Thank you for your message! We\'ll get back to you soon.');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        orderNumber: ''
+      });
+      setFormType('general');
+      
+    } catch (error) {
+      setSubmitStatus('error');
+      setSubmitMessage(error instanceof Error ? error.message : 'Failed to submit form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Newsletter subscription handler
@@ -257,9 +287,21 @@ const Contact: React.FC = () => {
                   />
                 </div>
 
-                <Button type="submit" size="lg" className="w-full sm:w-auto">
-                  Send Message
+                <Button type="submit" size="lg" className="w-full sm:w-auto" isLoading={isSubmitting} disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </Button>
+                
+                {submitStatus === 'success' && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-800 text-sm">{submitMessage}</p>
+                  </div>
+                )}
+                
+                {submitStatus === 'error' && (
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800 text-sm">{submitMessage}</p>
+                  </div>
+                )}
               </form>
             </motion.div>
           </div>

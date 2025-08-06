@@ -31,6 +31,7 @@ export interface Product {
   originCountry?: string;
   manufacturer?: string;
   modelNumber?: string;
+  gender?: string;
   
   // Status flags
   isActive: boolean;
@@ -183,4 +184,25 @@ export interface Review {
   user?: string;
   rating?: number;
   createdAt?: string;
+}
+
+export interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  orderNumber?: string;
+  formType?: 'general' | 'support' | 'wholesale';
+}
+
+export interface ContactSubmission {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  orderNumber?: string;
+  formType: 'general' | 'support' | 'wholesale';
+  status: 'pending' | 'in-progress' | 'resolved' | 'closed';
+  submittedAt: string;
 }
