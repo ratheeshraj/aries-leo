@@ -141,7 +141,7 @@ const Checkout: React.FC = () => {
       }
 
       const orderData = {
-        orderItems: cart.items.map((item: { product: Product; quantity: number }) => ({
+        orderItems: cart.items.map((item: { product: Product; quantity: number; selectedSize?: string; selectedColor?: string; inventoryId?: string }) => ({
           name: item.product.name,
           qty: item.quantity,
           image: Array.isArray(item.product.images) && item.product.images.length > 0
@@ -152,7 +152,7 @@ const Checkout: React.FC = () => {
           price: item.product.compareAtPrice || item.product.costPrice || 0,
           salePrice: item.product.salePrice || 0,
           discountPercentage: 0, // Will be calculated by backend if needed
-          inventory: item.product._id, // Using _id as inventory reference
+          inventory: item.inventoryId
         })),
         shippingAddress: {
           firstName: shippingAddress.firstName,
@@ -651,7 +651,7 @@ const Checkout: React.FC = () => {
               
               {/* Cart Items */}
               <div className="space-y-4 mb-6">
-                {cart.items.map((item: { product: Product; quantity: number }, index: number) => (
+                {cart.items.map((item: { product: Product; quantity: number; selectedSize?: string; selectedColor?: string; inventoryId?: string }, index: number) => (
                   <div key={index} className="flex items-start gap-3">
                     <img
                       src={Array.isArray(item.product.images) && item.product.images.length > 0
@@ -665,6 +665,21 @@ const Checkout: React.FC = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-gray-900 truncate">{item.product.name}</h4>
+                      {/* Display selected size and color */}
+                      {(item.selectedSize || item.selectedColor) && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {item.selectedSize && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                              Size: {item.selectedSize}
+                            </span>
+                          )}
+                          {item.selectedColor && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                              Color: {item.selectedColor}
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs text-gray-600">
                         Qty: {item.quantity} × {formatCurrency(item.product.compareAtPrice || item.product.costPrice || 0)}
                       </p>

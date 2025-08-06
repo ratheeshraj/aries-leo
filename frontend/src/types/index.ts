@@ -92,8 +92,9 @@ export interface Product {
 export interface CartItem {
   product: Product;
   quantity: number;
-  selectedSize: string;
-  selectedColor: string;
+  selectedSize?: string;
+  selectedColor?: string;
+  inventoryId?: string;
 }
 
 export interface WishlistItem {

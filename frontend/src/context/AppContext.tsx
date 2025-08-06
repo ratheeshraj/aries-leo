@@ -23,9 +23,9 @@ interface AppContextType {
   login: (userData: any, token: string) => void;
   logout: () => void;
   updateUser: (userData: any) => void;
-  addToCart: (product: any, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateCartItem: (productId: string, quantity: number) => void;
+  addToCart: (product: any, quantity?: number, selectedSize?: string, selectedColor?: string, inventoryId?: string) => void;
+  removeFromCart: (productId: string, inventoryId?: string) => void;
+  updateCartItem: (productId: string, quantity: number, inventoryId?: string) => void;
   clearCart: () => void;
   addToWishlist: (product: any) => void;
   removeFromWishlist: (productId: string) => void;
@@ -84,9 +84,20 @@ const appReducer = (state: any, action: any) => {
     case ActionTypes.UPDATE_USER:
       return { ...state, user: action.payload, loading: false };
     case ActionTypes.ADD_TO_CART: {
-      const { product, quantity } = action.payload;
+      const { product, quantity, selectedSize, selectedColor, inventoryId } = action.payload;
+      
+      // Create a unique key for the cart item based on product and variant
+      const itemKey = inventoryId || `${product._id}-${selectedSize || ''}-${selectedColor || ''}`;
+      
       const existingItemIndex = state.cart.items.findIndex(
-        (item: any) => item.product._id === product._id
+        (item: any) => {
+          if (inventoryId) {
+            return item.inventoryId === inventoryId;
+          }
+          return item.product._id === product._id && 
+                 item.selectedSize === selectedSize && 
+                 item.selectedColor === selectedColor;
+        }
       );
 
       let updatedItems;
@@ -99,7 +110,13 @@ const appReducer = (state: any, action: any) => {
         };
       } else {
         // Add new item
-        updatedItems = [...state.cart.items, { product, quantity }];
+        updatedItems = [...state.cart.items, { 
+          product, 
+          quantity, 
+          selectedSize, 
+          selectedColor, 
+          inventoryId 
+        }];
       }
 
       // Calculate totals
@@ -120,9 +137,14 @@ const appReducer = (state: any, action: any) => {
       return { ...state, cart: updatedCart };
     }
     case ActionTypes.REMOVE_FROM_CART: {
-      const productId = action.payload;
+      const { productId, inventoryId } = action.payload;
       const updatedItems = state.cart.items.filter(
-        (item: any) => item.product._id !== productId
+        (item: any) => {
+          if (inventoryId) {
+            return item.inventoryId !== inventoryId;
+          }
+          return item.product._id !== productId;
+        }
       );
 
       // Calculate totals
@@ -143,10 +165,13 @@ const appReducer = (state: any, action: any) => {
       return { ...state, cart: updatedCart };
     }
     case ActionTypes.UPDATE_CART_ITEM: {
-      const { productId, quantity } = action.payload;
-      const updatedItems = state.cart.items.map((item: any) =>
-        item.product._id === productId ? { ...item, quantity } : item
-      );
+      const { productId, quantity, inventoryId } = action.payload;
+      const updatedItems = state.cart.items.map((item: any) => {
+        if (inventoryId) {
+          return item.inventoryId === inventoryId ? { ...item, quantity } : item;
+        }
+        return item.product._id === productId ? { ...item, quantity } : item;
+      });
 
       // Calculate totals
       const totalItems = updatedItems.reduce(
@@ -241,24 +266,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  const addToCart = (product: any, quantity: number = 1) => {
+  const addToCart = (product: any, quantity: number = 1, selectedSize?: string, selectedColor?: string, inventoryId?: string) => {
     dispatch({
       type: ActionTypes.ADD_TO_CART,
-      payload: { product, quantity },
+      payload: { product, quantity, selectedSize, selectedColor, inventoryId },
     });
   };
 
-  const removeFromCart = (productId: string) => {
+  const removeFromCart = (productId: string, inventoryId?: string) => {
     dispatch({
       type: ActionTypes.REMOVE_FROM_CART,
-      payload: productId,
+      payload: { productId, inventoryId },
     });
   };
 
-  const updateCartItem = (productId: string, quantity: number) => {
+  const updateCartItem = (productId: string, quantity: number, inventoryId?: string) => {
     dispatch({
       type: ActionTypes.UPDATE_CART_ITEM,
-      payload: { productId, quantity },
+      payload: { productId, quantity, inventoryId },
     });
   };
 

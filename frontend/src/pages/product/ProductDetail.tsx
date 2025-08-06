@@ -3,25 +3,27 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   HeartIcon, 
-  StarIcon, 
+  MinusIcon, 
+  PlusIcon, 
   TruckIcon, 
   ShieldCheckIcon,
+  StarIcon,
+  ChatBubbleLeftRightIcon,
+  UserIcon,
+  CalendarIcon,
   ArrowLeftIcon,
   ChevronLeftIcon,
-  ChevronRightIcon,
-  MinusIcon,
-  PlusIcon
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { useAppContext } from '../../context/AppContext';
-import { useScrollToTop } from '../../hooks/useScrollToTop';
-import { formatCurrency, transformProduct, transformProducts } from '../../utils/helpers';
-import { productAPI, reviewAPI } from '../../utils/api';
+import { formatCurrency, hexToColorName, transformProduct, transformProducts } from '../../utils/helpers';
 import Button from '../../components/ui/Button';
-import ProductCard from '../../components/product/ProductCard';
+import { useScrollToTop } from '../../hooks/useScrollToTop';
+import { productAPI, reviewAPI } from '../../utils/api';
+import type { Product, Review } from '../../types';
 import SizeGuide from '../../components/product/SizeGuide';
-import colorNamer from 'color-namer';
-import type { Product } from '../../types';
+import ProductCard from '../../components/product/ProductCard';
 
 // Define Inventory type
 interface InventoryItem {
@@ -42,14 +44,12 @@ interface InventoryItem {
   __v: number;
 }
 
-interface Review {
+// Extended Review interface for local use
+interface ExtendedReview extends Review {
   id?: string;
   _id?: string;
-  user: string;
-  name: string;
-  rating: number;
-  comment: string;
-  createdAt?: string;
+  name?: string;
+  rating?: number;
   isPending?: boolean;
 }
 
@@ -57,30 +57,28 @@ function isHexColor(str: string) {
   return /^#([0-9A-Fa-f]{3}){1,2}$/.test(str);
 }
 
-// Utility to get color name from hex
-function hexToColorName(hex: string): string {
-  try {
-    const result = colorNamer(hex);
-    // Use the first name from the 'ntc' palette, fallback to basic if not found
-    if (result.ntc && result.ntc.length > 0) {
-      return result.ntc[0].name;
-    } else if (result.basic && result.basic.length > 0) {
-      return result.basic[0].name;
-    } else if (result.html && result.html.length > 0) {
-      return result.html[0].name;
-    }
-    return hex;
-  } catch {
-    return hex;
-  }
-}
-
 // Helper to get inventory for selected size and color
 function getSelectedInventory(inventory: InventoryItem[], size: string, color: string) {
   return inventory.find(
-    (item) =>
-      (!size || item.size === size) &&
-      (!color || item.color === color)
+    (item) => {
+      // Match exact size
+      const sizeMatch = item.size === size;
+      
+      // Match exact color (handle both hex and color names)
+      let colorMatch = false;
+      if (item.color && color) {
+        // If the inventory color is hex and selected color is a name, convert
+        if (item.color.startsWith('#')) {
+          const colorName = hexToColorName(item.color);
+          colorMatch = colorName === color;
+        } else {
+          // Direct string comparison
+          colorMatch = item.color === color;
+        }
+      }
+      
+      return sizeMatch && colorMatch;
+    }
   );
 }
 
@@ -94,58 +92,7 @@ function getAvailableColorsForSize(inventory: InventoryItem[], size: string): st
       // Convert hex color to color name if needed
       let colorName = inv.color;
       if (inv.color.startsWith('#')) {
-        const colorMap: { [key: string]: string } = {
-          '#000000': 'Black',
-          '#FFFFFF': 'White',
-          '#FF0000': 'Red',
-          '#00FF00': 'Green',
-          '#0000FF': 'Blue',
-          '#FFFF00': 'Yellow',
-          '#FF00FF': 'Magenta',
-          '#00FFFF': 'Cyan',
-          '#808080': 'Gray',
-          '#C0C0C0': 'Silver',
-          '#800000': 'Maroon',
-          '#808000': 'Olive',
-          '#008000': 'Green',
-          '#800080': 'Purple',
-          '#008080': 'Teal',
-          '#000080': 'Navy',
-          '#219091': 'Teal',
-          '#FFA500': 'Orange',
-          '#FFC0CB': 'Pink',
-          '#A52A2A': 'Brown',
-          '#FFD700': 'Gold',
-          '#FF6347': 'Tomato',
-          '#32CD32': 'Lime Green',
-          '#4169E1': 'Royal Blue',
-          '#8A2BE2': 'Blue Violet',
-          '#DC143C': 'Crimson',
-          '#00CED1': 'Dark Turquoise',
-          '#FF1493': 'Deep Pink',
-          '#228B22': 'Forest Green',
-          '#DAA520': 'Goldenrod',
-          '#FF69B4': 'Hot Pink',
-          '#4B0082': 'Indigo',
-          '#F0E68C': 'Khaki',
-          '#7CFC00': 'Lawn Green',
-          '#FF4500': 'Orange Red',
-          '#DA70D6': 'Orchid',
-          '#CD853F': 'Peru',
-          '#DDA0DD': 'Plum',
-          '#F5DEB3': 'Wheat',
-          '#FFB6C1': 'Light Pink',
-          '#87CEEB': 'Sky Blue',
-          '#98FB98': 'Pale Green',
-          '#FFA07A': 'Light Salmon',
-          '#20B2AA': 'Light Sea Green',
-          '#87CEFA': 'Light Sky Blue',
-          '#778899': 'Light Slate Gray',
-          '#B0C4DE': 'Light Steel Blue',
-          '#FFFFE0': 'Light Yellow',
-          '#EE82EE': 'Violet',
-        };
-        colorName = colorMap[inv.color.toUpperCase()] || inv.color;
+        colorName = hexToColorName(inv.color);
       }
       availableColors.add(colorName);
     }
@@ -173,7 +120,7 @@ const ProductDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<ExtendedReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
   const [averageRating, setAverageRating] = useState(0);
@@ -228,7 +175,7 @@ const ProductDetail: React.FC = () => {
           
           // Calculate average rating
           if (reviewsResponse.reviews && reviewsResponse.reviews.length > 0) {
-            const avg = reviewsResponse.reviews.reduce((sum: number, review: Review) => sum + review.rating, 0) / reviewsResponse.reviews.length;
+            const avg = reviewsResponse.reviews.reduce((sum: number, review: ExtendedReview) => sum + (review.rating || 0), 0) / reviewsResponse.reviews.length;
             setAverageRating(avg);
           }
 
@@ -357,7 +304,15 @@ const ProductDetail: React.FC = () => {
       alert('Please select size and color');
       return;
     }
-    addToCart(product, quantity);
+    
+    // Get the selected inventory item
+    const selectedInventory = getSelectedInventory(inventory, selectedSize, selectedColor);
+    if (!selectedInventory) {
+      alert('Selected variant is not available');
+      return;
+    }
+    
+    addToCart(product, quantity, selectedSize, selectedColor, selectedInventory._id);
     
     // Show a success message
     const toast = document.createElement('div');
@@ -366,7 +321,7 @@ const ProductDetail: React.FC = () => {
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
-      ${product.name} added to cart!
+      ${product.name} (${selectedSize}, ${selectedColor}) added to cart!
     `;
     document.body.appendChild(toast);
     
@@ -447,7 +402,7 @@ const ProductDetail: React.FC = () => {
       
       // Update average rating immediately
       const newReviews = [newReview, ...reviews];
-      const newAvg = newReviews.reduce((sum: number, review: Review) => sum + review.rating, 0) / newReviews.length;
+      const newAvg = newReviews.reduce((sum: number, review: ExtendedReview) => sum + (review.rating || 0), 0) / newReviews.length;
       setAverageRating(newAvg);
 
       // Submit to server
@@ -499,7 +454,7 @@ const ProductDetail: React.FC = () => {
       // Revert average rating
       const originalReviews = reviews.filter(review => !review.isPending);
       const originalAvg = originalReviews.length > 0
-        ? originalReviews.reduce((sum: number, review: Review) => sum + review.rating, 0) / originalReviews.length
+        ? originalReviews.reduce((sum: number, review: ExtendedReview) => sum + (review.rating || 0), 0) / originalReviews.length
         : 0;
       setAverageRating(originalAvg);
       
@@ -946,7 +901,7 @@ const ProductDetail: React.FC = () => {
                                   <StarIcon
                                     key={i}
                                     className={`w-4 h-4 ${
-                                      i < review.rating
+                                      i < (review.rating || 0)
                                         ? 'text-yellow-400 fill-current'
                                         : 'text-gray-300'
                                     }`}

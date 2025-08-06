@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { HeartIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+import { 
+  HeartIcon, 
+  ShoppingCartIcon, 
+  EyeIcon 
+} from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { Product } from '../../types';
 import { useAppContext } from '../../context/AppContext';
-import { formatCurrency, calculateDiscount } from '../../utils/helpers';
+import { formatCurrency, calculateDiscount, hexToColorName } from '../../utils/helpers';
 import Button from '../ui/Button';
 
 
@@ -58,59 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         // Convert hex color to color name if needed
         let colorName = inv.color;
         if (inv.color.startsWith('#')) {
-          const colorMap: { [key: string]: string } = {
-            '#000000': 'Black',
-            '#FFFFFF': 'White',
-            '#FF0000': 'Red',
-            '#00FF00': 'Green',
-            '#0000FF': 'Blue',
-            '#FFFF00': 'Yellow',
-            '#FF00FF': 'Magenta',
-            '#00FFFF': 'Cyan',
-            '#808080': 'Gray',
-            '#C0C0C0': 'Silver',
-            '#800000': 'Maroon',
-            '#808000': 'Olive',
-            '#008000': 'Green',
-            '#800080': 'Purple',
-            '#008080': 'Teal',
-            '#000080': 'Navy',
-            '#219091': 'Teal',
-            '#db0a3f': 'Red',
-            '#FFA500': 'Orange',
-            '#FFC0CB': 'Pink',
-            '#A52A2A': 'Brown',
-            '#FFD700': 'Gold',
-            '#FF6347': 'Tomato',
-            '#32CD32': 'Lime Green',
-            '#4169E1': 'Royal Blue',
-            '#8A2BE2': 'Blue Violet',
-            '#DC143C': 'Crimson',
-            '#00CED1': 'Dark Turquoise',
-            '#FF1493': 'Deep Pink',
-            '#228B22': 'Forest Green',
-            '#DAA520': 'Goldenrod',
-            '#FF69B4': 'Hot Pink',
-            '#4B0082': 'Indigo',
-            '#F0E68C': 'Khaki',
-            '#7CFC00': 'Lawn Green',
-            '#FF4500': 'Orange Red',
-            '#DA70D6': 'Orchid',
-            '#CD853F': 'Peru',
-            '#DDA0DD': 'Plum',
-            '#F5DEB3': 'Wheat',
-            '#FFB6C1': 'Light Pink',
-            '#87CEEB': 'Sky Blue',
-            '#98FB98': 'Pale Green',
-            '#FFA07A': 'Light Salmon',
-            '#20B2AA': 'Light Sea Green',
-            '#87CEFA': 'Light Sky Blue',
-            '#778899': 'Light Slate Gray',
-            '#B0C4DE': 'Light Steel Blue',
-            '#FFFFE0': 'Light Yellow',
-            '#EE82EE': 'Violet',
-          };
-          colorName = colorMap[inv.color.toUpperCase()] || inv.color;
+          colorName = hexToColorName(inv.color);
         }
         availableColors.add(colorName);
       }
@@ -162,16 +114,45 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product, 1);
+    
+    // Get the selected inventory item if size and color are selected
+    let selectedInventoryId: string | undefined;
+    if (selectedSize && selectedColor && product.inventory) {
+      const selectedInventory = product.inventory.find(
+        (inv) => {
+          // Match exact size
+          const sizeMatch = inv.size === selectedSize;
+          
+          // Match exact color (handle both hex and color names)
+          let colorMatch = false;
+          if (inv.color && selectedColor) {
+            // If the inventory color is hex and selected color is a name, convert
+            if (inv.color.startsWith('#')) {
+              const colorName = hexToColorName(inv.color);
+              colorMatch = colorName === selectedColor;
+            } else {
+              // Direct string comparison
+              colorMatch = inv.color === selectedColor;
+            }
+          }
+          
+          return sizeMatch && colorMatch;
+        }
+      );
+      selectedInventoryId = selectedInventory?._id;
+    }
+    
+    addToCart(product, 1, selectedSize, selectedColor, selectedInventoryId);
     
     // Show a temporary success message using a toast notification
+    const variantInfo = selectedSize && selectedColor ? ` (${selectedSize}, ${selectedColor})` : '';
     const toast = document.createElement('div');
     toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center';
     toast.innerHTML = `
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
-      ${product.name} added to cart!
+      ${product.name}${variantInfo} added to cart!
     `;
     document.body.appendChild(toast);
     
@@ -256,7 +237,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 p-1.5 sm:p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50"
             >
               {isWishlisted ? (
-                <HeartSolid className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose" />
+                <HeartIconSolid className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose" />
               ) : (
                 <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               )}

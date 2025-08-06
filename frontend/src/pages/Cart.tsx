@@ -12,12 +12,11 @@ const Cart: React.FC = () => {
   useScrollToTop();
 
   const { cart, removeFromCart, updateCartItem, clearCart } = useAppContext();
-
-  const handleQuantityChange = (productId: string, newQuantity: number) => {
+  const handleQuantityChange = (productId: string, newQuantity: number, inventoryId?: string) => {
     if (newQuantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, inventoryId);
     } else {
-      updateCartItem(productId, newQuantity);
+      updateCartItem(productId, newQuantity, inventoryId);
     }
   };
 
@@ -93,9 +92,9 @@ const Cart: React.FC = () => {
               </div>
 
               <div className="divide-y divide-gray-200">
-                {cart.items.map((item: { product: Product; quantity: number }, index: number) => (
+                {cart.items.map((item: { product: Product; quantity: number; selectedSize?: string; selectedColor?: string; inventoryId?: string }, index: number) => (
                   <motion.div
-                    key={`${item.product._id}-${index}`}
+                    key={`${item.inventoryId || item.product._id}-${index}`}
                     className="p-4 sm:p-6"
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -118,12 +117,27 @@ const Cart: React.FC = () => {
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <Link
-                          to={`/product/${item.product.id}`}
+                          to={`/product/${item.product.id || item.product._id}`}
                           className="text-lg font-semibold text-gray-900 hover:text-accent-rose transition-colors block truncate"
                         >
                           {item.product.name}
                         </Link>
                         <div className="mt-1 text-sm text-gray-600 space-y-1">
+                          {/* Display selected size and color */}
+                          {(item.selectedSize || item.selectedColor) && (
+                            <div className="flex flex-wrap gap-2">
+                              {item.selectedSize && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                  Size: {item.selectedSize}
+                                </span>
+                              )}
+                              {item.selectedColor && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                  Color: {item.selectedColor}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <p className="font-medium text-gray-900">
                             {formatCurrency(item.product.compareAtPrice || item.product.costPrice || 0)}
                             {item.product.compareAtPrice && item.product.compareAtPrice < (item.product.costPrice || 0) && (
@@ -141,7 +155,8 @@ const Cart: React.FC = () => {
                           <button
                             onClick={() => handleQuantityChange(
                               item.product._id,
-                              item.quantity - 1
+                              item.quantity - 1,
+                              item.inventoryId
                             )}
                             className="p-2 hover:bg-gray-50 transition-colors"
                           >
@@ -153,7 +168,8 @@ const Cart: React.FC = () => {
                           <button
                             onClick={() => handleQuantityChange(
                               item.product._id,
-                              item.quantity + 1
+                              item.quantity + 1,
+                              item.inventoryId
                             )}
                             className="p-2 hover:bg-gray-50 transition-colors"
                           >
@@ -164,7 +180,8 @@ const Cart: React.FC = () => {
                         {/* Remove Button */}
                         <button
                           onClick={() => removeFromCart(
-                            item.product._id
+                            item.product._id,
+                            item.inventoryId
                           )}
                           className="p-2 text-gray-400 hover:text-accent-rose transition-colors"
                         >
