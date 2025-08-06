@@ -333,7 +333,7 @@ export const Profile: React.FC = () => {
                 <span>Orders</span>
               </button>
               
-              <button
+              {/* <button
                 onClick={() => setActiveTab('wishlist')}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                   activeTab === 'wishlist'
@@ -355,7 +355,7 @@ export const Profile: React.FC = () => {
               >
                 <CogIcon className="w-5 h-5" />
                 <span>Settings</span>
-              </button>
+              </button> */}
             </nav>
 
             {/* Logout Button */}
@@ -583,17 +583,17 @@ export const Profile: React.FC = () => {
                             {/* Accordion Header */}
                             <button
                               onClick={() => toggleAccordion(orderId)}
-                              className="w-full bg-gradient-to-r from-accent-rose to-pink-500 px-6 py-4 relative hover:from-accent-rose/90 hover:to-pink-500/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-accent-rose"
+                              className="w-full bg-gradient-to-r from-accent-rose to-accent-mauve px-6 py-4 relative hover:from-accent-mauve hover:to-accent-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-accent-rose"
                             >
                               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
                               <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
                               <div className="relative z-10 flex justify-between items-center">
                                 <div className="flex-1 text-left">
-                                  <h3 className="text-xl font-bold text-white flex items-center">
+                                  <h3 className="text-xl font-bold text-black flex items-center">
                                     <ShoppingBagIcon className="w-6 h-6 mr-2" />
                                     Order #{orderId}
                                   </h3>
-                                  <p className="text-pink-100 text-sm mt-1">
+                                  <p className="text-black/80 text-sm mt-1">
                                     {orderDate ? new Date(orderDate).toLocaleDateString('en-US', { 
                                       weekday: 'long', 
                                       year: 'numeric', 
@@ -626,7 +626,7 @@ export const Profile: React.FC = () => {
                                       animate={{ rotate: isOpen ? 180 : 0 }}
                                       transition={{ duration: 0.2 }}
                                     >
-                                      <ChevronDownIcon className="w-5 h-5 text-white" />
+                                      <ChevronDownIcon className="w-5 h-5 text-black" />
                                     </motion.div>
                                   </div>
                                 </div>
@@ -733,14 +733,84 @@ export const Profile: React.FC = () => {
                                         {order.orderItems && order.orderItems.length > 0 ? (
                                           order.orderItems.map((item: any, itemIndex: number) => {
                                             const itemId = item._id?.$oid || item._id || item.id || `item-${itemIndex}`;
+                                            const itemStatus = item.orderStatus || 'Unknown';
+                                            
+                                            // Define status colors and styles
+                                            const getStatusStyles = (status: string) => {
+                                              switch (status.toLowerCase()) {
+                                                case 'open':
+                                                  return {
+                                                    bg: 'bg-blue-100',
+                                                    text: 'text-blue-800',
+                                                    border: 'border-blue-200',
+                                                    dot: 'bg-blue-500'
+                                                  };
+                                                case 'processing':
+                                                  return {
+                                                    bg: 'bg-yellow-100',
+                                                    text: 'text-yellow-800',
+                                                    border: 'border-yellow-200',
+                                                    dot: 'bg-yellow-500'
+                                                  };
+                                                case 'shipped':
+                                                  return {
+                                                    bg: 'bg-purple-100',
+                                                    text: 'text-purple-800',
+                                                    border: 'border-purple-200',
+                                                    dot: 'bg-purple-500'
+                                                  };
+                                                case 'delivered':
+                                                  return {
+                                                    bg: 'bg-green-100',
+                                                    text: 'text-green-800',
+                                                    border: 'border-green-200',
+                                                    dot: 'bg-green-500'
+                                                  };
+                                                case 'cancelled':
+                                                  return {
+                                                    bg: 'bg-red-100',
+                                                    text: 'text-red-800',
+                                                    border: 'border-red-200',
+                                                    dot: 'bg-red-500'
+                                                  };
+                                                default:
+                                                  return {
+                                                    bg: 'bg-gray-100',
+                                                    text: 'text-gray-800',
+                                                    border: 'border-gray-200',
+                                                    dot: 'bg-gray-500'
+                                                  };
+                                              }
+                                            };
+                                            
+                                            const statusStyles = getStatusStyles(itemStatus);
+                                            
                                             return (
                                               <div key={itemId} className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:bg-gray-100 transition-colors duration-200">
-                                                <div className="flex justify-between items-center">
+                                                <div className="flex justify-between items-start">
                                                   <div className="flex-1">
-                                                    <h5 className="font-semibold text-gray-900 text-lg">{item.name || 'Unknown Item'}</h5>
-                                                    <p className="text-sm text-gray-600 mt-1">Quantity: {item.qty || item.quantity || 0}</p>
+                                                    <div className="flex items-center justify-between mb-2">
+                                                      <h5 className="font-semibold text-gray-900 text-lg">{item.name || 'Unknown Item'}</h5>
+                                                      <div className={`px-3 py-1 rounded-full text-sm font-semibold flex items-center ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}>
+                                                        <div className={`w-2 h-2 rounded-full mr-2 ${statusStyles.dot}`}></div>
+                                                        {itemStatus}
+                                                      </div>
+                                                    </div>
+                                                    <p className="text-sm text-gray-600">Quantity: {item.qty || item.quantity || 0}</p>
+                                                    {item.image && (
+                                                      <div className="mt-2">
+                                                        <img 
+                                                          src={item.image} 
+                                                          alt={item.name || 'Product'} 
+                                                          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                                                          onError={(e) => {
+                                                            e.currentTarget.style.display = 'none';
+                                                          }}
+                                                        />
+                                                      </div>
+                                                    )}
                                                   </div>
-                                                  <div className="text-right">
+                                                  <div className="text-right ml-4">
                                                     <p className="font-bold text-lg text-accent-rose">₹{(item.price || 0) * (item.qty || item.quantity || 0)}</p>
                                                     <p className="text-xs text-gray-500">₹{item.price || 0} each</p>
                                                   </div>
