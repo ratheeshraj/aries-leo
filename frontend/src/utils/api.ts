@@ -1,7 +1,7 @@
 import type { ContactFormData, ContactSubmission, TeamMember } from '../types';
 
 // API base URL - ready for backend integration
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ariesleo.brushandbyte.in/api';
 
 // Authentication API functions
 export const authAPI = {
