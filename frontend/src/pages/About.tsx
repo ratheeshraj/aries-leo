@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HeartIcon, GlobeAltIcon, CheckCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { useScrollToTop } from '../hooks/useScrollToTop';
+import { teamAPI } from '../utils/api';
+import type { TeamMember } from '../types';
+import Loading from '../components/ui/Loading';
 
 const About: React.FC = () => {
   useScrollToTop();
+  
+  // State for team members
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [isLoadingTeam, setIsLoadingTeam] = useState(true);
+  const [teamError, setTeamError] = useState<string | null>(null);
+
+  // Fetch team members from API
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        setIsLoadingTeam(true);
+        setTeamError(null);
+        const response = await teamAPI.getTeamMembers();
+        setTeamMembers(response.data || []);
+      } catch (error) {
+        console.error('Error fetching team members:', error);
+        setTeamError(error instanceof Error ? error.message : 'Failed to load team members');
+      } finally {
+        setIsLoadingTeam(false);
+      }
+    };
+
+    fetchTeamMembers();
+  }, []);
   
   const values = [
     {
@@ -59,26 +86,7 @@ const About: React.FC = () => {
     }
   ];
 
-  const team = [
-    {
-      name: "Alexandra Chen",
-      role: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b789?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-      bio: "Women's fashion designer turned entrepreneur with a passion for creating empowering, comfortable clothing for women."
-    },
-    {
-      name: "Sarah Williams",
-      role: "Creative Director",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-      bio: "Award-winning designer with 15+ years experience in women's fashion and sustainable textile innovation."
-    },
-    {
-      name: "Maria Rodriguez",
-      role: "Head of Design",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-      bio: "Specialist in women's fit and sizing, dedicated to creating bottoms that flatter and empower every body type."
-    }
-  ];
+
 
   return (
     <div className="min-h-screen">
@@ -275,33 +283,60 @@ const About: React.FC = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {team.map((member, index) => (
-              <motion.div
-                key={index}
-                className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-shadow"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
+          {isLoadingTeam ? (
+            <div className="flex justify-center items-center py-8">
+              <Loading />
+            </div>
+          ) : teamError ? (
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4">{teamError}</p>
+              <Button 
+                onClick={() => window.location.reload()} 
+                variant="outline"
+                size="sm"
               >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover mx-auto mb-3 sm:mb-4"
-                />
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
-                  {member.name}
-                </h3>
-                <p className="text-accent-rose font-medium mb-2 sm:mb-3 text-sm sm:text-base">
-                  {member.role}
-                </p>
-                <p className="text-sm sm:text-base text-gray-600">
-                  {member.bio}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+                Try Again
+              </Button>
+            </div>
+          ) : teamMembers.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No team members found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto">
+              {teamMembers.map((member, index) => (
+                <motion.div
+                  key={member.id}
+                  className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-shadow"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  {member.image && (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover mx-auto mb-3 sm:mb-4"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://images.unsplash.com/photo-1494790108755-2616b612b789?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80";
+                      }}
+                    />
+                  )}
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-accent-rose font-medium mb-2 sm:mb-3 text-sm sm:text-base">
+                    {member.designation}
+                  </p>
+                  <p className="text-sm sm:text-base text-gray-600">
+                    {member.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

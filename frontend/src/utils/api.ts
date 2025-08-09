@@ -1,4 +1,4 @@
-import type { ContactFormData, ContactSubmission } from '../types';
+import type { ContactFormData, ContactSubmission, TeamMember } from '../types';
 
 // API base URL - ready for backend integration
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -499,6 +499,26 @@ export const contactAPI = {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || 'Failed to delete contact');
+    }
+
+    return response.json();
+  },
+};
+
+// Team API functions
+export const teamAPI = {
+  // Get team members from Airtable
+  getTeamMembers: async (): Promise<{ success: boolean; data: TeamMember[] }> => {
+    const response = await fetch(`${API_BASE_URL}/airTable/getTeamMembers`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch team members');
     }
 
     return response.json();

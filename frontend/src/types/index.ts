@@ -206,3 +206,12 @@ export interface ContactSubmission {
   status: 'pending' | 'in-progress' | 'resolved' | 'closed';
   submittedAt: string;
 }
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  description: string;
+  image?: string;
+  designation: string;
+  isActive: boolean;
+}
