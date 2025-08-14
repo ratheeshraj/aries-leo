@@ -43,7 +43,7 @@ const Header: React.FC = () => {
       <div className="bg-accent-rose text-white text-center py-2 px-4">
         <p className="text-xs sm:text-sm font-medium truncate">
           <span className="hidden sm:inline">Premium women's bottoms worldwide 🌍</span>
-          <span className="sm:hidden">Free shipping over $100 🌍</span>
+          <span className="sm:hidden">Free shipping over Rs. 2000 🌍</span>
         </p>
       </div>
 

@@ -5,11 +5,13 @@ import {
   CreditCardIcon,
   TruckIcon,
   ShieldCheckIcon,
-  CheckIcon
+  CheckIcon,
+  MapPinIcon
 } from '@heroicons/react/24/outline';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { formatCurrency, calculateShipping, calculateTax } from '../utils/helpers';
+import useAuth from '../hooks/useAuth';
+import { formatCurrency, calculateShipping } from '../utils/helpers';
 import { orderAPI } from '../utils/api';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -25,6 +27,7 @@ interface CheckoutStep {
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { cart, clearCart, token, isAuthenticated } = useAppContext();
+  const { getProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -67,6 +70,12 @@ const Checkout: React.FC = () => {
 
   const [useSameAddress, setUseSameAddress] = useState(true);
 
+  // Saved addresses state
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [addressSelected, setAddressSelected] = useState(false);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
+
   // Redirect if cart is empty
   useEffect(() => {
     if (cart.items.length === 0 && !orderComplete) {
@@ -80,6 +89,27 @@ const Checkout: React.FC = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
+
+  // Fetch saved addresses when component mounts
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      if (isAuthenticated && token) {
+        setLoadingAddresses(true);
+        try {
+          const profileData = await getProfile();
+          if (profileData && profileData.addresses) {
+            setSavedAddresses(profileData.addresses);
+          }
+        } catch (error) {
+          console.error('Error fetching saved addresses:', error);
+        } finally {
+          setLoadingAddresses(false);
+        }
+      }
+    };
+
+    fetchSavedAddresses();
+  }, []);
 
   // Calculate totals
   const subtotal = cart.items.reduce((sum: number, item: { product: Product; quantity: number }) => sum + ((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity), 0);
@@ -115,9 +145,37 @@ const Checkout: React.FC = () => {
       if (useSameAddress) {
         setBillingAddress(prev => ({ ...prev, [field]: value }));
       }
+      // Clear selected address when user manually edits
+      setSelectedAddressIndex(null);
     } else {
       setBillingAddress(prev => ({ ...prev, [field]: value }));
     }
+  };
+
+  // Handle selecting a saved address
+  const handleSelectSavedAddress = (address: any, index: number) => {
+    const mappedAddress: ShippingAddress = {
+      firstName: address.firstName || '',
+      lastName: address.lastName || '',
+      company: address.company || '',
+      address1: address.street || address.address1 || '',
+      address2: address.address2 || '',
+      city: address.city || '',
+      state: address.state || '',
+      postalCode: address.postalCode || '',
+      country: address.country || 'IN',
+      phone: address.phone || ''
+    };
+
+    setShippingAddress(mappedAddress);
+    if (useSameAddress) {
+      setBillingAddress(mappedAddress);
+    }
+    
+    // Show success message and track selected address
+    setAddressSelected(true);
+    setSelectedAddressIndex(index);
+    setTimeout(() => setAddressSelected(false), 3000);
   };
 
   const handleNext = () => {
@@ -310,6 +368,82 @@ const Checkout: React.FC = () => {
                 >
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">Shipping Information</h2>
                   
+                  {/* Saved Addresses */}
+                  {loadingAddresses ? (
+                    <p className="text-center text-gray-500 py-4">Loading saved addresses...</p>
+                  ) : savedAddresses.length > 0 ? (
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium text-gray-900">Saved Addresses</h3>              
+                      </div>
+                      {savedAddresses.map((address, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
+                            selectedAddressIndex === index
+                              ? 'border-accent-rose bg-accent-rose/5'
+                              : 'border-gray-200 hover:bg-gray-50 hover:border-accent-rose'
+                          }`}
+                          onClick={() => handleSelectSavedAddress(address, index)}
+                        >
+                          <MapPinIcon className="w-5 h-5 text-gray-500 mr-3" />
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{address.firstName} {address.lastName}</p>
+                            <p className="text-sm text-gray-600">{address.street}, {address.city}</p>
+                            <p className="text-sm text-gray-600">{address.state}, {address.postalCode}</p>
+                            <p className="text-sm text-gray-600">{address.country}</p>
+                            {address.phone && (
+                              <p className="text-sm text-gray-600">{address.phone}</p>
+                            )}
+                          </div>
+                          <div className="text-accent-rose">
+                            {selectedAddressIndex === index ? (
+                              <div className="flex items-center">
+                                <CheckIcon className="w-4 h-4 mr-1" />
+                                <p className="text-xs font-medium">Selected</p>
+                              </div>
+                            ) : (
+                              <p className="text-xs font-medium">Click to use</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 mb-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                      <MapPinIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No saved addresses found</p>
+                      <p className="text-sm text-gray-400">Add addresses in your profile for faster checkout</p>
+                      <Link to="/profile" className="inline-block mt-2 text-accent-rose hover:text-accent-rose-dark text-sm font-medium">
+                        Go to Profile
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Separator */}
+                  {savedAddresses.length > 0 && (
+                    <div className="relative mb-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300" />
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or enter a new address</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Success Message */}
+                  {addressSelected && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg"
+                    >
+                      <p className="text-green-800 text-sm">✓ Address selected! You can modify the details below if needed.</p>
+                    </motion.div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <Input
                       label="First Name"

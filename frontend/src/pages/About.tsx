@@ -268,7 +268,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-gray-50">
+      {/* <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-gray-50">
         <div className="container-responsive">
           <motion.div
             className="text-center mb-8 sm:mb-12 md:mb-16"
@@ -338,7 +338,7 @@ const About: React.FC = () => {
             </div>
           )}
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-accent-rose">

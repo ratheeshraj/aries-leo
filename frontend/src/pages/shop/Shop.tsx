@@ -120,7 +120,7 @@ const Shop: React.FC = () => {
   
   const [filters, setFilters] = useState<ShopFilters>({
     category: [],
-    priceRange: [0, 10000],
+    priceRange: [199, 1700],
     sizes: [],
     colors: [],
     inStock: false,
@@ -201,6 +201,7 @@ const Shop: React.FC = () => {
         rating: currentFilters.rating > 0 ? currentFilters.rating : undefined,
         onSale: currentFilters.onSale || undefined,
         featured: currentFilters.featured || undefined,
+        newArrivals: currentFilters.newArrivals || undefined,
         search: currentSearchQuery || undefined,
         material: currentFilters.material.length > 0 ? currentFilters.material : undefined,
         gender: currentFilters.gender.length > 0 ? currentFilters.gender : undefined,
@@ -342,7 +343,7 @@ const Shop: React.FC = () => {
     // Apply sale filter
     if (filters.onSale) {
       filteredProducts = filteredProducts.filter(product => 
-        product.salePrice && product.salePrice > 0 && product.salePrice < (product.retailPrice || 0)
+        product.compareAtPrice && product.costPrice && product.compareAtPrice < product.costPrice
       );
     }
 
@@ -385,6 +386,19 @@ const Shop: React.FC = () => {
       if (JSON.stringify(prev[key]) === JSON.stringify(value)) {
         return prev;
       }
+      
+      // Handle quick filters (featured, newArrivals, onSale) as radio buttons
+      if (key === 'featured' && value === true) {
+        return { ...prev, featured: true, newArrivals: false, onSale: false };
+      } else if (key === 'newArrivals' && value === true) {
+        return { ...prev, newArrivals: true, featured: false, onSale: false };
+      } else if (key === 'onSale' && value === true) {
+        return { ...prev, onSale: true, featured: false, newArrivals: false };
+      } else if (key === 'featured' || key === 'newArrivals' || key === 'onSale') {
+        // When setting any quick filter to false, don't affect others
+        return { ...prev, [key]: value };
+      }
+      
       return { ...prev, [key]: value };
     });
   }, []);
@@ -466,7 +480,7 @@ const Shop: React.FC = () => {
   const clearFilters = useCallback(() => {
     setFilters({
       category: [],
-      priceRange: [0, 10000],
+      priceRange: [199, 1700],
       sizes: [],
       colors: [],
       inStock: false,
@@ -499,9 +513,7 @@ const Shop: React.FC = () => {
     (filters.colors.length > 0 ? 1 : 0) +
     (filters.inStock ? 1 : 0) +
     (filters.rating > 0 ? 1 : 0) +
-    (filters.onSale ? 1 : 0) +
-    (filters.featured ? 1 : 0) +
-    (filters.newArrivals ? 1 : 0) +
+    ((filters.onSale || filters.featured || filters.newArrivals) ? 1 : 0) +
     (filters.material.length > 0 ? 1 : 0) +
     (filters.gender.length > 0 ? 1 : 0), [filters]);
 
@@ -521,7 +533,7 @@ const Shop: React.FC = () => {
             type="checkbox"
             checked={filters.category.length === 0}
             onChange={() => handleFilterChange('category', [])}
-            className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+            className="rounded border-gray-300 text-accent-rose"
           />
           <span className="text-sm text-gray-700 group-hover:text-gray-900">All Categories</span>
         </label>
@@ -531,7 +543,7 @@ const Shop: React.FC = () => {
               type="checkbox"
               checked={filters.category.includes(category._id)}
               onChange={() => handleCategoryToggle(category._id)}
-              className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+              className="rounded border-gray-300 text-accent-rose"
             />
             <span className="text-sm text-gray-700 group-hover:text-gray-900">{category.name}</span>
           </label>
@@ -605,40 +617,69 @@ const Shop: React.FC = () => {
               </div>
 
               {/* Quick Filters */}
-              <div className="mb-6 space-y-2">
-                <button
-                  onClick={() => handleFilterChange('featured', !filters.featured)}
-                  className={`w-full flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                    filters.featured
-                      ? 'bg-accent-light text-accent-mauve'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <SparklesIcon className="w-4 h-4" />
-                  <span className="text-sm">Featured Products</span>
-                </button>
-                <button
-                  onClick={() => handleFilterChange('newArrivals', !filters.newArrivals)}
-                  className={`w-full flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                    filters.newArrivals
-                      ? 'bg-accent-light text-accent-mauve'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <FireIcon className="w-4 h-4" />
-                  <span className="text-sm">New Arrivals</span>
-                </button>
-                <button
-                  onClick={() => handleFilterChange('onSale', !filters.onSale)}
-                  className={`w-full flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                    filters.onSale
-                      ? 'bg-accent-light text-accent-mauve'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <TagIcon className="w-4 h-4" />
-                  <span className="text-sm">On Sale</span>
-                </button>
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-900 group-hover:text-gray-700 mb-3">Quick Filters</label>
+                <div className="space-y-2">
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="radio"
+                      name="quickFilter"
+                      checked={filters.featured && !filters.newArrivals && !filters.onSale}
+                      onChange={() => {
+                        handleFilterChange('featured', true);
+                        handleFilterChange('newArrivals', false);
+                        handleFilterChange('onSale', false);
+                      }}
+                      className="text-accent-rose"
+                    />
+                    <SparklesIcon className="w-4 h-4 text-accent-rose" />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">Featured Products</span>
+                  </label>
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="radio"
+                      name="quickFilter"
+                      checked={filters.newArrivals && !filters.featured && !filters.onSale}
+                      onChange={() => {
+                        handleFilterChange('newArrivals', true);
+                        handleFilterChange('featured', false);
+                        handleFilterChange('onSale', false);
+                      }}
+                      className="text-accent-rose"
+                    />
+                    <FireIcon className="w-4 h-4 text-accent-rose" />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">New Arrivals</span>
+                  </label>
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="radio"
+                      name="quickFilter"
+                      checked={filters.onSale && !filters.featured && !filters.newArrivals}
+                      onChange={() => {
+                        handleFilterChange('onSale', true);
+                        handleFilterChange('featured', false);
+                        handleFilterChange('newArrivals', false);
+                      }}
+                      className="text-accent-rose"
+                    />
+                    <TagIcon className="w-4 h-4 text-accent-rose" />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">On Sale</span>
+                  </label>
+                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                    <input
+                      type="radio"
+                      name="quickFilter"
+                      checked={!filters.featured && !filters.newArrivals && !filters.onSale}
+                      onChange={() => {
+                        handleFilterChange('featured', false);
+                        handleFilterChange('newArrivals', false);
+                        handleFilterChange('onSale', false);
+                      }}
+                      className="text-accent-rose"
+                    />
+                    <span className="text-sm text-gray-700 group-hover:text-gray-900">All Products</span>
+                  </label>
+                </div>
               </div>
 
               {/* Category Filter */}
@@ -651,10 +692,8 @@ const Shop: React.FC = () => {
                 {memoizedFilterContent.categoryContent}
               </FilterSection>
 
-
-
               {/* Gender Filter */}
-              <FilterSection 
+              {/* <FilterSection 
                 title="Gender" 
                 filterKey="gender" 
                 isExpanded={memoizedFilterOptions.expandedFilters.has('gender')} 
@@ -666,7 +705,7 @@ const Shop: React.FC = () => {
                       type="checkbox"
                       checked={filters.gender.length === 0}
                       onChange={() => handleFilterChange('gender', [])}
-                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                      className="rounded border-gray-300 text-accent-rose"
                     />
                     <span className="text-sm text-gray-700 group-hover:text-gray-900">All Genders</span>
                   </label>
@@ -676,16 +715,13 @@ const Shop: React.FC = () => {
                         type="checkbox"
                         checked={filters.gender.includes(gender)}
                         onChange={() => handleGenderToggle(gender)}
-                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                        className="rounded border-gray-300 text-accent-rose"
                       />
                       <span className="text-sm text-gray-700 group-hover:text-gray-900">{gender.charAt(0).toUpperCase() + gender.slice(1)}</span>
                     </label>
                   ))}
                 </div>
-              </FilterSection>
-
-
-
+              </FilterSection> */}
               {/* Price Range */}
               <FilterSection 
                 title={`Price: ₹${filters.priceRange[0]} - ₹${filters.priceRange[1]}`} filterKey="price" 
@@ -695,21 +731,21 @@ const Shop: React.FC = () => {
                 <div className="space-y-3">
                   <input
                     type="range"
-                    min="0"
-                    max="10000"
+                    min="199"
+                    max="1700"
                     value={filters.priceRange[1]}
-                    onChange={(e) => handleFilterChange('priceRange', [1, parseInt(e.target.value)])}
+                    onChange={(e) => handleFilterChange('priceRange', [199, parseInt(e.target.value)])}
                     className="w-full accent-accent-rose"
                   />
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>₹0</span>
-                    <span>₹10000+</span>
+                    <span>₹199</span>
+                    <span>₹1700</span>
                   </div>
                 </div>
               </FilterSection>
 
               {/* Rating Filter */}
-              <FilterSection 
+              {/* <FilterSection 
                 title="Minimum Rating" 
                 filterKey="rating" 
                 isExpanded={memoizedFilterOptions.expandedFilters.has('rating')} 
@@ -740,7 +776,7 @@ const Shop: React.FC = () => {
                     </button>
                   ))}
                 </div>
-              </FilterSection>
+              </FilterSection> */}
 
               {/* Material Filter */}
               <FilterSection 
@@ -755,7 +791,7 @@ const Shop: React.FC = () => {
                       type="checkbox"
                       checked={filters.material.length === 0}
                       onChange={() => handleFilterChange('material', [])}
-                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                      className="rounded border-gray-300 text-accent-rose"
                     />
                     <span className="text-sm text-gray-700 group-hover:text-gray-900">All Materials</span>
                   </label>
@@ -765,7 +801,7 @@ const Shop: React.FC = () => {
                         type="checkbox"
                         checked={filters.material.includes(material)}
                         onChange={() => handleMaterialToggle(material)}
-                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                        className="rounded border-gray-300 text-accent-rose"
                       />
                       <span className="text-sm text-gray-700 group-hover:text-gray-900">{material}</span>
                     </label>
@@ -788,7 +824,7 @@ const Shop: React.FC = () => {
                           type="checkbox"
                           checked={filters.sizes.includes(size)}
                           onChange={() => handleSizeToggle(size)}
-                          className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                          className="rounded border-gray-300 text-accent-rose"
                         />
                         <span className="text-sm text-gray-700 group-hover:text-gray-900">{size}</span>
                       </label>
@@ -812,7 +848,7 @@ const Shop: React.FC = () => {
                           type="checkbox"
                           checked={filters.colors.includes(color)}
                           onChange={() => handleColorToggle(color)}
-                          className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
+                          className="rounded border-gray-300 text-accent-rose"
                         />
                         <span className="text-sm text-gray-700 group-hover:text-gray-900">{color}</span>
                       </label>

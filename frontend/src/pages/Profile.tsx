@@ -62,6 +62,121 @@ export const Profile: React.FC = () => {
     setOpenAccordion(openAccordion === orderId ? null : orderId);
   };
 
+  // Function to get the least status from order items
+  const getLeastStatus = (orderItems: any[]) => {
+    if (!orderItems || orderItems.length === 0) return 'Unknown';
+    
+    // Define status hierarchy (from least to most advanced)
+    const statusHierarchy = [
+      'open',
+      'processing', 
+      'shipped',
+      'delivered',
+      'return',
+      'refund in progress',
+      'refunded',
+      'cancelled',
+      'replacement'
+    ];
+    
+    // Get all unique statuses from order items
+    const itemStatuses = orderItems
+      .map(item => (item.orderStatus || 'unknown').toLowerCase())
+      .filter(status => status !== 'unknown');
+    
+    if (itemStatuses.length === 0) return 'Unknown';
+    
+    // Find the least status by finding the minimum index in the hierarchy
+    let leastStatusIndex = statusHierarchy.length - 1;
+    let leastStatus = 'replacement';
+    
+    itemStatuses.forEach(status => {
+      const statusIndex = statusHierarchy.indexOf(status);
+      if (statusIndex !== -1 && statusIndex < leastStatusIndex) {
+        leastStatusIndex = statusIndex;
+        leastStatus = status;
+      }
+    });
+    
+    return leastStatus.charAt(0).toUpperCase() + leastStatus.slice(1);
+  };
+
+  // Function to get status styles for the accordion header
+  const getHeaderStatusStyles = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return {
+          bg: 'bg-blue-100',
+          text: 'text-blue-800',
+          border: 'border-blue-200',
+          dot: 'bg-blue-500'
+        };
+      case 'processing':
+        return {
+          bg: 'bg-yellow-100',
+          text: 'text-yellow-800',
+          border: 'border-yellow-200',
+          dot: 'bg-yellow-500'
+        };
+      case 'shipped':
+        return {
+          bg: 'bg-purple-100',
+          text: 'text-purple-800',
+          border: 'border-purple-200',
+          dot: 'bg-purple-500'
+        };
+      case 'delivered':
+        return {
+          bg: 'bg-green-100',
+          text: 'text-green-800',
+          border: 'border-green-200',
+          dot: 'bg-green-500'
+        };
+      case 'return':
+        return {
+          bg: 'bg-orange-100',
+          text: 'text-orange-800',
+          border: 'border-orange-200',
+          dot: 'bg-orange-500'
+        };
+      case 'refund in progress':
+        return {
+          bg: 'bg-indigo-100',
+          text: 'text-indigo-800',
+          border: 'border-indigo-200',
+          dot: 'bg-indigo-500'
+        };
+      case 'refunded':
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-800',
+          border: 'border-gray-200',
+          dot: 'bg-gray-500'
+        };
+      case 'cancelled':
+        return {
+          bg: 'bg-red-100',
+          text: 'text-red-800',
+          border: 'border-red-200',
+          dot: 'bg-red-500'
+        };
+      case 'replacement':
+        return {
+          bg: 'bg-pink-100',
+          text: 'text-pink-800',
+          border: 'border-pink-200',
+          dot: 'bg-pink-500'
+        };
+      default:
+        return {
+          bg: 'bg-gray-100',
+          text: 'text-gray-800',
+          border: 'border-gray-200',
+          dot: 'bg-gray-500'
+        };
+    }
+  };
+
   // Fetch profile data when addresses tab is active
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -277,7 +392,7 @@ export const Profile: React.FC = () => {
       {/* Back Button */}
       <div className="absolute top-6 left-6 z-20">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => window.location.href = '/'}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-2 rounded-lg p-2"
         >
           <ArrowLeftIcon className="w-5 h-5" />
@@ -288,7 +403,7 @@ export const Profile: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <img src={logo} alt="Aries Leo Logo" className="h-16 w-auto mx-auto mb-4" />
+          <img src={logo} alt="Aries Leo Logo" className="h-68 w-68 mx-auto mb-4 cursor-pointer" onClick={() => window.location.href = '/'}/>
           <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
           <p className="text-gray-600 mt-2">Manage your account settings and preferences</p>
         </div>
@@ -382,21 +497,21 @@ export const Profile: React.FC = () => {
               {/* Profile Tab */}
               {activeTab === 'profile' && (
                 <div>
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-6">Profile Information</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-8">Profile Information</h2>
                   
                   {profileSuccess && (
-                    <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                       <p className="text-green-800">{profileSuccess}</p>
                     </div>
                   )}
                   
                   {profileError && (
-                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                       <p className="text-red-800">{profileError}</p>
                     </div>
                   )}
 
-                  <form onSubmit={handleProfileUpdate} className="space-y-6">
+                  <form onSubmit={handleProfileUpdate} className="space-y-8">
                     <Input
                       label="Full Name"
                       value={profileForm.name}
@@ -423,32 +538,33 @@ export const Profile: React.FC = () => {
                       placeholder="Enter your phone number"
                     />
 
-                    <div className="border-t pt-6">
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
-                      
-                      <Input
-                        label="Current Password"
-                        type="password"
-                        value={profileForm.currentPassword}
-                        onChange={handleProfileInputChange('currentPassword')}
-                        placeholder="Enter current password"
-                      />
-                      
-                      <Input
-                        label="New Password"
-                        type="password"
-                        value={profileForm.newPassword}
-                        onChange={handleProfileInputChange('newPassword')}
-                        placeholder="Enter new password"
-                      />
-                      
-                      <Input
-                        label="Confirm New Password"
-                        type="password"
-                        value={profileForm.confirmPassword}
-                        onChange={handleProfileInputChange('confirmPassword')}
-                        placeholder="Confirm new password"
-                      />
+                    <div className="border-t pt-8">
+                      <h2 className="text-lg font-semibold text-gray-900 mb-6">Change Password</h2>  
+                      <div className="space-y-6">
+                        <Input
+                          label="Current Password"
+                          type="password"
+                          value={profileForm.currentPassword}
+                          onChange={handleProfileInputChange('currentPassword')}
+                          placeholder="Enter current password"
+                        />
+                        
+                        <Input
+                          label="New Password"
+                          type="password"
+                          value={profileForm.newPassword}
+                          onChange={handleProfileInputChange('newPassword')}
+                          placeholder="Enter new password"
+                        />
+                        
+                        <Input
+                          label="Confirm New Password"
+                          type="password"
+                          value={profileForm.confirmPassword}
+                          onChange={handleProfileInputChange('confirmPassword')}
+                          placeholder="Confirm new password"
+                        />
+                      </div>
                     </div>
 
                     <Button type="submit" variant="primary" className="w-full">
@@ -603,22 +719,19 @@ export const Profile: React.FC = () => {
                                   </p>
                                 </div>
                                 <div className="flex items-center space-x-4">
-                                  <div className="flex flex-col items-end space-y-2">
-                                    <div className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center ${
-                                      order.isPaid 
-                                        ? 'bg-green-100 text-green-800 border border-green-200' 
-                                        : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                                    }`}>
-                                      <div className={`w-2 h-2 rounded-full mr-2 ${
-                                        order.isPaid ? 'bg-green-500' : 'bg-yellow-500'
-                                      }`}></div>
-                                      {order.isPaid ? 'Paid' : 'Pending'}
-                                    </div>
-                                    {order.isDelivered && (
-                                      <div className="px-4 py-2 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200 flex items-center">
-                                        <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                                        Delivered
-                                      </div>
+                                  <div className="flex flex-col items-end space-y-2">    
+                                    {/* Order Status - Shows the least status from all items */}
+                                    {order.orderItems && order.orderItems.length > 0 && (
+                                      (() => {
+                                        const leastStatus = getLeastStatus(order.orderItems);
+                                        const statusStyles = getHeaderStatusStyles(leastStatus);
+                                        return (
+                                          <div className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center ${statusStyles.bg} ${statusStyles.text} ${statusStyles.border}`}>
+                                            <div className={`w-2 h-2 rounded-full mr-2 ${statusStyles.dot}`}></div>
+                                            {leastStatus}
+                                          </div>
+                                        );
+                                      })()
                                     )}
                                   </div>
                                   <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full transition-all duration-200 hover:bg-white/30">
@@ -766,12 +879,40 @@ export const Profile: React.FC = () => {
                                                     border: 'border-green-200',
                                                     dot: 'bg-green-500'
                                                   };
+                                                case 'return':
+                                                  return {
+                                                    bg: 'bg-orange-100',
+                                                    text: 'text-orange-800',
+                                                    border: 'border-orange-200',
+                                                    dot: 'bg-orange-500'
+                                                  };
+                                                case 'refund in progress':
+                                                  return {
+                                                    bg: 'bg-indigo-100',
+                                                    text: 'text-indigo-800',
+                                                    border: 'border-indigo-200',
+                                                    dot: 'bg-indigo-500'
+                                                  };
+                                                case 'refunded':
+                                                  return {
+                                                    bg: 'bg-gray-100',
+                                                    text: 'text-gray-800',
+                                                    border: 'border-gray-200',
+                                                    dot: 'bg-gray-500'
+                                                  };
                                                 case 'cancelled':
                                                   return {
                                                     bg: 'bg-red-100',
                                                     text: 'text-red-800',
                                                     border: 'border-red-200',
                                                     dot: 'bg-red-500'
+                                                  };
+                                                case 'replacement':
+                                                  return {
+                                                    bg: 'bg-pink-100',
+                                                    text: 'text-pink-800',
+                                                    border: 'border-pink-200',
+                                                    dot: 'bg-pink-500'
                                                   };
                                                 default:
                                                   return {
