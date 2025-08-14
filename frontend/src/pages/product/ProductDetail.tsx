@@ -8,9 +8,6 @@ import {
   TruckIcon, 
   ShieldCheckIcon,
   StarIcon,
-  ChatBubbleLeftRightIcon,
-  UserIcon,
-  CalendarIcon,
   ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon
@@ -51,10 +48,6 @@ interface ExtendedReview extends Review {
   name?: string;
   rating?: number;
   isPending?: boolean;
-}
-
-function isHexColor(str: string) {
-  return /^#([0-9A-Fa-f]{3}){1,2}$/.test(str);
 }
 
 // Helper to get inventory for selected size and color

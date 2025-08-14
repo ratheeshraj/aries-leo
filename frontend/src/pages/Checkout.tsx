@@ -113,7 +113,7 @@ const Checkout: React.FC = () => {
 
   // Calculate totals
   const subtotal = cart.items.reduce((sum: number, item: { product: Product; quantity: number }) => sum + ((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity), 0);
-  const shipping = calculateShipping(subtotal, 'IN');
+  const shipping = calculateShipping(subtotal);
   const total = subtotal + shipping;
 
   const steps: CheckoutStep[] = [

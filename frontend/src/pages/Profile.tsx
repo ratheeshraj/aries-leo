@@ -5,12 +5,10 @@ import {
   EnvelopeIcon, 
   PhoneIcon, 
   MapPinIcon,
-  CogIcon,
   ShoppingBagIcon,
   HeartIcon,
   ArrowLeftIcon,
   ChevronDownIcon,
-  ChevronUpIcon,
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
@@ -25,7 +23,7 @@ import { useAppContext } from '../context/AppContext';
 export const Profile: React.FC = () => {
   useScrollToTop();
   
-  const { user, isAuthenticated, updateProfile, addAddress, logout, getProfile } = useAuth();
+  const { user, isAuthenticated, logout, getProfile } = useAuth();
   const { token } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');

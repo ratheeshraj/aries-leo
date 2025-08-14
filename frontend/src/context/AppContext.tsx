@@ -86,9 +86,6 @@ const appReducer = (state: any, action: any) => {
     case ActionTypes.ADD_TO_CART: {
       const { product, quantity, selectedSize, selectedColor, inventoryId } = action.payload;
       
-      // Create a unique key for the cart item based on product and variant
-      const itemKey = inventoryId || `${product._id}-${selectedSize || ''}-${selectedColor || ''}`;
-      
       const existingItemIndex = state.cart.items.findIndex(
         (item: any) => {
           if (inventoryId) {

@@ -145,7 +145,7 @@ export const generateStarRating = (rating: number): string => {
 };
 
 // Calculate shipping cost (example logic)
-export const calculateShipping = (subtotal: number, country: string = 'IN'): number => {
+export const calculateShipping = (subtotal: number): number => {
   if (subtotal >= 2000) return 0; // Free shipping over ₹2000
   return 199; // Standard shipping cost
 };

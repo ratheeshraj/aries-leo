@@ -16,7 +16,6 @@ const Blog: React.FC = () => {
   const [newsletterMessage, setNewsletterMessage] = React.useState('');
 
   const featuredPost = mockBlogPosts[0];
-  const regularPosts = mockBlogPosts.slice(1);
 
   const categories = ['All', 'Style Tips', 'Sustainability', 'Fashion Trends', 'Care Guide'];
 

@@ -6,7 +6,6 @@ import {
   FunnelIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  StarIcon,
   MagnifyingGlassIcon,
   ArrowPathIcon,
   SparklesIcon,
@@ -33,8 +32,6 @@ interface ShopFilters {
   material: string[];
   gender: string[];
 }
-
-type SortOption = 'name' | 'price_low_high' | 'price_high_low' | 'rating' | 'newest' | 'popularity' | 'featured';
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -107,8 +104,8 @@ const Shop: React.FC = () => {
     return () => clearTimeout(timer);
   }, [scrollToTop]);
   
+  const sortBy = 'name';
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('name');
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -116,7 +113,7 @@ const Shop: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Array<{_id: string, name: string}>>([]);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode] = useState<'grid' | 'list'>('grid');
   
   const [filters, setFilters] = useState<ShopFilters>({
     category: [],
@@ -447,19 +444,19 @@ const Shop: React.FC = () => {
 
 
 
-  const handleGenderToggle = useCallback((gender: string) => {
-    setFilters(prev => {
-      const newGenders = prev.gender.includes(gender)
-        ? prev.gender.filter(g => g !== gender)
-        : [...prev.gender, gender];
+  // const handleGenderToggle = useCallback((gender: string) => {
+  //   setFilters(prev => {
+  //     const newGenders = prev.gender.includes(gender)
+  //       ? prev.gender.filter(g => g !== gender)
+  //       : [...prev.gender, gender];
       
-      // Only update if the gender array actually changed
-      if (JSON.stringify(prev.gender) === JSON.stringify(newGenders)) {
-        return prev;
-      }
-      return { ...prev, gender: newGenders };
-    });
-  }, []);
+  //     // Only update if the gender array actually changed
+  //     if (JSON.stringify(prev.gender) === JSON.stringify(newGenders)) {
+  //       return prev;
+  //     }
+  //     return { ...prev, gender: newGenders };
+  //   });
+  // }, []);
 
 
 

@@ -69,7 +69,6 @@ const Home: React.FC = () => {
         if (response.products) {
           const allProducts = response.products;
           const inventories = response.inventories || [];
-          const categories = response.categories || [];
           
           // Process products to include inventory data
           const processedProducts = allProducts.map((product: Product) => {

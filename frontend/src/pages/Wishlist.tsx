@@ -6,7 +6,6 @@ import { useAppContext } from '../context/AppContext';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/product/ProductCard';
 import { formatCurrency } from '../utils/helpers';
-import { mockProducts } from '../data/mockData';
 import { useScrollToTop } from '../hooks/useScrollToTop';
 
 export const Wishlist: React.FC = () => {

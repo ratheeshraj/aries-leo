@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { reviewAPI } from '../../utils/api';
 
 // SVG Icon components for social media
 // You can move these to a separate file (e.g., src/components/icons.tsx) and import them
@@ -23,10 +22,6 @@ const FacebookIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 
 const Footer: React.FC = () => {
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [newsletterMessage, setNewsletterMessage] = useState('');
-
   const quickLinks = [
     { name: 'Home', href: '/' },
     { name: 'Shop', href: '/shop' },
@@ -47,22 +42,6 @@ const Footer: React.FC = () => {
   ];
 
   const currentYear = new Date().getFullYear();
-
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail.trim()) return;
-
-    setNewsletterStatus('loading');
-    try {
-      await reviewAPI.subscribeNewsletter(newsletterEmail);
-      setNewsletterStatus('success');
-      setNewsletterMessage('Successfully subscribed!');
-      setNewsletterEmail('');
-    } catch (error) {
-      setNewsletterStatus('error');
-      setNewsletterMessage(error instanceof Error ? error.message : 'Failed to subscribe');
-    }
-  };
 
   return (
     <footer className="bg-gray-900 text-gray-300 safe-area-bottom">

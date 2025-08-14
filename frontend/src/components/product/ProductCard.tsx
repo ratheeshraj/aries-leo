@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { 
   HeartIcon, 
   ShoppingCartIcon, 
-  EyeIcon 
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import type { Product } from '../../types';
