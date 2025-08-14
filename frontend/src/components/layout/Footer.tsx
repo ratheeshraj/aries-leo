@@ -132,7 +132,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Newsletter Subscription */}
-          <div className="lg:col-span-1">
+          {/* <div className="lg:col-span-1">
             <h4 className="text-xs sm:text-sm font-semibold text-white uppercase tracking-wider mb-4 sm:mb-6">Newsletter</h4>
             <p className="text-sm text-gray-400 mb-4">Stay updated with our latest collections and offers.</p>
             <form onSubmit={handleNewsletterSubmit} className="space-y-3">
@@ -157,7 +157,7 @@ const Footer: React.FC = () => {
                 </p>
               )}
             </form>
-          </div>
+          </div> */}
         </div>
       </div>
 

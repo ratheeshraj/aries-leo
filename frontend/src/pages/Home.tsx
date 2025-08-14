@@ -99,16 +99,23 @@ const Home: React.FC = () => {
           const featured = processedProducts.filter((product: Product) => product.isFeatured).slice(0, 4);
           setFeaturedProducts(featured);
           
-          // Filter new products (created within last 30 days or has recent launchDate)
-          const thirtyDaysAgo = new Date();
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          // Filter promotion products (products with compareAtPrice)
+          const promotionProducts = processedProducts.filter((product: Product) => {
+            return product.compareAtPrice && product.compareAtPrice > 0;
+          });
           
-          const newProducts = processedProducts.filter((product: Product) => {
-            const productDate = product.launchDate ? new Date(product.launchDate) : new Date(product.createdAt);
-            return productDate >= thirtyDaysAgo;
-          }).slice(0, 4);
+          // If more than 4 products, randomly select 4, otherwise use all
+          let selectedPromotions;
+          if (promotionProducts.length > 4) {
+            // Shuffle array and take first 4
+            selectedPromotions = promotionProducts
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 4);
+          } else {
+            selectedPromotions = promotionProducts;
+          }
           
-          setPromotionsProducts(newProducts);
+          setPromotionsProducts(selectedPromotions);
         }
       } catch (err) {
         setProductsError('Failed to fetch products.');

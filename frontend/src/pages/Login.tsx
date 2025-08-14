@@ -361,7 +361,7 @@ export const Login: React.FC = () => {
           </form>
 
           {/* Social Login */}
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
@@ -409,7 +409,7 @@ export const Login: React.FC = () => {
                 <span className="font-medium text-gray-700">Facebook</span>
               </Button>
             </div>
-          </div>
+          </div> */}
 
           {/* Toggle Login/Signup */}
           <div className="mt-8 text-center">

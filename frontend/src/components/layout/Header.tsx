@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingCartIcon,
   HeartIcon,
-  MagnifyingGlassIcon,
   Bars3Icon,
   XMarkIcon,
   UserIcon
@@ -16,9 +15,8 @@ import logo from '../../assets/aries-leo-logo.png'
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { cart } = useAppContext();
+  
+  const { cart, wishlist } = useAppContext();
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
 
@@ -37,20 +35,14 @@ const Header: React.FC = () => {
     return location.pathname.startsWith(href);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Navigate to shop with search query
-      window.location.href = `/shop?search=${encodeURIComponent(searchQuery.trim())}`;
-    }
-  };
+  
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
       {/* Top Banner */}
       <div className="bg-accent-rose text-white text-center py-2 px-4">
         <p className="text-xs sm:text-sm font-medium truncate">
-          <span className="hidden sm:inline">Free shipping on orders over $100 | Premium women's bottoms worldwide 🌍</span>
+          <span className="hidden sm:inline">Premium women's bottoms worldwide 🌍</span>
           <span className="sm:hidden">Free shipping over $100 🌍</span>
         </p>
       </div>
@@ -99,7 +91,7 @@ const Header: React.FC = () => {
           {/* Right side actions */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Search */}
-            <div className="relative">
+            {/* <div className="relative">
               <Button
                 variant="ghost"
                 size="sm"
@@ -135,7 +127,7 @@ const Header: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </div> */}
 
             {/* User/Login */}
             {isAuthenticated ? (
@@ -166,6 +158,11 @@ const Header: React.FC = () => {
             {/* Wishlist */}
             <Link to="/wishlist" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose">
               <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              {wishlist && wishlist.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
+                  {wishlist.length > 9 ? '9+' : wishlist.length}
+                </span>
+              )}
             </Link>
 
             {/* Cart */}

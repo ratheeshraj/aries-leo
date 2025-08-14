@@ -13,111 +13,45 @@ interface FAQItem {
 const faqData: FAQItem[] = [
   {
     id: '1',
-    category: 'Shipping & Delivery',
-    question: 'How long does shipping take?',
-    answer: 'We offer free standard shipping on orders over $100, which typically takes 5-7 business days. Express shipping (2-3 business days) and overnight shipping options are also available for an additional fee.'
+    category: 'Fabric & Care',
+    question: 'Will it shrink?',
+    answer: 'Not much. Since the fabric is already washed and ironed before stitching.'
   },
   {
     id: '2',
-    category: 'Shipping & Delivery',
-    question: 'Do you ship internationally?',
-    answer: 'Yes! We ship to over 50 countries worldwide. International shipping times vary by location but typically take 7-14 business days. Customs duties and taxes may apply and are the responsibility of the customer.'
+    category: 'Fabric & Care',
+    question: 'Is all pant 100% pure cotton?',
+    answer: 'Yes, all pants are 100% pure cotton.'
   },
   {
     id: '3',
-    category: 'Shipping & Delivery',
-    question: 'Can I track my order?',
-    answer: 'Absolutely! Once your order ships, you\'ll receive a tracking number via email. You can also track your order status by logging into your account on our website.'
+    category: 'Design & Features',
+    question: 'Do the pants have pockets?',
+    answer: 'Of course — with 4-inch deep pockets on both sides.'
   },
   {
     id: '4',
-    category: 'Returns & Exchanges',
-    question: 'What is your return policy?',
-    answer: 'We offer a 30-day return policy from the date of delivery. Items must be unworn, unwashed, and in original condition with tags attached. Return shipping is free for exchanges or store credit.'
+    category: 'Design & Features',
+    question: 'Pant with elastic — 60s adjustable drawstring',
+    answer: 'Both: half elastic with half belt, adjustable drawstring in front.'
   },
   {
     id: '5',
-    category: 'Returns & Exchanges',
-    question: 'How do I exchange an item?',
-    answer: 'To exchange an item, simply log into your account, select the order, and choose "Exchange" for the item you want to swap. We\'ll send you a prepaid return label and ship your new item once we receive the original.'
+    category: 'Washing Instructions',
+    question: 'Are these pants machine washable?',
+    answer: 'Except Kalamkari, all other pants can be washed in a machine.'
   },
   {
     id: '6',
-    category: 'Returns & Exchanges',
-    question: 'Can I return sale items?',
-    answer: 'Sale items can be returned for store credit only within 30 days of purchase. Final sale items (marked as such) cannot be returned or exchanged.'
+    category: 'Washing Instructions',
+    question: 'Kalamkari wash instructions:',
+    answer: 'No machine wash. → Mild soap wash recommended. Drying: → Dry in shade.'
   },
   {
     id: '7',
-    category: 'Sizing & Fit',
-    question: 'How do I find my size in women\'s bottoms?',
-    answer: 'Check our detailed size guide on each product page, designed specifically for women\'s measurements. We recommend measuring your waist, hips, and inseam, then comparing to our size chart. If you\'re between sizes, consider your preferred fit - size up for comfort or down for a more fitted look.'
-  },
-  {
-    id: '8',
-    category: 'Sizing & Fit',
-    question: 'What if my bottoms don\'t fit properly?',
-    answer: 'No worries! We offer free exchanges for size swaps within 30 days. Simply request an exchange through your account, and we\'ll send you a prepaid return label. Our customer service team can also help you find the perfect fit.'
-  },
-  {
-    id: '8a',
-    category: 'Sizing & Fit',
-    question: 'Do you offer petite and tall sizes?',
-    answer: 'Yes! Many of our styles are available in petite (for women 5\'4" and under) and tall (for women 5\'9" and over) lengths. Check the size options on each product page for availability.'
-  },
-  {
-    id: '9',
-    category: 'Product Care',
-    question: 'How should I care for my Aries Leo women\'s bottoms?',
-    answer: 'For best results, machine wash cold with like colors, tumble dry low, and avoid bleach. For delicate fabrics like our leggings, consider air drying. Check the care label on each item for specific instructions to maintain quality and fit.'
-  },
-  {
-    id: '10',
-    category: 'Product Care',
-    question: 'Are your bottoms pre-shrunk?',
-    answer: 'Yes, all our cotton bottoms are pre-shrunk during manufacturing. However, we still recommend washing in cold water and following care instructions to maintain the perfect fit and prevent any additional shrinkage.'
-  },
-  {
-    id: '11',
-    category: 'Orders & Payment',
-    question: 'What payment methods do you accept?',
-    answer: 'We accept all major credit cards (Visa, MasterCard, American Express, Discover), PayPal, Apple Pay, Google Pay, and Klarna for buy-now-pay-later options.'
-  },
-  {
-    id: '12',
-    category: 'Orders & Payment',
-    question: 'Can I modify or cancel my order?',
-    answer: 'Orders can be modified or cancelled within 1 hour of placement. After that, orders enter our fulfillment process and cannot be changed. Contact customer service immediately if you need to make changes.'
-  },
-  {
-    id: '13',
-    category: 'Account & Membership',
-    question: 'Do I need an account to place an order?',
-    answer: 'While you can checkout as a guest, creating an account lets you track orders, save favorites, earn rewards points, and enjoy faster checkout for future purchases.'
-  },
-  {
-    id: '14',
-    category: 'Account & Membership',
-    question: 'What are the benefits of your membership program?',
-    answer: 'Members earn points on every purchase, get early access to sales, receive exclusive offers, and enjoy birthday discounts. Plus, free shipping on all orders regardless of amount!'
-  },
-  {
-    id: '15',
-    category: 'Women\'s Specific',
-    question: 'Are your bottoms designed specifically for women?',
-    answer: 'Absolutely! Every piece in our collection is designed specifically for women\'s bodies, taking into account different body types, proportions, and fit preferences to ensure a flattering and comfortable fit.'
-  },
-  {
-    id: '16',
-    category: 'Women\'s Specific',
-    question: 'Do you offer maternity or post-pregnancy options?',
-    answer: 'While we don\'t have a dedicated maternity line, many of our high-waisted and adjustable styles work beautifully during and after pregnancy. Our customer service team can recommend the best options for your needs.'
-  },
-  {
-    id: '17',
-    category: 'Women\'s Specific',
-    question: 'What body types do your bottoms work best for?',
-    answer: 'Our collection is designed to flatter all body types! We offer various cuts including high-waisted, mid-rise, wide-leg, straight-leg, and fitted styles to complement different preferences and body shapes.'
+    category: 'Fabric & Care',
+    question: 'Will there be any colour bleeding?',
+    answer: 'No, there will be no colour bleeding.'
   }
 ];
 
@@ -160,7 +94,7 @@ export const FAQ: React.FC = () => {
             Frequently Asked Questions
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about our products, shipping, returns, and more.
+            Find answers to common questions about our pants, fabric care, washing instructions, and more.
           </p>
         </motion.div>
 
@@ -291,10 +225,18 @@ export const FAQ: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => window.location.href = '/contact'}
-              className="px-6 py-3 bg-accent-rose text-white rounded-lg hover:bg-accent-mauve transition-colors"
+              onClick={() => {
+                const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER;
+                const message = encodeURIComponent("Hi! I have a question about Aries Leo products. Can you help me?");
+                const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+              }}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
             >
-              Contact Support
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+              </svg>
+              WhatsApp Support
             </button>
             <button
               onClick={() => window.location.href = 'mailto:support@ariesleo.com'}
