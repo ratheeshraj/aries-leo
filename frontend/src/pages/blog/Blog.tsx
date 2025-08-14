@@ -135,74 +135,21 @@ const Blog: React.FC = () => {
           </div>
         </motion.section>
 
-        {/* Blog Posts Grid */}
+        {/* WordPress Blog iframe - Replacing Blog Posts Grid */}
         <motion.section
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {regularPosts.map((post, index) => (
-              <motion.article
-                key={post.id}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 * index }}
-              >
-                <div className="aspect-video overflow-hidden">
-                  <img
-                    src={post.featuredImage}
-                    alt={post.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    {post.tags.slice(0, 2).map(tag => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-accent-light text-accent-mauve text-xs font-medium rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>{post.author}</span>
-                      <span>{post.readTime} min</span>
-                    </div>
-                    <Link
-                      to={`/blog/${post.id}`}
-                      className="text-accent-rose hover:text-accent-mauve font-medium"
-                    >
-                      Read More
-                    </Link>
-                  </div>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+          <iframe
+            src="https://ariesleo4.wordpress.com/"
+            width="100%"
+            height="1000px"
+            style={{ border: "none" }}
+            title="WordPress Blog"
+            className="rounded-2xl shadow-lg"
+          ></iframe>
         </motion.section>
-
-        {/* Load More */}
-        <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          <Button variant="outline" size="lg">
-            Load More Articles
-          </Button>
-        </motion.div>
 
         {/* Newsletter CTA */}
         <motion.section

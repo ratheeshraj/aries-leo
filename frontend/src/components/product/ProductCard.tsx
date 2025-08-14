@@ -223,13 +223,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </div>
             )}
 
-            {!product.inStock && (
+            {/* {!product.inStock && (
               <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-10">
                 <span className="bg-gray-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded">
                   Sold Out
                 </span>
               </div>
-            )}
+            )} */}
 
             {/* Wishlist Button */}
             <button
@@ -432,12 +432,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {/* Add to Cart Button */}
           <Button
             onClick={(event) => handleAddToCart(event)}
-            disabled={!product.inStock}
             fullWidth
             size="sm"
             leftIcon={<ShoppingCartIcon className="w-4 h-4" />}
           >
-            {product.inStock ? 'Add to Cart' : 'Sold Out'}
+             Add to Cart
           </Button>
         </div>
       </div>

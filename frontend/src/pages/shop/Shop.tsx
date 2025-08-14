@@ -31,9 +31,7 @@ interface ShopFilters {
   featured: boolean;
   newArrivals: boolean;
   material: string[];
-  brand: string[];
   gender: string[];
-  status: string[];
 }
 
 type SortOption = 'name' | 'price_low_high' | 'price_high_low' | 'rating' | 'newest' | 'popularity' | 'featured';
@@ -79,6 +77,36 @@ FilterSection.displayName = 'FilterSection';
 const Shop: React.FC = () => {
   useScrollToTop();
   
+  // Manual scroll to top function as fallback
+  const scrollToTop = useCallback(() => {
+    try {
+      // Temporarily disable smooth scrolling
+      const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      
+      // Multiple scroll methods
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+      
+      // Restore smooth scrolling
+      setTimeout(() => {
+        document.documentElement.style.scrollBehavior = originalScrollBehavior;
+      }, 100);
+    } catch (error) {
+      console.warn('Manual scroll to top failed:', error);
+    }
+  }, []);
+  
+  // Additional scroll to top after component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToTop();
+    }, 200);
+    
+    return () => clearTimeout(timer);
+  }, [scrollToTop]);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [showFilters, setShowFilters] = useState(false);
@@ -101,9 +129,7 @@ const Shop: React.FC = () => {
     featured: false,
     newArrivals: false,
     material: [],
-    brand: [],
     gender: [],
-    status: [],
   });
 
   // Use refs to track the latest state for API calls
@@ -127,9 +153,7 @@ const Shop: React.FC = () => {
     const sizes = new Set<string>();
     const colors = new Set<string>();
     const materials = new Set<string>();
-    const brands = new Set<string>();
     const genders = new Set<string>();
-    const statuses = new Set<string>();
 
     products.forEach(product => {
       // Extract sizes and colors from inventory
@@ -145,18 +169,14 @@ const Shop: React.FC = () => {
 
       // Extract other properties
       if (product.material) materials.add(product.material);
-      if (product.brand) brands.add(product.brand);
       if (product.gender) genders.add(product.gender);
-      if (product.status) statuses.add(product.status);
     });
 
     return {
       sizes: Array.from(sizes).sort(),
       colors: Array.from(colors).sort(),
       materials: Array.from(materials).sort(),
-      brands: Array.from(brands).sort(),
       genders: Array.from(genders).sort(),
-      statuses: Array.from(statuses).sort(),
     };
   }, [products]);
 
@@ -183,9 +203,7 @@ const Shop: React.FC = () => {
         featured: currentFilters.featured || undefined,
         search: currentSearchQuery || undefined,
         material: currentFilters.material.length > 0 ? currentFilters.material : undefined,
-        brand: currentFilters.brand.length > 0 ? currentFilters.brand : undefined,
         gender: currentFilters.gender.length > 0 ? currentFilters.gender : undefined,
-        status: currentFilters.status.length > 0 ? currentFilters.status : undefined,
       };
 
       const response = await productAPI.getProducts(apiFilters);
@@ -267,7 +285,7 @@ const Shop: React.FC = () => {
 
     // Apply price range filter
     filteredProducts = filteredProducts.filter(product => {
-      const price = product.price || product.retailPrice || 0;
+      const price = product.compareAtPrice ? product.compareAtPrice : product.costPrice || 0;
       return price >= filters.priceRange[0] && price <= filters.priceRange[1];
     });
 
@@ -298,13 +316,6 @@ const Shop: React.FC = () => {
       );
     }
 
-    // Apply brand filter
-    if (filters.brand.length > 0) {
-      filteredProducts = filteredProducts.filter(product => 
-        filters.brand.some(brand => product.brand && product.brand.toLowerCase().includes(brand.toLowerCase()))
-      );
-    }
-
     // Apply gender filter
     if (filters.gender.length > 0) {
       filteredProducts = filteredProducts.filter(product => 
@@ -312,12 +323,7 @@ const Shop: React.FC = () => {
       );
     }
 
-    // Apply status filter
-    if (filters.status.length > 0) {
-      filteredProducts = filteredProducts.filter(product => 
-        filters.status.some(status => product.status && product.status.toLowerCase() === status.toLowerCase())
-      );
-    }
+    
 
     // Apply in stock filter
     if (filters.inStock) {
@@ -372,8 +378,10 @@ const Shop: React.FC = () => {
   }, [searchQuery, filters, sortBy]);
 
   const handleFilterChange = useCallback((key: keyof ShopFilters, value: any) => {
+    console.log('Filter change:', key, value);
     setFilters(prev => {
       // Only update if the value is actually different
+      console.log(JSON.stringify(prev[key]), JSON.stringify(value));
       if (JSON.stringify(prev[key]) === JSON.stringify(value)) {
         return prev;
       }
@@ -423,19 +431,7 @@ const Shop: React.FC = () => {
     });
   }, []);
 
-  const handleBrandToggle = useCallback((brand: string) => {
-    setFilters(prev => {
-      const newBrands = prev.brand.includes(brand)
-        ? prev.brand.filter(b => b !== brand)
-        : [...prev.brand, brand];
-      
-      // Only update if the brand array actually changed
-      if (JSON.stringify(prev.brand) === JSON.stringify(newBrands)) {
-        return prev;
-      }
-      return { ...prev, brand: newBrands };
-    });
-  }, []);
+
 
   const handleGenderToggle = useCallback((gender: string) => {
     setFilters(prev => {
@@ -451,19 +447,7 @@ const Shop: React.FC = () => {
     });
   }, []);
 
-  const handleStatusToggle = useCallback((status: string) => {
-    setFilters(prev => {
-      const newStatuses = prev.status.includes(status)
-        ? prev.status.filter(s => s !== status)
-        : [...prev.status, status];
-      
-      // Only update if the status array actually changed
-      if (JSON.stringify(prev.status) === JSON.stringify(newStatuses)) {
-        return prev;
-      }
-      return { ...prev, status: newStatuses };
-    });
-  }, []);
+
 
   const handleMaterialToggle = useCallback((material: string) => {
     setFilters(prev => {
@@ -491,9 +475,7 @@ const Shop: React.FC = () => {
       featured: false,
       newArrivals: false,
       material: [],
-      brand: [],
       gender: [],
-      status: [],
     });
     setSearchQuery('');
     setCurrentPage(1);
@@ -521,9 +503,7 @@ const Shop: React.FC = () => {
     (filters.featured ? 1 : 0) +
     (filters.newArrivals ? 1 : 0) +
     (filters.material.length > 0 ? 1 : 0) +
-    (filters.brand.length > 0 ? 1 : 0) +
-    (filters.gender.length > 0 ? 1 : 0) +
-    (filters.status.length > 0 ? 1 : 0), [filters]);
+    (filters.gender.length > 0 ? 1 : 0), [filters]);
 
   // Memoize filter options to prevent unnecessary re-renders
   const memoizedFilterOptions = useMemo(() => ({
@@ -558,31 +538,7 @@ const Shop: React.FC = () => {
         ))}
       </div>
     ),
-    brandContent: (
-      <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-        <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-          <input
-            type="checkbox"
-            checked={filters.brand.length === 0}
-            onChange={() => handleFilterChange('brand', [])}
-            className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
-          />
-          <span className="text-sm text-gray-700 group-hover:text-gray-900">All Brands</span>
-        </label>
-        {memoizedFilterOptions.availableOptions.brands.map(brand => (
-          <label key={brand} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-            <input
-              type="checkbox"
-              checked={filters.brand.includes(brand)}
-              onChange={() => handleBrandToggle(brand)}
-              className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
-            />
-            <span className="text-sm text-gray-700 group-hover:text-gray-900">{brand}</span>
-          </label>
-        ))}
-      </div>
-    ),
-  }), [filters, memoizedFilterOptions, handleFilterChange, handleCategoryToggle, handleBrandToggle]);
+  }), [filters, memoizedFilterOptions, handleFilterChange, handleCategoryToggle]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -695,15 +651,7 @@ const Shop: React.FC = () => {
                 {memoizedFilterContent.categoryContent}
               </FilterSection>
 
-              {/* Brand Filter */}
-              <FilterSection 
-                title="Brand" 
-                filterKey="brand" 
-                isExpanded={memoizedFilterOptions.expandedFilters.has('brand')} 
-                onToggle={toggleFilterExpansion}
-              >
-                {memoizedFilterContent.brandContent}
-              </FilterSection>
+
 
               {/* Gender Filter */}
               <FilterSection 
@@ -736,36 +684,7 @@ const Shop: React.FC = () => {
                 </div>
               </FilterSection>
 
-              {/* Status Filter */}
-              <FilterSection 
-                title="Status" 
-                filterKey="status" 
-                isExpanded={memoizedFilterOptions.expandedFilters.has('status')} 
-                onToggle={toggleFilterExpansion}
-              >
-                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-                    <input
-                      type="checkbox"
-                      checked={filters.status.length === 0}
-                      onChange={() => handleFilterChange('status', [])}
-                      className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
-                    />
-                    <span className="text-sm text-gray-700 group-hover:text-gray-900">All Statuses</span>
-                  </label>
-                  {memoizedFilterOptions.availableOptions.statuses.map(status => (
-                    <label key={status} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-                      <input
-                        type="checkbox"
-                        checked={filters.status.includes(status)}
-                        onChange={() => handleStatusToggle(status)}
-                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose focus:ring-2"
-                      />
-                      <span className="text-sm text-gray-700 group-hover:text-gray-900">{status.charAt(0).toUpperCase() + status.slice(1)}</span>
-                    </label>
-                  ))}
-                </div>
-              </FilterSection>
+
 
               {/* Price Range */}
               <FilterSection 
@@ -779,7 +698,7 @@ const Shop: React.FC = () => {
                     min="0"
                     max="10000"
                     value={filters.priceRange[1]}
-                    onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
+                    onChange={(e) => handleFilterChange('priceRange', [1, parseInt(e.target.value)])}
                     className="w-full accent-accent-rose"
                   />
                   <div className="flex justify-between text-sm text-gray-500">
@@ -947,7 +866,7 @@ const Shop: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -987,7 +906,7 @@ const Shop: React.FC = () => {
                       <option value="featured">Featured</option>
                     </select>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -1178,6 +1097,17 @@ const Shop: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Scroll to Top Button */}
+      <button
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        className="fixed bottom-6 right-6 bg-accent-rose text-white p-3 rounded-full shadow-lg hover:bg-accent-mauve transition-colors z-40"
+        aria-label="Scroll to top"
+      >
+        <ChevronUpIcon className="w-6 h-6" />
+      </button>
     </div>
   );
 };
