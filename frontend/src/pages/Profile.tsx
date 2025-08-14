@@ -10,7 +10,9 @@ import {
   HeartIcon,
   ArrowLeftIcon,
   ChevronDownIcon,
-  ChevronUpIcon
+  ChevronUpIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -37,6 +39,13 @@ export const Profile: React.FC = () => {
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
+  });
+
+  // Password visibility state
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
   });
 
   // Address form state
@@ -222,17 +231,21 @@ export const Profile: React.FC = () => {
 
   // Update form data when user data is loaded
   useEffect(() => {
-    if (user) {
-      setProfileForm({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
+    const fetchUser = async () => {
+      const user = await getProfile();
+      if (user) {
+        setProfileForm({
+          name: user.name || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      }
     }
-  }, [user]);
+    fetchUser();
+  }, []);
 
   // Handle profile form input changes
   const handleProfileInputChange = (name: string) => (value: string) => {
@@ -259,7 +272,7 @@ export const Profile: React.FC = () => {
   // Handle profile update
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log(profileForm, 'profileForm')
     // Validate passwords if changing
     if (profileForm.newPassword && profileForm.newPassword !== profileForm.confirmPassword) {
       setProfileError('New passwords do not match');
@@ -279,12 +292,12 @@ export const Profile: React.FC = () => {
       };
 
       if (profileForm.newPassword) {
-        updateData.currentPassword = profileForm.currentPassword;
+        updateData.oldPassword = profileForm.currentPassword;
         updateData.newPassword = profileForm.newPassword;
       }
 
       const response = await authAPI.updateProfile(token, updateData);
-      
+      console.log(response, 'response')
       if (response) {
         setProfileSuccess('Profile updated successfully!');
         // Clear password fields
@@ -543,26 +556,32 @@ export const Profile: React.FC = () => {
                       <div className="space-y-6">
                         <Input
                           label="Current Password"
-                          type="password"
+                          type={passwordVisibility.currentPassword ? 'text' : 'password'}
                           value={profileForm.currentPassword}
                           onChange={handleProfileInputChange('currentPassword')}
                           placeholder="Enter current password"
+                          rightIcon={passwordVisibility.currentPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                          onIconClick={() => setPasswordVisibility({ ...passwordVisibility, currentPassword: !passwordVisibility.currentPassword })}
                         />
                         
                         <Input
                           label="New Password"
-                          type="password"
+                          type={passwordVisibility.newPassword ? 'text' : 'password'}
                           value={profileForm.newPassword}
                           onChange={handleProfileInputChange('newPassword')}
                           placeholder="Enter new password"
+                          rightIcon={passwordVisibility.newPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                          onIconClick={() => setPasswordVisibility({ ...passwordVisibility, newPassword: !passwordVisibility.newPassword })}
                         />
                         
                         <Input
                           label="Confirm New Password"
-                          type="password"
+                          type={passwordVisibility.confirmPassword ? 'text' : 'password'}
                           value={profileForm.confirmPassword}
                           onChange={handleProfileInputChange('confirmPassword')}
                           placeholder="Confirm new password"
+                          rightIcon={passwordVisibility.confirmPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                          onIconClick={() => setPasswordVisibility({ ...passwordVisibility, confirmPassword: !passwordVisibility.confirmPassword })}
                         />
                       </div>
                     </div>

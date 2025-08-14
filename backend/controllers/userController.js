@@ -106,6 +106,7 @@ const getUserProfile = async (req, res) => {
 // @route   PUT /api/auth/profile
 // @access  Private
 const updateUserProfile = async (req, res) => {
+
   try {
     const user = await User.findById(req.user._id);
 
@@ -114,8 +115,26 @@ const updateUserProfile = async (req, res) => {
       user.email = req.body.email || user.email;
       user.phone = req.body.phone || user.phone;
       
-      if (req.body.password) {
-        user.password = req.body.password;
+      // Handle password update with old password verification
+      // Support both 'oldPassword' and 'currentPassword' field names for frontend compatibility
+      const oldPassword = req.body.oldPassword || req.body.currentPassword;
+      const newPassword = req.body.newPassword;
+      
+      if (oldPassword && newPassword) {
+        // Verify old password matches
+        const isOldPasswordValid = await user.matchPassword(oldPassword);
+        
+        if (!isOldPasswordValid) {
+          res.status(400);
+          throw new Error('Current password is incorrect');
+        }
+        
+        // Update to new password
+        user.password = newPassword;
+      } else if (oldPassword || newPassword) {
+        // If only one password field is provided, throw an error
+        res.status(400);
+        throw new Error('Both current password and new password are required for password update');
       }
 
       const updatedUser = await user.save();
@@ -133,7 +152,9 @@ const updateUserProfile = async (req, res) => {
       throw new Error('User not found');
     }
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    // Use the correct status code from the response or default to 500
+    const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+    res.status(statusCode).json({ message: error.message });
   }
 };
 

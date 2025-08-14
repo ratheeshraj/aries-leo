@@ -14,6 +14,7 @@ interface InputProps {
   fullWidth?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  onIconClick?: () => void;
   className?: string;
   id?: string;
   name?: string;
@@ -34,6 +35,7 @@ const Input: React.FC<InputProps> = ({
   fullWidth = true,
   leftIcon,
   rightIcon,
+  onIconClick,
   className = '',
   id,
   name,
@@ -88,7 +90,17 @@ const Input: React.FC<InputProps> = ({
         
         {rightIcon && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <span className="text-gray-400">{rightIcon}</span>
+            {onIconClick ? (
+              <button
+                type="button"
+                onClick={onIconClick}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-1 rounded"
+              >
+                {rightIcon}
+              </button>
+            ) : (
+              <span className="text-gray-400">{rightIcon}</span>
+            )}
           </div>
         )}
       </div>
