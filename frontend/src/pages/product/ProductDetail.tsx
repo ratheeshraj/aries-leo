@@ -777,7 +777,7 @@ const ProductDetail: React.FC = () => {
             >
               <div className="flex items-center gap-3">
                 <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />
-                <span className="text-sm sm:text-base text-gray-700">Free shipping on orders over $100</span>
+                <span className="text-sm sm:text-base text-gray-700">Free shipping on orders over Rs.2000</span>
               </div>
               <div className="flex items-center gap-3">
                 <ShieldCheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />

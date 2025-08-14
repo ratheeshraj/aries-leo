@@ -219,7 +219,7 @@ const Home: React.FC = () => {
               {
                 icon: <TruckIcon className="w-12 h-12" />,
                 title: "Global Shipping",
-                description: "Free worldwide shipping on orders over $100. Express delivery available to your doorstep"
+                description: "Free worldwide shipping on orders over Rs.2000. Express delivery available to your doorstep"
               },
               {
                 icon: <ShieldCheckIcon className="w-12 h-12" />,
