@@ -5,6 +5,7 @@ const {
   getBbifyProductModel,
   getBbifyInventoryModel,
   getBbifyCategoryModel,
+  getBbifyDiscountModel,
 } = require("../config/db");
 
 const generateSignedUrl = async (urlOrKey) => {
@@ -69,16 +70,18 @@ const getProducts = async (req, res) => {
     const ProductBbify = getBbifyProductModel();
     const InventoryBbify = getBbifyInventoryModel();
     const CategoryBbify = getBbifyCategoryModel();
+    const DiscountBbify = getBbifyDiscountModel();
 
     const businessId = "68905add43720ae25de1b80a";
 
     // Fetch products, inventories, and categories for the specific business
-    const [products, inventories, categories] = await Promise.all([
+    const [products, inventories, categories, discounts] = await Promise.all([
       ProductBbify.find({ business: businessId, isActive:true, isDeleted: false }).sort({
         createdAt: -1,
       }),
       InventoryBbify.find({ business: businessId, isDeleted: false }),
       CategoryBbify.find({ business: businessId, isActive: true, isDeleted: false }).select("name"),
+      DiscountBbify.find({ business: businessId, isActive: true, isDeleted: false }),
     ]);
 
     // Process images for signed URLs
@@ -113,6 +116,7 @@ const getProducts = async (req, res) => {
       products: processedProducts,
       categories,
       inventories,
+      discounts,
     });
   } catch (error) {
     console.error("Error in getProducts:", error);

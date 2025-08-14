@@ -13,6 +13,9 @@ const razorpay = new Razorpay({
 const createOrder = async (req, res) => {
   try {
     const {
+      couponCode,
+      couponUsageTracked,
+      couponApplied,
       orderItems,
       shippingAddress,
       paymentMethod,
@@ -71,6 +74,9 @@ const createOrder = async (req, res) => {
       razorpayOrderId: razorpayOrderId || '',
       razorpayPaymentId: razorpayPaymentId || '',
       razorpaySignature: razorpaySignature || '',
+      couponCode: couponCode || null,
+      couponUsageTracked: couponUsageTracked || false,
+      couponApplied: couponApplied || false,
     });
 
     const createdOrder = await order.save();

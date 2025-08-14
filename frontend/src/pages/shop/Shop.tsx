@@ -206,6 +206,10 @@ const Shop: React.FC = () => {
 
       const response = await productAPI.getProducts(apiFilters);
       console.log('Fetched products:', response);
+
+      if (response.discounts) {
+        localStorage.setItem('discounts', JSON.stringify(response.discounts));
+      }
       
       // Transform backend products to frontend format, including inventory data
       const transformedProducts = transformProducts(
