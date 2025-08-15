@@ -25,6 +25,11 @@ const useAuth = () => {
       console.log('Attempting login with:', { email });
       const data = await authAPI.login({ email, password });
       console.log('Login response:', data);
+      if (data?.requiresOtp) {
+        navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+        return false;
+      }
+
       if (data) {
         // Store user data in context
         loginContext(data, data.token);
@@ -54,10 +59,9 @@ const useAuth = () => {
       console.log('Attempting registration with:', userData);
       const data = await authAPI.register(userData);
       console.log('Registration response:', data);
-      if (data) {
-        // Store user data in context
-        loginContext(data, data.token);
-        return true;
+      if (data?.email) {
+        navigate(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+        return false;
       }
       return false;
     } catch (error: any) {
@@ -144,6 +148,43 @@ const useAuth = () => {
     }
   }, [isAuthenticated, updateUserContext, setLoading]);
 
+  const verifyOtp = useCallback(async (email: string, otp: string) => {
+    setLoading(true);
+    clearError();
+
+    try {
+      const data = await authAPI.verifyOtp({ email, otp });
+      if (data?.token) {
+        loginContext(data.user, data.token);
+        navigate('/');
+        return true;
+      }
+      return false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setError(error.message || 'OTP verification failed');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [loginContext, navigate, setLoading, setError, clearError]);
+
+  const resendOtp = useCallback(async (email: string) => {
+  setLoading(true);
+  clearError();
+
+  try {
+    const data = await authAPI.resendOtp(email);
+    return data?.message || 'OTP resent successfully';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    setError(error.message || 'Failed to resend OTP');
+    return false;
+  } finally {
+    setLoading(false);
+  }
+}, [setLoading, setError, clearError]);
+
   return {
     user,
     isAuthenticated,
@@ -152,7 +193,9 @@ const useAuth = () => {
     logout,
     getProfile,
     updateProfile,
-    addAddress
+    addAddress,
+    verifyOtp,
+    resendOtp,
   };
 };
 

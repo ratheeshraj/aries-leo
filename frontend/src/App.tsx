@@ -16,6 +16,7 @@ import { Profile } from './pages/Profile';
 import { NotFound } from './pages/NotFound';
 import { AppProvider } from './context/AppContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { VerifyOtp } from './pages/VerifyOtp';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
               <Route path="faq" element={<FAQ />} />
             </Route>
             <Route path="login" element={<Login />} />
+            <Route path="verify-otp" element={<VerifyOtp />} />
             <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
