@@ -7,12 +7,16 @@ const {
   updateUserProfile,
   addUserAddress,
   deleteUserAddress,
+  verifyOtp,
+  resendOtp,
 } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Public routes
 router.post('/login', loginUser);
 router.post('/register', registerUser);
+router.post('/verify-otp', verifyOtp);
+router.post('/resend-otp', resendOtp);
 
 // Protected routes
 router.route('/profile')
