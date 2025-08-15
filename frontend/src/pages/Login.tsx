@@ -1,83 +1,100 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  EyeIcon, 
-  EyeSlashIcon, 
-  UserIcon, 
-  EnvelopeIcon, 
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  UserIcon,
+  EnvelopeIcon,
   LockClosedIcon,
   ShieldCheckIcon,
-  ArrowLeftIcon
-} from '@heroicons/react/24/outline';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import { useScrollToTop } from '../hooks/useScrollToTop';
-import useAuth from '../hooks/useAuth';
-import logo from '../assets/aries-leo-logo.png'
+  ArrowLeftIcon,
+} from "@heroicons/react/24/outline";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import { useScrollToTop } from "../hooks/useScrollToTop";
+import useAuth from "../hooks/useAuth";
+import logo from "../assets/aries-leo-logo.png";
+import { productAPI } from "../utils/api";
 
 export const Login: React.FC = () => {
   useScrollToTop();
-  
+
   const { login, register } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phone: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
   });
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
+    const newErrors: { [key: string]: string } = {};
+
     if (!isLogin) {
-      if (!formData.name.trim()) newErrors.name = 'Full name is required';
+      if (!formData.name.trim()) newErrors.name = "Full name is required";
       if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match';
+        newErrors.confirmPassword = "Passwords do not match";
       }
     }
-    
+
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
-    
+
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (!isLogin && formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsLoading(true);
     setErrors({});
-    
+
     try {
       if (isLogin) {
         // Login user
         const success = await login(formData.email, formData.password);
-        
+
         if (success) {
-          console.log('Login successful');
+          // retrieve products data
+          const response = await productAPI.getProducts();
+          if (response.discounts) {
+            localStorage.setItem(
+              "discounts",
+              JSON.stringify(response.discounts)
+            );
+          }
+
           // Redirect to home page or dashboard
-          window.location.href = '/';
+          const from = location.state?.from || "/";
+          if (from === "/checkout") {
+            navigate(from);
+          } else {
+            navigate("/");
+          }
         } else {
-          setErrors({ submit: 'Login failed. Please check your credentials.' });
+          setErrors({ submit: "Login failed. Please check your credentials." });
         }
       } else {
         // Register user
@@ -87,18 +104,20 @@ export const Login: React.FC = () => {
           password: formData.password,
           phone: formData.phone || undefined,
         });
-        
+
         if (success) {
-          console.log('Registration successful');
+          console.log("Registration successful");
           // Redirect to home page or dashboard
-          window.location.href = '/';
+          navigate("/");
         } else {
-          setErrors({ submit: 'Registration failed. Please try again.' });
+          setErrors({ submit: "Registration failed. Please try again." });
         }
       }
     } catch (error: any) {
-      console.error('Authentication error:', error);
-      setErrors({ submit: error.message || 'Something went wrong. Please try again.' });
+      console.error("Authentication error:", error);
+      setErrors({
+        submit: error.message || "Something went wrong. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -107,13 +126,13 @@ export const Login: React.FC = () => {
   const handleInputChange = (name: string) => (value: string) => {
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
-        [name]: ''
+        [name]: "",
       });
     }
   };
@@ -126,12 +145,18 @@ export const Login: React.FC = () => {
       {/* Back Button */}
       <div className="absolute top-6 left-6 z-20">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => {
+            if (location.state?.from === "/checkout") {
+              navigate("/cart");
+            } else {
+              navigate(-1);
+            }
+          }}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-2 rounded-lg p-2"
         >
           <ArrowLeftIcon className="w-5 h-5" />
           <span className="text-sm font-medium">Back</span>
-        </button>
+        </button>{" "}
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative">
@@ -142,27 +167,30 @@ export const Login: React.FC = () => {
         >
           {/* Logo Section */}
           <div className="flex justify-center">
-            <img src={logo} alt="Aries Leo Logo" className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64" />
+            <img
+              src={logo}
+              alt="Aries Leo Logo"
+              className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64"
+            />
           </div>
-          <motion.h2 
-            key={isLogin ? 'login' : 'signup'}
+          <motion.h2
+            key={isLogin ? "login" : "signup"}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-2xl font-bold text-gray-900"
           >
-            {isLogin ? 'Welcome back' : 'Create your account'}
+            {isLogin ? "Welcome back" : "Create your account"}
           </motion.h2>
-          <motion.p 
-            key={isLogin ? 'login-desc' : 'signup-desc'}
+          <motion.p
+            key={isLogin ? "login-desc" : "signup-desc"}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="mt-2 text-gray-600 max-w-sm mx-auto"
           >
-            {isLogin 
-              ? 'Sign in to your account to continue your shopping journey'
-              : 'Join the Aries Leo community and enjoy exclusive benefits and personalized experiences'
-            }
+            {isLogin
+              ? "Sign in to your account to continue your shopping journey"
+              : "Join the Aries Leo community and enjoy exclusive benefits and personalized experiences"}
           </motion.p>
         </motion.div>
       </div>
@@ -181,7 +209,9 @@ export const Login: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 p-4 bg-accent-light border border-accent-medium rounded-lg"
             >
-              <p className="text-sm text-accent-rose text-center">{errors.submit}</p>
+              <p className="text-sm text-accent-rose text-center">
+                {errors.submit}
+              </p>
             </motion.div>
           )}
 
@@ -189,7 +219,7 @@ export const Login: React.FC = () => {
             {!isLogin && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 className="space-y-4"
               >
@@ -201,7 +231,7 @@ export const Login: React.FC = () => {
                   autoComplete="name"
                   required
                   value={formData.name}
-                  onChange={handleInputChange('name')}
+                  onChange={handleInputChange("name")}
                   error={errors.name}
                   leftIcon={<UserIcon className="h-5 w-5" />}
                   placeholder="John Doe"
@@ -213,7 +243,7 @@ export const Login: React.FC = () => {
                   type="tel"
                   autoComplete="tel"
                   value={formData.phone}
-                  onChange={handleInputChange('phone')}
+                  onChange={handleInputChange("phone")}
                   placeholder="+91 98765 43210"
                 />
               </motion.div>
@@ -227,7 +257,7 @@ export const Login: React.FC = () => {
               autoComplete="email"
               required
               value={formData.email}
-              onChange={handleInputChange('email')}
+              onChange={handleInputChange("email")}
               error={errors.email}
               leftIcon={<EnvelopeIcon className="h-5 w-5" />}
               placeholder="you@example.com"
@@ -237,11 +267,11 @@ export const Login: React.FC = () => {
               label="Password"
               id="password"
               name="password"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete={isLogin ? 'current-password' : 'new-password'}
+              type={showPassword ? "text" : "password"}
+              autoComplete={isLogin ? "current-password" : "new-password"}
               required
               value={formData.password}
-              onChange={handleInputChange('password')}
+              onChange={handleInputChange("password")}
               error={errors.password}
               leftIcon={<LockClosedIcon className="h-5 w-5" />}
               rightIcon={
@@ -257,31 +287,35 @@ export const Login: React.FC = () => {
                   )}
                 </button>
               }
-              placeholder={isLogin ? "Enter your password" : "Create a strong password"}
+              placeholder={
+                isLogin ? "Enter your password" : "Create a strong password"
+              }
             />
 
             {!isLogin && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
+                animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
               >
                 <Input
                   label="Confirm password"
                   id="confirmPassword"
                   name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
                   value={formData.confirmPassword}
-                  onChange={handleInputChange('confirmPassword')}
+                  onChange={handleInputChange("confirmPassword")}
                   error={errors.confirmPassword}
                   leftIcon={<ShieldCheckIcon className="h-5 w-5" />}
                   rightIcon={
                     <button
                       type="button"
                       className="focus:outline-none hover:text-gray-600 transition-colors"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                     >
                       {showConfirmPassword ? (
                         <EyeSlashIcon className="h-5 w-5" />
@@ -292,25 +326,61 @@ export const Login: React.FC = () => {
                   }
                   placeholder="Confirm your password"
                 />
-                
+
                 {/* Password Requirements */}
                 {formData.password && (
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center space-x-2">
-                      <CheckCircleIcon className={`h-4 w-4 ${formData.password.length >= 6 ? 'text-green-500' : 'text-gray-300'}`} />
-                      <span className={`text-xs ${formData.password.length >= 6 ? 'text-green-600' : 'text-gray-500'}`}>
+                      <CheckCircleIcon
+                        className={`h-4 w-4 ${
+                          formData.password.length >= 6
+                            ? "text-green-500"
+                            : "text-gray-300"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs ${
+                          formData.password.length >= 6
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }`}
+                      >
                         At least 6 characters
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <CheckCircleIcon className={`h-4 w-4 ${/[A-Z]/.test(formData.password) ? 'text-green-500' : 'text-gray-300'}`} />
-                      <span className={`text-xs ${/[A-Z]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}`}>
+                      <CheckCircleIcon
+                        className={`h-4 w-4 ${
+                          /[A-Z]/.test(formData.password)
+                            ? "text-green-500"
+                            : "text-gray-300"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs ${
+                          /[A-Z]/.test(formData.password)
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }`}
+                      >
                         One uppercase letter
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <CheckCircleIcon className={`h-4 w-4 ${/[0-9]/.test(formData.password) ? 'text-green-500' : 'text-gray-300'}`} />
-                      <span className={`text-xs ${/[0-9]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}`}>
+                      <CheckCircleIcon
+                        className={`h-4 w-4 ${
+                          /[0-9]/.test(formData.password)
+                            ? "text-green-500"
+                            : "text-gray-300"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs ${
+                          /[0-9]/.test(formData.password)
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }`}
+                      >
                         One number
                       </span>
                     </div>
@@ -352,10 +422,12 @@ export const Login: React.FC = () => {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                  {isLogin ? 'Signing in...' : 'Creating account...'}
+                  {isLogin ? "Signing in..." : "Creating account..."}
                 </div>
+              ) : isLogin ? (
+                "Sign in"
               ) : (
-                isLogin ? 'Sign in' : 'Create account'
+                "Create account"
               )}
             </Button>
           </form>
@@ -421,34 +493,34 @@ export const Login: React.FC = () => {
                   setIsLogin(!isLogin);
                   setErrors({});
                   setFormData({
-                    name: '',
-                    email: '',
-                    password: '',
-                    confirmPassword: '',
-                    phone: ''
+                    name: "",
+                    email: "",
+                    password: "",
+                    confirmPassword: "",
+                    phone: "",
                   });
                 }}
                 className="ml-2 font-semibold text-accent-rose hover:text-accent-mauve transition-colors focus:outline-none focus:underline"
               >
-                {isLogin ? 'Sign up' : 'Sign in'}
+                {isLogin ? "Sign up" : "Sign in"}
               </button>
             </p>
           </div>
 
           {/* Terms and Privacy (for signup) */}
           {!isLogin && (
-            <motion.div 
+            <motion.div
               className="mt-6 text-center"
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
             >
               <p className="text-xs text-gray-500 leading-relaxed">
-                By creating an account, you agree to our{' '}
+                By creating an account, you agree to our{" "}
                 <button className="text-accent-rose hover:text-accent-mauve underline focus:outline-none">
                   Terms of Service
-                </button>{' '}
-                and{' '}
+                </button>{" "}
+                and{" "}
                 <button className="text-accent-rose hover:text-accent-mauve underline focus:outline-none">
                   Privacy Policy
                 </button>
