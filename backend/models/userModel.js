@@ -36,6 +36,18 @@ const userSchema = new mongoose.Schema(
         country: { type: String, required: true, default: 'India' },
       },
     ],
+    otp: {
+      type: String,
+      required: false,
+    },
+    otpExpires: {
+      type: Date,
+      required: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,

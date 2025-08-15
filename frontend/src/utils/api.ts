@@ -49,6 +49,39 @@ export const authAPI = {
     return response.json();
   },
 
+  verifyOtp: async (data: {
+    email: string;
+    otp: string;
+  }) => {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'OTP verification failed');
+    }
+
+    return response.json();
+  },
+
+  resendOtp: async (email: string) => {
+    const res = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Failed to resend OTP');
+    }
+    return res.json();
+  },
+
   // Get user profile (requires authentication)
   getProfile: async (token: string) => {
     const response = await fetch(`${API_BASE_URL}/auth/profile`, {
