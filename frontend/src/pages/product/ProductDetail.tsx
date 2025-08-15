@@ -649,6 +649,21 @@ const ProductDetail: React.FC = () => {
                 </>
               )}
 
+              {/* Low Stock Alert */}
+              {(() => {
+                const selectedSizeStock = inventory.find(inv => inv.size === selectedSize)?.stockQuantity || 0;
+                const hasLowStock = selectedSizeStock <= 5 && selectedSizeStock > 0;
+                return hasLowStock ? (
+                  <div className={`absolute z-10 ${
+                    hasDiscount ? 'top-16 left-2' : 'top-2 left-2'
+                  }`}>
+                    <span className="bg-orange-500 text-white px-2 py-1 text-sm font-semibold rounded">
+                      Only few pieces left.
+                    </span>
+                  </div>
+                ) : null;
+              })()}
+
               {/* Discount Badge */}
               {hasDiscount && (
                 <div className="absolute top-2 left-2 z-10">
