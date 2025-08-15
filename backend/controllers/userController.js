@@ -28,11 +28,9 @@ const loginUser = async (req, res) => {
     }
 
     if (!user.isVerified) {
-      if (!user.isVerified) {
-        await assignAndSendOtp(user);
-        res.status(200).json({ requiresOtp: true, email: user.email });
-        return;
-      }
+      await assignAndSendOtp(user);
+      res.status(200).json({ requiresOtp: true, email: user.email });
+      return;
     }
 
     if (isMatch) {
@@ -143,8 +141,7 @@ const resendOtp = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
-    if (user.isVerified)
-      return res.status(400).json({ message: "User already verified" });
+    if (user.isVerified) return res.status(400).json({ message: "User already verified" });
 
     await assignAndSendOtp(user);
 
@@ -211,9 +208,7 @@ const updateUserProfile = async (req, res) => {
       } else if (oldPassword || newPassword) {
         // If only one password field is provided, throw an error
         res.status(400);
-        throw new Error(
-          "Both current password and new password are required for password update"
-        );
+        throw new Error("Both current password and new password are required for password update");
       }
 
       const updatedUser = await user.save();
@@ -247,7 +242,9 @@ const addUserAddress = async (req, res) => {
     // Validate required fields on backend
     if (!firstName || !lastName || !phone || !street || !city || !state || !postalCode) {
       res.status(400);
-      throw new Error('All required fields must be provided: firstName, lastName, phone, street, city, state, postalCode');
+      throw new Error(
+        "All required fields must be provided: firstName, lastName, phone, street, city, state, postalCode"
+      );
     }
 
     if (user) {
@@ -259,15 +256,15 @@ const addUserAddress = async (req, res) => {
         city: city.trim(),
         state: state.trim(),
         postalCode: postalCode.trim(),
-        country: (country || 'India').trim(),
+        country: (country || "India").trim(),
       };
 
       user.addresses.push(address);
-      
+
       // Validate the user document before saving
       const validationError = user.validateSync();
       if (validationError) {
-        console.error('Validation error:', validationError);
+        console.error("Validation error:", validationError);
         res.status(400);
         throw new Error(`Validation error: ${validationError.message}`);
       }
@@ -280,7 +277,7 @@ const addUserAddress = async (req, res) => {
       throw new Error("User not found");
     }
   } catch (error) {
-    const statusCode = error.message.includes('Validation error') ? 400 : 500;
+    const statusCode = error.message.includes("Validation error") ? 400 : 500;
     res.status(statusCode).json({ message: error.message });
   }
 };
@@ -299,9 +296,7 @@ const deleteUserAddress = async (req, res) => {
     }
 
     // Find the address index using the _id
-    const addressIndex = user.addresses.findIndex(
-      (address) => address._id.toString() === addressId
-    );
+    const addressIndex = user.addresses.findIndex((address) => address._id.toString() === addressId);
 
     if (addressIndex === -1) {
       res.status(404);
