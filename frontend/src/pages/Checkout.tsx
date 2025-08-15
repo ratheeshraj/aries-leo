@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import useAuth from "../hooks/useAuth";
 import { formatCurrency, calculateShipping } from "../utils/helpers";
-import { API_BASE_URL, orderAPI } from "../utils/api";
+import { orderAPI } from "../utils/api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import type { ShippingAddress, Product } from "../types";
