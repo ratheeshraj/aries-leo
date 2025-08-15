@@ -214,7 +214,8 @@ const Shop: React.FC = () => {
       // Transform backend products to frontend format, including inventory data
       const transformedProducts = transformProducts(
         response.products || [], 
-        response.inventories || []
+        response.inventories || [],
+        response.categories || []
       );
       setProducts(transformedProducts);
       
