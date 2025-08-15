@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import useAuth from "../hooks/useAuth";
 import { formatCurrency, calculateShipping } from "../utils/helpers";
-import { orderAPI } from "../utils/api";
+import { API_BASE_URL, orderAPI } from "../utils/api";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import type { ShippingAddress, Product } from "../types";
@@ -60,14 +60,7 @@ const Checkout: React.FC = () => {
     phone: "",
   });
 
-  const [paymentMethod, setPaymentMethod] = useState("card");
-  const [cardDetails, setCardDetails] = useState({
-    number: "",
-    expiry: "",
-    cvv: "",
-    name: "",
-  });
-
+  const [paymentMethod, setPaymentMethod] = useState("razorpay");
   const [useSameAddress, setUseSameAddress] = useState(true);
 
   // Discount code states
@@ -292,6 +285,20 @@ const Checkout: React.FC = () => {
     setDiscountError("");
   };
 
+  const initializeRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
 
@@ -300,66 +307,147 @@ const Checkout: React.FC = () => {
         throw new Error("Authentication required");
       }
 
-      const orderData = {
-        orderItems: cart.items.map(
-          (item: {
-            product: Product;
-            quantity: number;
-            selectedSize?: string;
-            selectedColor?: string;
-            inventoryId?: string;
-          }) => ({
-            name: item.product.name,
-            qty: item.quantity,
-            image:
-              Array.isArray(item.product.images) &&
-              item.product.images.length > 0
-                ? typeof item.product.images[0] === "string"
-                  ? item.product.images[0]
-                  : item.product.images[0].original ||
-                    item.product.images[0].medium ||
-                    item.product.images[0].thumb
-                : "/placeholder-product.jpg",
-            price: item.product.compareAtPrice || item.product.costPrice || 0,
-            salePrice: item.product.salePrice || 0,
-            discountPercentage: 0, // Will be calculated by backend if needed
-            inventory: item.inventoryId,
-          })
-        ),
-        shippingAddress: {
-          firstName: shippingAddress.firstName,
-          lastName: shippingAddress.lastName,
-          street: shippingAddress.address1,
-          city: shippingAddress.city,
-          state: shippingAddress.state,
-          postalCode: shippingAddress.postalCode,
-          country: shippingAddress.country,
-          phone: shippingAddress.phone,
+      // Initialize Razorpay
+      const razorpayLoaded = await initializeRazorpay();
+      if (!razorpayLoaded) {
+        throw new Error("Razorpay SDK failed to load");
+      }
+
+      // Get Razorpay key
+      const keyResponse = await fetch(`${API_BASE_URL}/payments/get-razorpay-key`);
+      const keyData = await keyResponse.json();
+      
+      // Create Razorpay order
+      const razorpayOrderResponse = await fetch(`${API_BASE_URL}/payments/create-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        paymentMethod: paymentMethod === "card" ? "Razorpay" : paymentMethod,
-        itemsPrice: subtotal,
-        taxPrice: 0, // Will be calculated by backend
-        shippingPrice: shipping,
-        totalPrice: total,
-        discountAmount: discountAmount,
-        couponCode: appliedDiscount?.code || null,
-        couponUsageTracked: appliedDiscount ? true : false,
-        couponApplied: appliedDiscount ? true : false,
+        body: JSON.stringify({
+          amount: total, // Amount in rupees, will be converted to paise in backend
+          currency: 'INR',
+          receipt: `receipt_${Date.now()}`,
+          notes: {
+            discount_code: appliedDiscount?.code || '',
+            customer_name: `${shippingAddress.firstName} ${shippingAddress.lastName}`
+          }
+        })
+      });
+
+      if (!razorpayOrderResponse.ok) {
+        throw new Error('Failed to create Razorpay order');
+      }
+
+      const razorpayOrder = await razorpayOrderResponse.json();
+
+      const options = {
+        key: keyData.key,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: 'Aries Leo',
+        description: 'Order Payment',
+        order_id: razorpayOrder.id,
+        handler: async function (response: any) {
+          try {
+            // Payment successful, create order with payment details
+            const orderData = {
+              orderItems: cart.items.map(
+                (item: {
+                  product: Product;
+                  quantity: number;
+                  selectedSize?: string;
+                  selectedColor?: string;
+                  inventoryId?: string;
+                }) => ({
+                  name: item.product.name,
+                  qty: item.quantity,
+                  image:
+                    Array.isArray(item.product.images) &&
+                    item.product.images.length > 0
+                      ? typeof item.product.images[0] === "string"
+                        ? item.product.images[0]
+                        : item.product.images[0].original ||
+                          item.product.images[0].medium ||
+                          item.product.images[0].thumb
+                      : "/placeholder-product.jpg",
+                  price: item.product.compareAtPrice || item.product.costPrice || 0,
+                  salePrice: item.product.salePrice || 0,
+                  discountPercentage: 0,
+                  inventory: item.inventoryId,
+                })
+              ),
+              shippingAddress: {
+                firstName: shippingAddress.firstName,
+                lastName: shippingAddress.lastName,
+                street: shippingAddress.address1,
+                city: shippingAddress.city,
+                state: shippingAddress.state,
+                postalCode: shippingAddress.postalCode,
+                country: shippingAddress.country,
+                phone: shippingAddress.phone,
+              },
+              paymentMethod: "Razorpay",
+              itemsPrice: subtotal,
+              taxPrice: 0,
+              shippingPrice: shipping,
+              totalPrice: total,
+              discountAmount: discountAmount,
+              couponCode: appliedDiscount?.code || null,
+              couponUsageTracked: appliedDiscount ? true : false,
+              couponApplied: appliedDiscount ? true : false,
+              isPaid: true,
+              paidAt: new Date().toISOString(),
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            };
+
+            const orderResponse = await orderAPI.createOrder(orderData, token);
+            const newOrderNumber = orderResponse._id || `ORD-${Date.now()}`;
+            setOrderNumber(newOrderNumber);
+
+            // Clear cart and show success
+            clearCart();
+            setOrderComplete(true);
+          } catch (error) {
+            console.error("Order creation failed:", error);
+            alert("Payment successful but order creation failed. Please contact support.");
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+          email: '', // Add email if available
+          contact: shippingAddress.phone,
+        },
+        notes: {
+          address: `${shippingAddress.address1}, ${shippingAddress.city}`,
+          discount_code: appliedDiscount?.code || '',
+        },
+        theme: {
+          color: '#F43F5E',
+        },
+        method: {
+          card: true,
+          netbanking: true,
+          wallet: true,
+          upi: true,
+          paylater: true,
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+          },
+        },
       };
 
-      console.log(orderData);
-
-      const response = await orderAPI.createOrder(orderData, token);
-      const newOrderNumber = response._id || `ORD-${Date.now()}`;
-      setOrderNumber(newOrderNumber);
-
-      // Clear cart and show success
-      clearCart();
-      setOrderComplete(true);
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (error) {
-      console.error("Order processing failed:", error);
-      alert("There was an error processing your order. Please try again.");
-    } finally {
+      console.error("Payment initialization failed:", error);
+      alert("There was an error initializing payment. Please try again.");
       setIsProcessing(false);
     }
   };
@@ -376,12 +464,7 @@ const Checkout: React.FC = () => {
           shippingAddress.postalCode
         );
       case 2:
-        return !!(
-          cardDetails.number &&
-          cardDetails.expiry &&
-          cardDetails.cvv &&
-          cardDetails.name
-        );
+        return paymentMethod === "razorpay";
       case 3:
         return true;
       default:
@@ -747,90 +830,41 @@ const Checkout: React.FC = () => {
                           <input
                             type="radio"
                             name="payment"
-                            value="card"
-                            checked={paymentMethod === "card"}
+                            value="razorpay"
+                            checked={paymentMethod === "razorpay"}
                             onChange={(e) => setPaymentMethod(e.target.value)}
                             className="text-accent-rose focus:ring-accent-rose"
                           />
                           <div className="ml-3">
                             <p className="font-medium text-gray-900">
-                              Credit / Debit Card
+                              Cards, UPI & More
                             </p>
                             <p className="text-sm text-gray-600">
-                              Visa, Mastercard, American Express
-                            </p>
-                          </div>
-                        </label>
-                        <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <input
-                            type="radio"
-                            name="payment"
-                            value="paypal"
-                            checked={paymentMethod === "paypal"}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="text-accent-rose focus:ring-accent-rose"
-                          />
-                          <div className="ml-3">
-                            <p className="font-medium text-gray-900">PayPal</p>
-                            <p className="text-sm text-gray-600">
-                              Pay with your PayPal account
+                              Pay securely with Razorpay - Cards, UPI, Net Banking, Wallets
                             </p>
                           </div>
                         </label>
                       </div>
                     </div>
 
-                    {/* Card Details */}
-                    {paymentMethod === "card" && (
-                      <div className="space-y-4">
-                        <Input
-                          label="Card Number"
-                          value={cardDetails.number}
-                          onChange={(value) =>
-                            setCardDetails((prev) => ({
-                              ...prev,
-                              number: value,
-                            }))
-                          }
-                          placeholder="1234 5678 9012 3456"
-                          required
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <Input
-                            label="Expiry Date"
-                            value={cardDetails.expiry}
-                            onChange={(value) =>
-                              setCardDetails((prev) => ({
-                                ...prev,
-                                expiry: value,
-                              }))
-                            }
-                            placeholder="MM/YY"
-                            required
-                          />
-                          <Input
-                            label="CVV"
-                            value={cardDetails.cvv}
-                            onChange={(value) =>
-                              setCardDetails((prev) => ({
-                                ...prev,
-                                cvv: value,
-                              }))
-                            }
-                            placeholder="123"
-                            required
-                          />
+                    {/* Payment Info */}
+                    {paymentMethod === "razorpay" && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm font-medium text-blue-800">
+                              Secure Payment
+                            </p>
+                            <p className="text-sm text-blue-700">
+                              You'll be redirected to Razorpay's secure payment gateway to complete your payment.
+                            </p>
+                          </div>
                         </div>
-
-                        <Input
-                          label="Cardholder Name"
-                          value={cardDetails.name}
-                          onChange={(value) =>
-                            setCardDetails((prev) => ({ ...prev, name: value }))
-                          }
-                          required
-                        />
                       </div>
                     )}
 
@@ -1055,15 +1089,13 @@ const Checkout: React.FC = () => {
                     </h3>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="font-medium text-gray-900">
-                        {paymentMethod === "card"
-                          ? "Credit / Debit Card"
-                          : "PayPal"}
+                        {paymentMethod === "razorpay"
+                          ? "Cards, UPI & More (Razorpay)"
+                          : paymentMethod}
                       </p>
-                      {paymentMethod === "card" && cardDetails.number && (
-                        <p className="text-gray-600">
-                          •••• •••• •••• {cardDetails.number.slice(-4)}
-                        </p>
-                      )}
+                      <p className="text-sm text-gray-600">
+                        Secure payment via Razorpay gateway
+                      </p>
                     </div>
                   </div>
                 </motion.div>
