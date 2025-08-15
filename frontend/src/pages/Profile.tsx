@@ -48,6 +48,9 @@ export const Profile: React.FC = () => {
 
   // Address form state
   const [addressForm, setAddressForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
     street: '',
     city: '',
     state: '',
@@ -318,7 +321,7 @@ export const Profile: React.FC = () => {
     e.preventDefault();
     
     // Validate required fields
-    if (!addressForm.street || !addressForm.city || !addressForm.state || !addressForm.postalCode) {
+    if (!addressForm.firstName || !addressForm.lastName || !addressForm.phone || !addressForm.street || !addressForm.city || !addressForm.state || !addressForm.postalCode) {
       setAddressError('Please fill in all required fields');
       return;
     }
@@ -328,13 +331,21 @@ export const Profile: React.FC = () => {
       return;
     }
 
+    // Debug logging
+    console.log('Submitting address form:', addressForm);
+
     try {
       const response = await authAPI.addAddress(token, addressForm);
+      
+      console.log('Address API response:', response);
       
       if (response) {
         setAddressSuccess('Address added successfully!');
         // Clear form
         setAddressForm({
+          firstName: '',
+          lastName: '',
+          phone: '',
           street: '',
           city: '',
           state: '',
@@ -350,6 +361,7 @@ export const Profile: React.FC = () => {
         setAddressError('Failed to add address. Please try again.');
       }
     } catch (error: any) {
+      console.error('Error adding address:', error);
       setAddressError(error.message || 'An error occurred while adding address');
     }
   };
@@ -617,7 +629,13 @@ export const Profile: React.FC = () => {
                           <div key={address._id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
                             <div className="flex justify-between items-start">
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-gray-900 truncate">{address.street || 'N/A'}</p>
+                                <p className="font-medium text-gray-900 truncate">
+                                  {address.firstName || 'N/A'} {address.lastName || 'N/A'}
+                                </p>
+                                <p className="text-gray-600 text-sm">
+                                  {address.phone || 'N/A'}
+                                </p>
+                                <p className="text-gray-600 text-sm truncate">{address.street || 'N/A'}</p>
                                 <p className="text-gray-600 text-sm">
                                   {address.city || 'N/A'}, {address.state || 'N/A'} {address.postalCode || 'N/A'}
                                 </p>
@@ -641,6 +659,31 @@ export const Profile: React.FC = () => {
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Address</h3>
                     
                     <form onSubmit={handleAddAddress} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          label="First Name"
+                          value={addressForm.firstName}
+                          onChange={handleAddressInputChange('firstName')}
+                          placeholder="Enter first name"
+                        />
+                        
+                        <Input
+                          label="Last Name"
+                          value={addressForm.lastName}
+                          onChange={handleAddressInputChange('lastName')}
+                          placeholder="Enter last name"
+                        />
+                      </div>
+                      
+                      <Input
+                        label="Phone Number"
+                        type="tel"
+                        value={addressForm.phone}
+                        onChange={handleAddressInputChange('phone')}
+                        leftIcon={<PhoneIcon className="h-5 w-5" />}
+                        placeholder="Enter phone number"
+                      />
+                      
                       <Input
                         label="Street Address"
                         value={addressForm.street}

@@ -535,14 +535,33 @@ const Checkout: React.FC = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(
+        const shippingValid = !!(
           shippingAddress.firstName &&
           shippingAddress.lastName &&
+          shippingAddress.phone &&
           shippingAddress.address1 &&
           shippingAddress.city &&
           shippingAddress.state &&
           shippingAddress.postalCode
         );
+        
+        // If using same address for billing, only validate shipping
+        if (useSameAddress) {
+          return shippingValid;
+        }
+        
+        // If using different billing address, validate both
+        const billingValid = !!(
+          billingAddress.firstName &&
+          billingAddress.lastName &&
+          billingAddress.phone &&
+          billingAddress.address1 &&
+          billingAddress.city &&
+          billingAddress.state &&
+          billingAddress.postalCode
+        );
+        
+        return shippingValid && billingValid;
       case 2:
         return paymentMethod === "razorpay";
       case 3:
@@ -1007,6 +1026,16 @@ const Checkout: React.FC = () => {
                               required
                             />
                           </div>
+
+                          <Input
+                            label="Phone Number"
+                            type="tel"
+                            value={billingAddress.phone}
+                            onChange={(value) =>
+                              handleAddressChange("phone", value, "billing")
+                            }
+                            required
+                          />
 
                           <Input
                             label="Address Line 1"

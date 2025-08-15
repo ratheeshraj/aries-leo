@@ -243,18 +243,35 @@ const updateUserProfile = async (req, res) => {
 const addUserAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
-    const { street, city, state, postalCode, country } = req.body;
+    const { firstName, lastName, phone, street, city, state, postalCode, country } = req.body;
+    // Validate required fields on backend
+    if (!firstName || !lastName || !phone || !street || !city || !state || !postalCode) {
+      res.status(400);
+      throw new Error('All required fields must be provided: firstName, lastName, phone, street, city, state, postalCode');
+    }
 
     if (user) {
       const address = {
-        street,
-        city,
-        state,
-        postalCode,
-        country: country || "India",
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: phone.trim(),
+        street: street.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        postalCode: postalCode.trim(),
+        country: (country || 'India').trim(),
       };
 
       user.addresses.push(address);
+      
+      // Validate the user document before saving
+      const validationError = user.validateSync();
+      if (validationError) {
+        console.error('Validation error:', validationError);
+        res.status(400);
+        throw new Error(`Validation error: ${validationError.message}`);
+      }
+
       await user.save();
 
       res.status(201).json(user.addresses);
@@ -263,7 +280,8 @@ const addUserAddress = async (req, res) => {
       throw new Error("User not found");
     }
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    const statusCode = error.message.includes('Validation error') ? 400 : 500;
+    res.status(statusCode).json({ message: error.message });
   }
 };
 
