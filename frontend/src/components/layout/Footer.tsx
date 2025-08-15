@@ -31,8 +31,10 @@ const Footer: React.FC = () => {
 
   const customerSupportLinks = [
     { name: 'FAQs', href: '/faq' },
+    { name: 'Terms and Conditions', href: '/terms' },
     { name: 'Shipping Policy', href: '/shipping' },
-    { name: 'Return Policy', href: '/returns' },
+    { name: 'Return Policy', href: '/refund' },
+    { name: 'Privacy Policy', href: '/privacy' },
   ];
 
   const socialMedia = [
