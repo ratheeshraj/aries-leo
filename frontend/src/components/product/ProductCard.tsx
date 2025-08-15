@@ -417,6 +417,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </div>
             )}
 
+            {/* Category Display */}
+            {product.categoryName && (
+              <div>
+                <label className="text-xs font-medium text-gray-700 block mb-1">
+                  Category:
+                </label>
+                <span className="text-xs text-gray-600 px-2 py-1 bg-gray-50 rounded border border-gray-200 inline-block">
+                  {product.categoryName}
+                </span>
+              </div>
+            )}
+
             {/* Color Selection */}
             {/* {availableColors && availableColors.length > 0 && (
               <div>

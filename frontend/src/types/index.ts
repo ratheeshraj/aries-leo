@@ -5,6 +5,7 @@ export interface Product {
   shortDescription?: string;
   brand?: string;
   category: string;
+  categoryName?: string;
   subcategory?: string;
   tags?: string[];
   productType?: string;

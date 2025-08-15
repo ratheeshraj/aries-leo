@@ -203,7 +203,7 @@ export const storage = {
 };
 
 // Transform backend product to frontend format
-export const transformProduct = (backendProduct: any, inventories?: any[]): Product => {
+export const transformProduct = (backendProduct: any, inventories?: any[], categories?: Array<{_id: string, name: string}>): Product => {
   // Extract sizes and colors from inventory
   let sizes: string[] = [];
   let colors: string[] = [];
@@ -292,6 +292,15 @@ export const transformProduct = (backendProduct: any, inventories?: any[]): Prod
     colors = Array.from(uniqueColors);
   }
 
+  // Map category ID to category name if categories are provided
+  let categoryName = backendProduct.category;
+  if (categories && backendProduct.category) {
+    const category = categories.find(cat => cat._id === backendProduct.category);
+    if (category) {
+      categoryName = category.name;
+    }
+  }
+
   return {
     ...backendProduct,
     id: backendProduct._id, // Add id for compatibility
@@ -305,12 +314,14 @@ export const transformProduct = (backendProduct: any, inventories?: any[]): Prod
     sizes: sizes, // Use extracted sizes from inventory
     colors: colors, // Use extracted colors from inventory
     inventory: productInventory, // Store actual inventory data for filtering
+    category: backendProduct.category, // Keep original category ID for filtering
+    categoryName: categoryName, // Add category name for display
   };
 };
 
 // Transform backend products array to frontend format
-export const transformProducts = (backendProducts: any[], inventories?: any[]): Product[] => {
-  return backendProducts.map(product => transformProduct(product, inventories));
+export const transformProducts = (backendProducts: any[], inventories?: any[], categories?: Array<{_id: string, name: string}>): Product[] => {
+  return backendProducts.map(product => transformProduct(product, inventories, categories));
 };
 
 // Color conversion utility
