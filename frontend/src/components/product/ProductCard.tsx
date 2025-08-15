@@ -214,10 +214,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
           onClick={onView}
         >
           <div className="relative overflow-hidden bg-gray-100 aspect-[3/4]">
+            {/* Low Stock Alert */}
+            {(() => {
+              const selectedSizeStock = product.inventory?.find(inv => inv.size === selectedSize)?.stockQuantity || 0;
+              const hasLowStock = selectedSizeStock <= 5 && selectedSizeStock > 0;
+              return hasLowStock ? (
+                <div className={`absolute z-10 ${
+                  hasDiscount ? 'top-8 left-1 sm:top-12 sm:left-2' : 'top-1 left-1 sm:top-2 sm:left-2'
+                }`}>
+                  <span className="bg-orange-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded">
+                    Only few pieces left.
+                  </span>
+                </div>
+              ) : null;
+            })()}
+
             {hasDiscount && (
               <div className="absolute top-1 left-1 sm:top-2 sm:left-2 z-10">
                 <span className="bg-accent-rose text-white px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded">
-                  -{discountPercentage}%
+                  Off {discountPercentage}%
                 </span>
               </div>
             )}
@@ -403,7 +418,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
 
             {/* Color Selection */}
-            {availableColors && availableColors.length > 0 && (
+            {/* {availableColors && availableColors.length > 0 && (
               <div>
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Color:
@@ -425,7 +440,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   ))}
                 </select>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Add to Cart Button */}
