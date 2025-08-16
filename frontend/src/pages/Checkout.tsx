@@ -27,7 +27,7 @@ interface CheckoutStep {
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { cart, clearCart, token, isAuthenticated } = useAppContext();
-  const { getProfile } = useAuth();
+  const { user, getProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -490,7 +490,7 @@ const Checkout: React.FC = () => {
           },
           prefill: {
             name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
-            email: '', // Add email if available
+            email: user?.email || '',
             contact: shippingAddress.phone,
           },
           notes: {

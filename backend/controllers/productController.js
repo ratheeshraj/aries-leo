@@ -53,7 +53,7 @@ const generateSignedVariants = async (originalKey) => {
     const [signedUrl] = await bucket.file(value).getSignedUrl({
       version: "v4",
       action: "read",
-      expires: Date.now() + 15 * 60 * 1000,
+      expires: Date.now() + 48 * 60 * 60 * 1000,
     });
     signed[key] = signedUrl;
   }
@@ -76,7 +76,7 @@ const getProducts = async (req, res) => {
 
     // Fetch products, inventories, and categories for the specific business
     const [products, inventories, categories, discounts] = await Promise.all([
-      ProductBbify.find({ business: businessId, isActive:true, isDeleted: false }).sort({
+      ProductBbify.find({ business: businessId, isActive: true, isDeleted: false }).sort({
         createdAt: -1,
       }),
       InventoryBbify.find({ business: businessId, isDeleted: false }),
@@ -101,10 +101,7 @@ const getProducts = async (req, res) => {
         if (Array.isArray(product.images)) {
           product.images = await Promise.all(
             product.images
-              .filter(
-                (img) =>
-                  typeof img === "object" && typeof img.original === "string"
-              )
+              .filter((img) => typeof img === "object" && typeof img.original === "string")
               .map((img) => generateSignedVariants(img.original))
           );
         }
@@ -167,9 +164,7 @@ const getProductById = async (req, res) => {
     if (Array.isArray(product.images)) {
       product.images = await Promise.all(
         product.images
-          .filter(
-            (img) => typeof img === "object" && typeof img.original === "string"
-          )
+          .filter((img) => typeof img === "object" && typeof img.original === "string")
           .map((img) => generateSignedVariants(img.original))
       );
     }
@@ -268,8 +263,7 @@ const updateProduct = async (req, res) => {
       product.dimensions = dimensions || product.dimensions;
       product.featured = featured !== undefined ? featured : product.featured;
       product.isNew = isNew !== undefined ? isNew : product.isNew;
-      product.discountPercentage =
-        discountPercentage || product.discountPercentage;
+      product.discountPercentage = discountPercentage || product.discountPercentage;
 
       const updatedProduct = await product.save();
       res.json(updatedProduct);
@@ -300,8 +294,6 @@ const deleteProduct = async (req, res) => {
     res.status(404).json({ message: error.message });
   }
 };
-
-
 
 module.exports = {
   getProducts,

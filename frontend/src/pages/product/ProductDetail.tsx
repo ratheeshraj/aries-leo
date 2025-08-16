@@ -14,12 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { useAppContext } from "../../context/AppContext";
-import {
-  formatCurrency,
-  hexToColorName,
-  transformProduct,
-  transformProducts,
-} from "../../utils/helpers";
+import { formatCurrency, hexToColorName, transformProduct, transformProducts } from "../../utils/helpers";
 import Button from "../../components/ui/Button";
 import { useScrollToTop } from "../../hooks/useScrollToTop";
 import { productAPI, reviewAPI } from "../../utils/api";
@@ -56,11 +51,7 @@ interface ExtendedReview extends Review {
 }
 
 // Helper to get inventory for selected size and color
-function getSelectedInventory(
-  inventory: InventoryItem[],
-  size: string,
-  color: string
-) {
+function getSelectedInventory(inventory: InventoryItem[], size: string, color: string) {
   return inventory.find((item) => {
     // Match exact size
     const sizeMatch = item.size === size;
@@ -83,10 +74,7 @@ function getSelectedInventory(
 }
 
 // Helper to get available colors for a specific size
-function getAvailableColorsForSize(
-  inventory: InventoryItem[],
-  size: string
-): string[] {
+function getAvailableColorsForSize(inventory: InventoryItem[], size: string): string[] {
   if (!inventory || !size) return [];
 
   const availableColors = new Set<string>();
@@ -108,17 +96,10 @@ const ProductDetail: React.FC = () => {
   useScrollToTop();
 
   const { id } = useParams<{ id: string }>();
-  const {
-    addToCart,
-    addToWishlist,
-    removeFromWishlist,
-    isInWishlist,
-    isAuthenticated,
-  } = useAppContext();
+  const { addToCart, addToWishlist, removeFromWishlist, isInWishlist, isAuthenticated } = useAppContext();
 
   // More robust authentication check
-  const isUserAuthenticated =
-    isAuthenticated || !!localStorage.getItem("token");
+  const isUserAuthenticated = isAuthenticated || !!localStorage.getItem("token");
 
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -139,9 +120,7 @@ const ProductDetail: React.FC = () => {
     comment: "",
   });
   const [reviewSubmitLoading, setReviewSubmitLoading] = useState(false);
-  const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(
-    null
-  );
+  const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(null);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
   const [inventory, setInventory] = useState<InventoryItem[]>([]); // Add inventory state
   const [maxQuantity, setMaxQuantity] = useState<number>(1); // Track max quantity
@@ -156,7 +135,11 @@ const ProductDetail: React.FC = () => {
 
       try {
         const response = await productAPI.getProduct(id);
-        const transformedProduct = transformProduct(response.data.product);
+        const transformedProduct = transformProduct(
+          response.data.product,
+          response.data.inventory,
+          response.data.categories
+        );
         setProduct(transformedProduct);
 
         // Set inventory from API response
@@ -169,20 +152,22 @@ const ProductDetail: React.FC = () => {
         // Color selection will be handled by useEffect based on selected size
 
         // Set max quantity based on inventory
-        const inv =
-          (response.data.inventory && response.data.inventory[0]) || null;
+        const inv = (response.data.inventory && response.data.inventory[0]) || null;
         setMaxQuantity(inv && inv.stockQuantity ? inv.stockQuantity : 1);
 
         // Fetch related products
         const relatedResponse = await productAPI.getProducts({
           category: transformedProduct.category,
         });
+        // const transformedRelated = transformProducts(
+        //   relatedResponse.products || []
+        // );
         const transformedRelated = transformProducts(
-          relatedResponse.products || []
+          relatedResponse.products || [],
+          relatedResponse.inventories || [],
+          relatedResponse.categories || []
         );
-        setRelatedProducts(
-          transformedRelated.filter((p: Product) => p._id !== id)
-        );
+        setRelatedProducts(transformedRelated.filter((p: Product) => p._id !== id));
 
         // Fetch reviews
         setReviewsLoading(true);
@@ -193,11 +178,8 @@ const ProductDetail: React.FC = () => {
           // Calculate average rating
           if (reviewsResponse.reviews && reviewsResponse.reviews.length > 0) {
             const avg =
-              reviewsResponse.reviews.reduce(
-                (sum: number, review: ExtendedReview) =>
-                  sum + (review.rating || 0),
-                0
-              ) / reviewsResponse.reviews.length;
+              reviewsResponse.reviews.reduce((sum: number, review: ExtendedReview) => sum + (review.rating || 0), 0) /
+              reviewsResponse.reviews.length;
             setAverageRating(avg);
           }
 
@@ -211,8 +193,7 @@ const ProductDetail: React.FC = () => {
                 const userId = tokenPayload.id || tokenPayload._id;
 
                 const userReview = reviewsResponse.reviews.find(
-                  (review: Review) =>
-                    review.user === userId || review.user === tokenPayload.email
+                  (review: Review) => review.user === userId || review.user === tokenPayload.email
                 );
                 setHasUserReviewed(!!userReview);
               } catch (err) {
@@ -228,9 +209,7 @@ const ProductDetail: React.FC = () => {
         }
       } catch (err) {
         console.error("Error fetching product:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to fetch product"
-        );
+        setError(err instanceof Error ? err.message : "Failed to fetch product");
       } finally {
         setIsLoading(false);
       }
@@ -249,18 +228,13 @@ const ProductDetail: React.FC = () => {
     }
     const inv = getSelectedInventory(inventory, selectedSize, selectedColor);
     setMaxQuantity(inv && inv.stockQuantity ? inv.stockQuantity : 1);
-    setQuantity((q) =>
-      Math.min(q, inv && inv.stockQuantity ? inv.stockQuantity : 1)
-    );
+    setQuantity((q) => Math.min(q, inv && inv.stockQuantity ? inv.stockQuantity : 1));
   }, [selectedSize, selectedColor, inventory]);
 
   // Update selected color when size changes or on initial load
   useEffect(() => {
     if (selectedSize && inventory.length > 0) {
-      const availableColors = getAvailableColorsForSize(
-        inventory,
-        selectedSize
-      );
+      const availableColors = getAvailableColorsForSize(inventory, selectedSize);
       if (availableColors.length > 0) {
         // If current selected color is not available for the new size, select the first available
         if (!availableColors.includes(selectedColor)) {
@@ -270,11 +244,7 @@ const ProductDetail: React.FC = () => {
         // If no colors available for this size, clear the selection
         setSelectedColor("");
       }
-    } else if (
-      inventory.length > 0 &&
-      selectedColor === "" &&
-      selectedSize === ""
-    ) {
+    } else if (inventory.length > 0 && selectedColor === "" && selectedSize === "") {
       // On initial load, select the first available color for the first size
       const firstSize = inventory.find((inv) => inv.size)?.size;
       if (firstSize) {
@@ -304,9 +274,7 @@ const ProductDetail: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             {error ? "Error loading product" : "Product not found"}
           </h2>
-          <p className="text-gray-600 mb-6">
-            {error || "The product you are looking for does not exist."}
-          </p>
+          <p className="text-gray-600 mb-6">{error || "The product you are looking for does not exist."}</p>
           <Link to="/shop">
             <Button variant="outline">
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -320,26 +288,16 @@ const ProductDetail: React.FC = () => {
 
   // Handle both old and new image formats
   const productImages = Array.isArray(product.images)
-    ? product.images.map(
-        (
-          img: string | { original?: string; medium?: string; thumb?: string }
-        ) =>
-          typeof img === "string"
-            ? img
-            : img.original || img.medium || img.thumb
+    ? product.images.map((img: string | { original?: string; medium?: string; thumb?: string }) =>
+        typeof img === "string" ? img : img.original || img.medium || img.thumb
       )
     : [];
 
   const productId = product.id || product._id;
   const isWishlisted = isInWishlist(productId);
-  const hasDiscount =
-    product.compareAtPrice && product.compareAtPrice < (product.costPrice || 0);
+  const hasDiscount = product.compareAtPrice && product.compareAtPrice < (product.costPrice || 0);
   const discountPercentage = hasDiscount
-    ? Math.round(
-        ((product.costPrice! - (product.compareAtPrice || 0)) /
-          product.costPrice!) *
-          100
-      )
+    ? Math.round(((product.costPrice! - (product.compareAtPrice || 0)) / product.costPrice!) * 100)
     : 0;
 
   const handleAddToCart = () => {
@@ -349,23 +307,13 @@ const ProductDetail: React.FC = () => {
     }
 
     // Get the selected inventory item
-    const selectedInventory = getSelectedInventory(
-      inventory,
-      selectedSize,
-      selectedColor
-    );
+    const selectedInventory = getSelectedInventory(inventory, selectedSize, selectedColor);
     if (!selectedInventory) {
       alert("Selected variant is not available");
       return;
     }
 
-    addToCart(
-      product,
-      quantity,
-      selectedSize,
-      selectedColor,
-      selectedInventory._id
-    );
+    addToCart(product, quantity, selectedSize, selectedColor, selectedInventory._id);
 
     // Show a success message
     const toast = document.createElement("div");
@@ -397,15 +345,11 @@ const ProductDetail: React.FC = () => {
   };
 
   const prevImage = () => {
-    setSelectedImage(
-      (prev) => (prev - 1 + productImages.length) % productImages.length
-    );
+    setSelectedImage((prev) => (prev - 1 + productImages.length) % productImages.length);
   };
 
   // Handle review form change
-  const handleReviewFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleReviewFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setReviewForm((prev) => ({
       ...prev,
@@ -432,9 +376,7 @@ const ProductDetail: React.FC = () => {
 
       const token = localStorage.getItem("token");
       if (!token) {
-        setReviewSubmitError(
-          "Authentication token not found. Please login again."
-        );
+        setReviewSubmitError("Authentication token not found. Please login again.");
         return;
       }
 
@@ -463,10 +405,7 @@ const ProductDetail: React.FC = () => {
       // Update average rating immediately
       const newReviews = [newReview, ...reviews];
       const newAvg =
-        newReviews.reduce(
-          (sum: number, review: ExtendedReview) => sum + (review.rating || 0),
-          0
-        ) / newReviews.length;
+        newReviews.reduce((sum: number, review: ExtendedReview) => sum + (review.rating || 0), 0) / newReviews.length;
       setAverageRating(newAvg);
 
       // Submit to server
@@ -517,39 +456,30 @@ const ProductDetail: React.FC = () => {
       }, 3000);
     } catch (err) {
       // Remove the optimistically added review on error
-      setReviews((prevReviews) =>
-        prevReviews.filter((review) => !review.isPending)
-      );
+      setReviews((prevReviews) => prevReviews.filter((review) => !review.isPending));
 
       // Revert average rating
       const originalReviews = reviews.filter((review) => !review.isPending);
       const originalAvg =
         originalReviews.length > 0
-          ? originalReviews.reduce(
-              (sum: number, review: ExtendedReview) =>
-                sum + (review.rating || 0),
-              0
-            ) / originalReviews.length
+          ? originalReviews.reduce((sum: number, review: ExtendedReview) => sum + (review.rating || 0), 0) /
+            originalReviews.length
           : 0;
       setAverageRating(originalAvg);
 
-      setReviewSubmitError(
-        err instanceof Error ? err.message : "Failed to submit review"
-      );
+      setReviewSubmitError(err instanceof Error ? err.message : "Failed to submit review");
     } finally {
       setReviewSubmitLoading(false);
     }
   };
 
   // Extract sizes and colors from inventory
-  const inventorySizes = Array.from(
-    new Set(inventory.map((item) => item.size).filter(Boolean))
-  );
+  const inventorySizes = Array.from(new Set(inventory.map((item) => item.size).filter(Boolean)));
   const inventoryColors = getAvailableColorsForSize(inventory, selectedSize);
 
   // Quantity change handlers with validation
   const handleDecreaseQuantity = () => {
-    console.log("decrease quantity called --")
+    console.log("decrease quantity called --");
     if (!selectedSize || !selectedColor) {
       setQuantityWarning("Please select size and color first");
       return;
@@ -586,10 +516,7 @@ const ProductDetail: React.FC = () => {
               Home
             </Link>
             <span className="text-gray-400">/</span>
-            <Link
-              to="/shop"
-              className="text-gray-500 hover:text-gray-700 truncate"
-            >
+            <Link to="/shop" className="text-gray-500 hover:text-gray-700 truncate">
               Shop
             </Link>
             <span className="text-gray-400">/</span>
@@ -609,19 +536,10 @@ const ProductDetail: React.FC = () => {
               transition={{ duration: 0.6 }}
             >
               {productImages.length > 0 ? (
-                <img
-                  src={productImages[selectedImage]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={productImages[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <svg
-                    className="w-16 h-16"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -679,16 +597,10 @@ const ProductDetail: React.FC = () => {
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-colors touch-target ${
-                      selectedImage === index
-                        ? "border-accent-rose"
-                        : "border-gray-200 hover:border-gray-300"
+                      selectedImage === index ? "border-accent-rose" : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
-                    <img
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={image} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -702,9 +614,7 @@ const ProductDetail: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                {product.name}
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex items-center">
@@ -712,23 +622,17 @@ const ProductDetail: React.FC = () => {
                     <StarIcon
                       key={i}
                       className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                        i < averageRating
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-300"
+                        i < averageRating ? "text-yellow-400 fill-current" : "text-gray-300"
                       }`}
                     />
                   ))}
-                  <span className="ml-2 text-sm text-gray-600">
-                    ({reviews.length} reviews)
-                  </span>
+                  <span className="ml-2 text-sm text-gray-600">({reviews.length} reviews)</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <span className="text-2xl sm:text-3xl font-bold text-gray-900">
-                  {formatCurrency(
-                    product.compareAtPrice || product.costPrice || 0
-                  )}
+                  {formatCurrency(product.compareAtPrice || product.costPrice || 0)}
                 </span>
                 {hasDiscount && (
                   <span className="text-lg sm:text-xl text-gray-500 line-through">
@@ -750,9 +654,7 @@ const ProductDetail: React.FC = () => {
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
                 <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-                    SIZE
-                  </h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">SIZE</h3>
                   <button
                     onClick={() => setShowSizeGuide(true)}
                     className="text-sm text-accent-rose hover:text-accent-rose/80 underline font-medium"
@@ -785,9 +687,7 @@ const ProductDetail: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">
-                  COLOR
-                </h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">COLOR</h3>
                 <div className="grid grid-cols-3 gap-2">
                   {inventoryColors.map((color) => (
                     <button
@@ -822,9 +722,7 @@ const ProductDetail: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">
-                Quantity
-              </h3>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Quantity</h3>
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleDecreaseQuantity}
@@ -844,11 +742,7 @@ const ProductDetail: React.FC = () => {
                   <PlusIcon className="w-4 h-4" />
                 </button>
               </div>
-              {quantityWarning && (
-                <div className="text-xs text-red-600 mt-2">
-                  {quantityWarning}
-                </div>
-              )}
+              {quantityWarning && <div className="text-xs text-red-600 mt-2">{quantityWarning}</div>}
             </motion.div>
 
             {/* Add to Cart & Wishlist */}
@@ -864,9 +758,7 @@ const ProductDetail: React.FC = () => {
                 className="flex-1 btn-responsive"
                 size="lg"
               >
-                {product.inStock && maxQuantity > 0
-                  ? "Add to Cart"
-                  : "Out of Stock"}
+                {product.inStock && maxQuantity > 0 ? "Add to Cart" : "Out of Stock"}
               </Button>
               <button
                 onClick={handleWishlistToggle}
@@ -889,9 +781,7 @@ const ProductDetail: React.FC = () => {
             >
               <div className="flex items-center gap-3">
                 <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />
-                <span className="text-sm sm:text-base text-gray-700">
-                  Free shipping on orders over Rs.2000
-                </span>
+                <span className="text-sm sm:text-base text-gray-700">Free shipping on orders over Rs.2000</span>
               </div>
               {/* <div className="flex items-center gap-3">
                 <ShieldCheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />
@@ -930,9 +820,7 @@ const ProductDetail: React.FC = () => {
           <div className="py-6 sm:py-8">
             {activeTab === "description" && (
               <div className="prose max-w-none">
-                <p className="text-gray-600 leading-relaxed">
-                  {product.description || "No description available."}
-                </p>
+                <p className="text-gray-600 leading-relaxed">{product.description || "No description available."}</p>
                 {product.tags && product.tags.length > 0 && (
                   <ul className="mt-4 space-y-2">
                     {product.tags.map((tag) => (
@@ -949,13 +837,9 @@ const ProductDetail: React.FC = () => {
             {activeTab === "materials" && (
               <div className="prose max-w-none">
                 <h3 className="text-lg font-semibold mb-4">Materials</h3>
-                <p className="text-gray-600 mb-6">
-                  {product.material || "Material information not available."}
-                </p>
+                <p className="text-gray-600 mb-6">{product.material || "Material information not available."}</p>
 
-                <h3 className="text-lg font-semibold mb-4">
-                  Care Instructions
-                </h3>
+                <h3 className="text-lg font-semibold mb-4">Care Instructions</h3>
                 <ul className="space-y-2 text-gray-600">
                   <li>• Machine wash cold with like colors</li>
                   <li>• Do not bleach</li>
@@ -973,20 +857,12 @@ const ProductDetail: React.FC = () => {
                     {[...Array(5)].map((_, i) => (
                       <StarIcon
                         key={i}
-                        className={`w-6 h-6 ${
-                          i < averageRating
-                            ? "text-yellow-400 fill-current"
-                            : "text-gray-300"
-                        }`}
+                        className={`w-6 h-6 ${i < averageRating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
                       />
                     ))}
                   </div>
-                  <span className="text-xl font-semibold">
-                    {averageRating.toFixed(1)}/5
-                  </span>
-                  <span className="text-gray-600">
-                    ({reviews.length} reviews)
-                  </span>
+                  <span className="text-xl font-semibold">{averageRating.toFixed(1)}/5</span>
+                  <span className="text-gray-600">({reviews.length} reviews)</span>
                 </div>
 
                 {reviewsLoading ? (
@@ -1000,9 +876,7 @@ const ProductDetail: React.FC = () => {
                   </div>
                 ) : reviews.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-600">
-                      No reviews yet. Be the first to review this product!
-                    </p>
+                    <p className="text-gray-600">No reviews yet. Be the first to review this product!</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -1010,9 +884,7 @@ const ProductDetail: React.FC = () => {
                       <div
                         key={review.id}
                         className={`border-b border-gray-200 pb-6 ${
-                          review.isPending
-                            ? "opacity-75 bg-blue-50 rounded-lg p-4"
-                            : ""
+                          review.isPending ? "opacity-75 bg-blue-50 rounded-lg p-4" : ""
                         }`}
                       >
                         <div className="flex items-start gap-4">
@@ -1023,17 +895,13 @@ const ProductDetail: React.FC = () => {
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-4 mb-2">
-                              <h4 className="font-semibold text-gray-900">
-                                {review.name || "Anonymous"}
-                              </h4>
+                              <h4 className="font-semibold text-gray-900">{review.name || "Anonymous"}</h4>
                               <div className="flex items-center">
                                 {[...Array(5)].map((_, i) => (
                                   <StarIcon
                                     key={i}
                                     className={`w-4 h-4 ${
-                                      i < (review.rating || 0)
-                                        ? "text-yellow-400 fill-current"
-                                        : "text-gray-300"
+                                      i < (review.rating || 0) ? "text-yellow-400 fill-current" : "text-gray-300"
                                     }`}
                                   />
                                 ))}
@@ -1041,19 +909,13 @@ const ProductDetail: React.FC = () => {
                               {review.isPending && (
                                 <div className="flex items-center gap-2 ml-2">
                                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                  <span className="text-sm text-blue-600 font-medium">
-                                    Submitting...
-                                  </span>
+                                  <span className="text-sm text-blue-600 font-medium">Submitting...</span>
                                 </div>
                               )}
                             </div>
                             <p className="text-gray-600">{review.comment}</p>
                             <p className="text-sm text-gray-500 mt-2">
-                              {review.createdAt
-                                ? new Date(
-                                    review.createdAt
-                                  ).toLocaleDateString()
-                                : ""}
+                              {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : ""}
                               {review.isPending && " (Pending submission)"}
                             </p>
                           </div>
@@ -1068,9 +930,7 @@ const ProductDetail: React.FC = () => {
 
           {/* Write a Review Form */}
           <div className="mt-12 bg-gray-50 rounded-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
-              Write a Review
-            </h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Write a Review</h3>
 
             {!isUserAuthenticated ? (
               <div className="text-center py-8">
@@ -1089,16 +949,10 @@ const ProductDetail: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                  Login to Write a Review
-                </h4>
-                <p className="text-gray-600 mb-6">
-                  Please login to share your thoughts about this product.
-                </p>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Login to Write a Review</h4>
+                <p className="text-gray-600 mb-6">Please login to share your thoughts about this product.</p>
                 <Link to="/login">
-                  <Button className="bg-accent-rose hover:bg-accent-mauve">
-                    Login to Review
-                  </Button>
+                  <Button className="bg-accent-rose hover:bg-accent-mauve">Login to Review</Button>
                 </Link>
               </div>
             ) : hasUserReviewed ? (
@@ -1118,21 +972,14 @@ const ProductDetail: React.FC = () => {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                  Review Submitted
-                </h4>
-                <p className="text-gray-600">
-                  Thank you for your review! You have already reviewed this
-                  product.
-                </p>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Review Submitted</h4>
+                <p className="text-gray-600">Thank you for your review! You have already reviewed this product.</p>
               </div>
             ) : (
               <form onSubmit={handleReviewSubmit} className="space-y-6">
                 {/* Rating Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Rating *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Rating *</label>
                   <div className="flex items-center space-x-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -1155,19 +1002,12 @@ const ProductDetail: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                  {!reviewForm.rating && (
-                    <p className="text-red-500 text-sm mt-1">
-                      Please select a rating
-                    </p>
-                  )}
+                  {!reviewForm.rating && <p className="text-red-500 text-sm mt-1">Please select a rating</p>}
                 </div>
 
                 {/* Comment */}
                 <div>
-                  <label
-                    htmlFor="comment"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
                     Your Review *
                   </label>
                   <textarea
@@ -1184,19 +1024,13 @@ const ProductDetail: React.FC = () => {
 
                 {/* Error Message */}
                 {reviewSubmitError && (
-                  <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
-                    {reviewSubmitError}
-                  </div>
+                  <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">{reviewSubmitError}</div>
                 )}
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  disabled={
-                    reviewSubmitLoading ||
-                    !reviewForm.rating ||
-                    !reviewForm.comment.trim()
-                  }
+                  disabled={reviewSubmitLoading || !reviewForm.rating || !reviewForm.comment.trim()}
                   className="w-full sm:w-auto"
                 >
                   {reviewSubmitLoading ? (
@@ -1216,15 +1050,10 @@ const ProductDetail: React.FC = () => {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <section className="mt-12 sm:mt-16">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">
-              You might also like
-            </h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">You might also like</h2>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <ProductCard
-                  key={relatedProduct._id}
-                  product={relatedProduct}
-                />
+                <ProductCard key={relatedProduct._id} product={relatedProduct} />
               ))}
             </div>
           </section>
@@ -1232,10 +1061,7 @@ const ProductDetail: React.FC = () => {
       </div>
 
       {/* Size Guide Modal */}
-      <SizeGuide
-        isOpen={showSizeGuide}
-        onClose={() => setShowSizeGuide(false)}
-      />
+      <SizeGuide isOpen={showSizeGuide} onClose={() => setShowSizeGuide(false)} />
     </div>
   );
 };
