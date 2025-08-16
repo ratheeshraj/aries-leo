@@ -597,7 +597,7 @@ const Checkout: React.FC = () => {
             We'll send you an email confirmation with tracking information once
             your order ships.
           </p>
-          <div className="space-y-3">
+          <div className="flex justify-center gap-4 items-center">
             <Link to="/">
               <Button fullWidth>Continue Shopping</Button>
             </Link>

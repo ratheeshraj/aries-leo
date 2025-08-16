@@ -1,18 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { XMarkIcon, MinusIcon, PlusIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
-import { useAppContext } from '../context/AppContext';
-import { formatCurrency } from '../utils/helpers';
-import Button from '../components/ui/Button';
-import { useScrollToTop } from '../hooks/useScrollToTop';
-import type { Product } from '../types';
+import React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  XMarkIcon,
+  MinusIcon,
+  PlusIcon,
+  ShoppingBagIcon,
+} from "@heroicons/react/24/outline";
+import { useAppContext } from "../context/AppContext";
+import { formatCurrency } from "../utils/helpers";
+import { getBestImageUrl } from "../utils/imageUtils";
+import Button from "../components/ui/Button";
+import { useScrollToTop } from "../hooks/useScrollToTop";
+import type { Product } from "../types";
 
 const Cart: React.FC = () => {
   useScrollToTop();
 
   const { cart, removeFromCart, updateCartItem, clearCart } = useAppContext();
-  const handleQuantityChange = (productId: string, newQuantity: number, inventoryId?: string) => {
+  const handleQuantityChange = (
+    productId: string,
+    newQuantity: number,
+    inventoryId?: string
+  ) => {
     if (newQuantity <= 0) {
       removeFromCart(productId, inventoryId);
     } else {
@@ -20,7 +30,8 @@ const Cart: React.FC = () => {
     }
   };
 
-  const shipping = cart.items.length > 0 ? (cart.totalPrice >= 2000 ? 0 : 199) : 0;
+  const shipping =
+    cart.items.length > 0 ? (cart.totalPrice >= 2000 ? 0 : 199) : 0;
   const total = cart.totalPrice + shipping;
 
   if (cart.items.length === 0) {
@@ -35,9 +46,12 @@ const Cart: React.FC = () => {
           <div className="text-gray-400 mb-4 sm:mb-6">
             <ShoppingBagIcon className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Your cart is empty</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">
+            Your cart is empty
+          </h2>
           <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-4">
-            Looks like you haven't added any items to your cart yet. Start shopping to fill it up!
+            Looks like you haven't added any items to your cart yet. Start
+            shopping to fill it up!
           </p>
           <Link to="/shop" className="inline-block w-full sm:w-auto">
             <Button size="lg" className="w-full sm:w-auto">
@@ -59,9 +73,12 @@ const Cart: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shopping Cart</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Shopping Cart
+            </h1>
             <p className="text-sm sm:text-base text-gray-600 mt-2">
-              {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} in your cart
+              {cart.totalItems} {cart.totalItems === 1 ? "item" : "items"} in
+              your cart
             </p>
           </motion.div>
         </div>
@@ -79,7 +96,9 @@ const Cart: React.FC = () => {
             >
               <div className="p-4 sm:p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Cart Items</h2>
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    Cart Items
+                  </h2>
                   {cart.items.length > 0 && (
                     <button
                       onClick={clearCart}
@@ -92,112 +111,142 @@ const Cart: React.FC = () => {
               </div>
 
               <div className="divide-y divide-gray-200">
-                {cart.items.map((item: { product: Product; quantity: number; selectedSize?: string; selectedColor?: string; inventoryId?: string }, index: number) => (
-                  <motion.div
-                    key={`${item.inventoryId || item.product._id}-${index}`}
-                    className="p-4 sm:p-6"
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                  >
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      {/* Product Image */}
-                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                        <img
-                          src={Array.isArray(item.product.images) && item.product.images.length > 0
-                            ? (typeof item.product.images[0] === 'string'
-                                ? item.product.images[0]
-                                : item.product.images[0].original || item.product.images[0].medium || item.product.images[0].thumb)
-                            : '/placeholder-product.jpg'}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                {cart.items.map(
+                  (
+                    item: {
+                      product: Product;
+                      quantity: number;
+                      selectedSize?: string;
+                      selectedColor?: string;
+                      inventoryId?: string;
+                    },
+                    index: number
+                  ) => (
+                    <motion.div
+                      key={`${item.inventoryId || item.product._id}-${index}`}
+                      className="p-4 sm:p-6"
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                    >
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        {/* Product Image */}
+                        <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                          <img
+                            src={getBestImageUrl(item.product.images)}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (target.src !== "/placeholder-product.jpg") {
+                                target.src = "/placeholder-product.jpg";
+                              }
+                            }}
+                          />
+                        </div>
 
-                      {/* Product Details */}
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          to={`/product/${item.product.id || item.product._id}`}
-                          className="text-lg font-semibold text-gray-900 hover:text-accent-rose transition-colors block truncate"
-                        >
-                          {item.product.name}
-                        </Link>
-                        <div className="mt-1 text-sm text-gray-600 space-y-1">
-                          {/* Display selected size and color */}
-                          {(item.selectedSize || item.selectedColor) && (
-                            <div className="flex flex-wrap gap-2">
-                              {item.selectedSize && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                  Size: {item.selectedSize}
-                                </span>
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <Link
+                            to={`/product/${
+                              item.product.id || item.product._id
+                            }`}
+                            className="text-lg font-semibold text-gray-900 hover:text-accent-rose transition-colors block truncate"
+                          >
+                            {item.product.name}
+                          </Link>
+                          <div className="mt-1 text-sm text-gray-600 space-y-1">
+                            {/* Display selected size and color */}
+                            {(item.selectedSize || item.selectedColor) && (
+                              <div className="flex flex-wrap gap-2">
+                                {item.selectedSize && (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Size: {item.selectedSize}
+                                  </span>
+                                )}
+                                {item.selectedColor && (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Color: {item.selectedColor}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            <p className="font-medium text-gray-900">
+                              {formatCurrency(
+                                item.product.compareAtPrice ||
+                                  item.product.costPrice ||
+                                  0
                               )}
-                              {item.selectedColor && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                  Color: {item.selectedColor}
-                                </span>
-                              )}
-                            </div>
-                          )}
-                          <p className="font-medium text-gray-900">
-                            {formatCurrency(item.product.compareAtPrice || item.product.costPrice || 0)}
-                            {item.product.compareAtPrice && item.product.compareAtPrice < (item.product.costPrice || 0) && (
-                              <span className="ml-2 text-xs text-gray-500 line-through">
-                                {formatCurrency(item.product.costPrice || 0)}
-                              </span>
+                              {item.product.compareAtPrice &&
+                                item.product.compareAtPrice <
+                                  (item.product.costPrice || 0) && (
+                                  <span className="ml-2 text-xs text-gray-500 line-through">
+                                    {formatCurrency(
+                                      item.product.costPrice || 0
+                                    )}
+                                  </span>
+                                )}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center border border-gray-300 rounded-lg">
+                            <button
+                              onClick={() =>
+                                handleQuantityChange(
+                                  item.product._id,
+                                  item.quantity - 1,
+                                  item.inventoryId
+                                )
+                              }
+                              className="p-2 hover:bg-gray-50 transition-colors"
+                            >
+                              <MinusIcon className="w-4 h-4" />
+                            </button>
+                            <span className="px-4 py-2 border-x border-gray-300 min-w-[60px] text-center">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                handleQuantityChange(
+                                  item.product._id,
+                                  item.quantity + 1,
+                                  item.inventoryId
+                                )
+                              }
+                              className="p-2 hover:bg-gray-50 transition-colors"
+                            >
+                              <PlusIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          {/* Remove Button */}
+                          <button
+                            onClick={() =>
+                              removeFromCart(item.product._id, item.inventoryId)
+                            }
+                            className="p-2 text-gray-400 hover:text-accent-rose transition-colors"
+                          >
+                            <XMarkIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        {/* Item Total */}
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-lg font-semibold text-gray-900">
+                            {formatCurrency(
+                              (item.product.compareAtPrice ||
+                                item.product.costPrice ||
+                                0) * item.quantity
                             )}
                           </p>
                         </div>
                       </div>
-
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center border border-gray-300 rounded-lg">
-                          <button
-                            onClick={() => handleQuantityChange(
-                              item.product._id,
-                              item.quantity - 1,
-                              item.inventoryId
-                            )}
-                            className="p-2 hover:bg-gray-50 transition-colors"
-                          >
-                            <MinusIcon className="w-4 h-4" />
-                          </button>
-                          <span className="px-4 py-2 border-x border-gray-300 min-w-[60px] text-center">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => handleQuantityChange(
-                              item.product._id,
-                              item.quantity + 1,
-                              item.inventoryId
-                            )}
-                            className="p-2 hover:bg-gray-50 transition-colors"
-                          >
-                            <PlusIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-
-                        {/* Remove Button */}
-                        <button
-                          onClick={() => removeFromCart(
-                            item.product._id,
-                            item.inventoryId
-                          )}
-                          className="p-2 text-gray-400 hover:text-accent-rose transition-colors"
-                        >
-                          <XMarkIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      {/* Item Total */}
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-lg font-semibold text-gray-900">
-                          {formatCurrency((item.product.compareAtPrice || item.product.costPrice || 0) * item.quantity)}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  )
+                )}
               </div>
             </motion.div>
           </div>
@@ -210,17 +259,21 @@ const Cart: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                Order Summary
+              </h2>
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">{formatCurrency(cart.totalPrice)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(cart.totalPrice)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {shipping === 0 ? 'Free' : formatCurrency(shipping)}
+                    {shipping === 0 ? "Free" : formatCurrency(shipping)}
                   </span>
                 </div>
                 {shipping === 0 && cart.totalPrice >= 2000 && (
@@ -230,7 +283,8 @@ const Cart: React.FC = () => {
                 )}
                 {shipping > 0 && (
                   <p className="text-sm text-gray-600">
-                    Add {formatCurrency(2000 - cart.totalPrice)} more for free shipping
+                    Add {formatCurrency(2000 - cart.totalPrice)} more for free
+                    shipping
                   </p>
                 )}
                 {/* <div className="flex justify-between">
@@ -239,7 +293,9 @@ const Cart: React.FC = () => {
                 </div> */}
                 <div className="border-t pt-4">
                   <div className="flex justify-between">
-                    <span className="text-lg font-semibold text-gray-900">Total</span>
+                    <span className="text-lg font-semibold text-gray-900">
+                      Total
+                    </span>
                     <span className="text-lg font-semibold text-gray-900">
                       {formatCurrency(total)}
                     </span>
@@ -263,8 +319,18 @@ const Cart: React.FC = () => {
               {/* Security Features */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                   Secure 256-bit SSL encryption
                 </div>
@@ -278,7 +344,6 @@ const Cart: React.FC = () => {
             </motion.div>
           </div>
         </div>
-        
       </div>
     </div>
   );
