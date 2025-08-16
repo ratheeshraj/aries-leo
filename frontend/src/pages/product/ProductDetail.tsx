@@ -6,7 +6,7 @@ import {
   MinusIcon,
   PlusIcon,
   TruckIcon,
-  ShieldCheckIcon,
+  // ShieldCheckIcon,
   StarIcon,
   ArrowLeftIcon,
   ChevronLeftIcon,
@@ -893,12 +893,12 @@ const ProductDetail: React.FC = () => {
                   Free shipping on orders over Rs.2000
                 </span>
               </div>
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <ShieldCheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-accent-rose flex-shrink-0" />
                 <span className="text-sm sm:text-base text-gray-700">
                   30-day return policy
                 </span>
-              </div>
+              </div> */}
             </motion.div>
           </div>
         </div>
