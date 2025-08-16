@@ -1,8 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRightIcon, CalendarIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
-import { mockBlogPosts } from '../../data/mockData';
+// import { ArrowRightIcon, CalendarIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
+// import { mockBlogPosts } from '../../data/mockData';
 import { reviewAPI } from '../../utils/api';
 import Button from '../../components/ui/Button';
 import { useScrollToTop } from '../../hooks/useScrollToTop';
@@ -15,9 +15,9 @@ const Blog: React.FC = () => {
   const [newsletterStatus, setNewsletterStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMessage, setNewsletterMessage] = React.useState('');
 
-  const featuredPost = mockBlogPosts[0];
+  // const featuredPost = mockBlogPosts[0];
 
-  const categories = ['All', 'Style Tips', 'Sustainability', 'Fashion Trends', 'Care Guide'];
+  // const categories = ['All', 'Style Tips', 'Sustainability', 'Fashion Trends', 'Care Guide'];
 
   // Newsletter subscription handler
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -59,7 +59,7 @@ const Blog: React.FC = () => {
 
       <div className="container mx-auto px-4 py-12">
         {/* Featured Post */}
-        {featuredPost && (
+        {/* {featuredPost && (
           <motion.section
             className="mb-16"
             initial={{ opacity: 0, y: 30 }}
@@ -109,10 +109,10 @@ const Blog: React.FC = () => {
               </div>
             </div>
           </motion.section>
-        )}
+        )} */}
 
         {/* Categories */}
-        <motion.section
+        {/* <motion.section
           className="mb-12"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -132,7 +132,7 @@ const Blog: React.FC = () => {
               </button>
             ))}
           </div>
-        </motion.section>
+        </motion.section> */}
 
         {/* WordPress Blog iframe - Replacing Blog Posts Grid */}
         <motion.section

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRightIcon, StarIcon, TruckIcon, ShieldCheckIcon, HeartIcon } from '@heroicons/react/24/outline';
-import { mockBlogPosts } from '../data/mockData';
+// import { mockBlogPosts } from '../data/mockData';
 import { reviewAPI, productAPI } from '../utils/api';
 import ProductCard from '../components/product/ProductCard';
 import Button from '../components/ui/Button';
@@ -27,7 +27,7 @@ const Home: React.FC = () => {
   const [newsletterStatus, setNewsletterStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMessage, setNewsletterMessage] = React.useState('');
 
-  const latestBlogPosts = mockBlogPosts.slice(0, 3);
+  // const latestBlogPosts = mockBlogPosts.slice(0, 3);
 
   // Newsletter subscription handler
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -444,7 +444,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Blog Preview */}
-      <section className="py-20 bg-gray-50">
+      {/* <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div 
             className="text-center mb-16"
@@ -515,7 +515,7 @@ const Home: React.FC = () => {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Newsletter CTA */}
       <section className="py-20 bg-accent-rose">
