@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -24,7 +24,9 @@ export const Login: React.FC = () => {
   const { login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLogin, setIsLogin] = useState(true);
+  const queryParams = new URLSearchParams(location.search);
+  const mode = queryParams.get("mode");
+  const [isLogin, setIsLogin] = useState(mode !== "signup");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +38,10 @@ export const Login: React.FC = () => {
     confirmPassword: "",
     phone: "",
   });
+
+  useEffect(() => {
+    setIsLogin(mode !== "signup");
+  }, [mode]);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -74,7 +80,10 @@ export const Login: React.FC = () => {
     try {
       if (isLogin) {
         // Login user
-        const success = await login(formData.email, formData.password);
+        const { success, error } = await login(
+          formData.email,
+          formData.password
+        );
 
         if (success) {
           // retrieve products data
@@ -94,11 +103,11 @@ export const Login: React.FC = () => {
             navigate("/");
           }
         } else {
-          setErrors({ submit: "Login failed. Please check your credentials." });
+          setErrors({ submit: error });
         }
       } else {
         // Register user
-        const success = await register({
+        const { success, error } = await register({
           name: formData.name,
           email: formData.email,
           password: formData.password,
@@ -110,7 +119,7 @@ export const Login: React.FC = () => {
           // Redirect to home page or dashboard
           navigate("/");
         } else {
-          setErrors({ submit: "Registration failed. Please try again." });
+          setErrors({ submit: error });
         }
       }
     } catch (error: any) {
@@ -209,9 +218,7 @@ export const Login: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="mb-6 p-4 bg-accent-light border border-accent-medium rounded-lg"
             >
-              <p className="text-sm text-accent-rose text-center">
-                {errors.submit}
-              </p>
+              <p className="text-sm text-center">{errors.submit}</p>
             </motion.div>
           )}
 
@@ -490,7 +497,9 @@ export const Login: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setIsLogin(!isLogin);
+                  const newMode = isLogin ? "signup" : "login";
+                  navigate(`/login?mode=${newMode}`);
+                  // setIsLogin(!isLogin);
                   setErrors({});
                   setFormData({
                     name: "",
@@ -517,11 +526,17 @@ export const Login: React.FC = () => {
             >
               <p className="text-xs text-gray-500 leading-relaxed">
                 By creating an account, you agree to our{" "}
-                <button className="text-accent-rose hover:text-accent-mauve underline focus:outline-none">
-                  Terms of Service
+                <button
+                  onClick={() => navigate("/terms")}
+                  className="text-accent-rose hover:text-accent-mauve underline focus:outline-none"
+                >
+                  Terms and Conditions
                 </button>{" "}
                 and{" "}
-                <button className="text-accent-rose hover:text-accent-mauve underline focus:outline-none">
+                <button
+                  onClick={() => navigate("/privacy")}
+                  className="text-accent-rose hover:text-accent-mauve underline focus:outline-none"
+                >
                   Privacy Policy
                 </button>
               </p>

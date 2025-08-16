@@ -27,19 +27,19 @@ const useAuth = () => {
       console.log('Login response:', data);
       if (data?.requiresOtp) {
         navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
-        return false;
+         return { success: false };
       }
 
       if (data) {
         // Store user data in context
         loginContext(data, data.token);
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false };
     } catch (error: any) {
       console.error('Login error:', error);
       setError(error.message || 'An error occurred during login');
-      return false;
+      return { success: false, error: error.message || 'An error occurred during login' };
     } finally {
       setLoading(false);
     }
@@ -61,13 +61,13 @@ const useAuth = () => {
       console.log('Registration response:', data);
       if (data?.email) {
         navigate(`/verify-otp?email=${encodeURIComponent(data.email)}`);
-        return false;
+         return { success: false };
       }
-      return false;
+      return { success: true };
     } catch (error: any) {
       console.error('Registration error:', error);
       setError(error.message || 'An error occurred during registration');
-      return false;
+      return { success: false, error: error.message || 'An error occurred during registration' };
     } finally {
       setLoading(false);
     }
