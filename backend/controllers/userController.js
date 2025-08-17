@@ -47,6 +47,7 @@ const loginUser = async (req, res) => {
       throw new Error("Invalid email or password");
     }
   } catch (error) {
+    console.error("Error in user login:", error);
     res.status(401).json({ message: error.message });
   }
 };
@@ -88,6 +89,7 @@ const registerUser = async (req, res) => {
       throw new Error("Invalid user data");
     }
   } catch (error) {
+    console.error("Error in user registration:", error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -132,6 +134,7 @@ const verifyOtp = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Error in OTP verification:", error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -147,6 +150,7 @@ const resendOtp = async (req, res) => {
 
     res.json({ message: "OTP resent to your email." });
   } catch (error) {
+    console.error("Error in resending OTP:", error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -173,6 +177,7 @@ const getUserProfile = async (req, res) => {
       throw new Error("User not found");
     }
   } catch (error) {
+    console.error("Error getting user profile:", error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -226,6 +231,7 @@ const updateUserProfile = async (req, res) => {
       throw new Error("User not found");
     }
   } catch (error) {
+    console.error("Error updating user profile:", error);
     // Use the correct status code from the response or default to 500
     const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
     res.status(statusCode).json({ message: error.message });
@@ -277,6 +283,7 @@ const addUserAddress = async (req, res) => {
       throw new Error("User not found");
     }
   } catch (error) {
+    console.error("Error adding user address:", error);
     const statusCode = error.message.includes("Validation error") ? 400 : 500;
     res.status(statusCode).json({ message: error.message });
   }
@@ -312,6 +319,7 @@ const deleteUserAddress = async (req, res) => {
       addresses: user.addresses,
     });
   } catch (error) {
+    console.error("Error deleting user address:", error);
     res.status(404).json({ message: error.message });
   }
 };

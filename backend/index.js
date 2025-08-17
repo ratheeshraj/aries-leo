@@ -8,9 +8,6 @@ const { initializeConnections } = require("./config/db");
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-// initializeConnections();
-
 // Initialize Express app
 const app = express();
 
@@ -18,6 +15,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware - place BEFORE routes
+app.use((req, res, next) => {
+  // remove password from the request body for security
+  if (req.body) {
+    delete req.body.password;
+  }
+  if (req.query) {
+    delete req.query.password;
+  }
+  if (req.params) {
+    delete req.params.password;
+  }
+
+  // Enhanced logging with timestamp and request details
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
+  // console.log("Request Headers:", JSON.stringify(req.headers, null, 2));
+  console.log("Request Body:", JSON.stringify(req.body, null, 2));
+  console.log("Request Query:", JSON.stringify(req.query, null, 2));
+  console.log("Request IP:", req.ip);
+
+  next();
+});
 
 // Import routes
 const productRoutes = require("./routes/productRoutes");
@@ -51,24 +72,24 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-// Connect to MongoDB
-// mongoose.connect(process.env.MONGODB_URI)
-//   .then(() => console.log('MongoDB connected'))
-//   .catch(err => console.error('MongoDB connection error:', err));
+// Error Middleware - place AFTER all routes
+app.use(notFound);
+app.use(errorHandler);
 
 // Define port
 const PORT = process.env.PORT || 3000;
 
-// Error Middleware
-app.use(notFound);
-app.use(errorHandler);
-
 // Start server
 const startServer = async () => {
-  await initializeConnections();
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  try {
+    await initializeConnections();
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Error starting server:", error);
+    process.exit(1);
+  }
 };
 
 startServer();

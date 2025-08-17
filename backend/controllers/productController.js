@@ -130,6 +130,7 @@ const getFeaturedProducts = async (req, res) => {
     const products = await ProductBbify.find({ featured: true }).limit(6);
     res.json(products);
   } catch (error) {
+    console.error("Error fetching featured products:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -143,6 +144,7 @@ const getNewProducts = async (req, res) => {
     const products = await ProductBbify.find({ isNew: true }).limit(6);
     res.json(products);
   } catch (error) {
+    console.error("Error fetching new products:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -182,6 +184,7 @@ const getProductById = async (req, res) => {
       throw new Error("Product not found");
     }
   } catch (error) {
+    console.error("Error fetching product by ID:", error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -225,6 +228,7 @@ const createProduct = async (req, res) => {
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
   } catch (error) {
+    console.error("Error creating product:", error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -272,6 +276,7 @@ const updateProduct = async (req, res) => {
       throw new Error("Product not found");
     }
   } catch (error) {
+    console.error("Error updating product:", error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -291,6 +296,7 @@ const deleteProduct = async (req, res) => {
       throw new Error("Product not found");
     }
   } catch (error) {
+    console.error("Error deleting product:", error);
     res.status(404).json({ message: error.message });
   }
 };

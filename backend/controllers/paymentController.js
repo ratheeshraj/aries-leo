@@ -32,9 +32,8 @@ const createRazorpayOrder = async (req, res) => {
 
     res.json(order);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: error.message || "Error creating Razorpay order" });
+    console.error("Error creating Razorpay order:", error);
+    res.status(500).json({ message: error.message || "Error creating Razorpay order" });
   }
 };
 
@@ -43,8 +42,7 @@ const createRazorpayOrder = async (req, res) => {
 // @access  Private
 const verifyRazorpayPayment = async (req, res) => {
   try {
-    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, orderId } =
-      req.body;
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature, orderId } = req.body;
 
     // Verify the payment signature
     const generatedSignature = crypto
@@ -77,9 +75,8 @@ const verifyRazorpayPayment = async (req, res) => {
       res.status(404).json({ message: "Order not found" });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: error.message || "Error verifying payment" });
+    console.error("Error verifying Razorpay payment:", error);
+    res.status(500).json({ message: error.message || "Error verifying payment" });
   }
 };
 

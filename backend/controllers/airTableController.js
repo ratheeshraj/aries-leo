@@ -6,18 +6,13 @@ dotenv.config();
 
 class AirtableController {
   constructor() {
-   
     // Validate environment variables
     if (!process.env.AIRTABLE_API_KEY) {
-      throw new Error(
-        "AIRTABLE_API_KEY is not defined in environment variables"
-      );
+      throw new Error("AIRTABLE_API_KEY is not defined in environment variables");
     }
 
     if (!process.env.AIRTABLE_BASE_ID) {
-      throw new Error(
-        "AIRTABLE_BASE_ID is not defined in environment variables"
-      );
+      throw new Error("AIRTABLE_BASE_ID is not defined in environment variables");
     }
 
     // Initialize Airtable
@@ -35,7 +30,7 @@ class AirtableController {
           view: "Grid view",
         })
         .all();
-        
+
       const blogs = records.map((record) => ({
         id: record.id,
         ...record.fields,
@@ -46,6 +41,7 @@ class AirtableController {
         data: blogs,
       });
     } catch (error) {
+      console.error("Error fetching blogs from Airtable:", error);
       return res.status(500).json({
         success: false,
         error: "Failed to fetch blogs",
@@ -57,7 +53,7 @@ class AirtableController {
     try {
       const records = await this.base("Team")
         .select({
-          filterByFormula: '{isActive} = 1',
+          filterByFormula: "{isActive} = 1",
           fields: ["Name", "Description", "Image", "Designation", "isActive"],
         })
         .all();
@@ -74,6 +70,7 @@ class AirtableController {
         data: team,
       });
     } catch (error) {
+      console.error("Error fetching team members from Airtable:", error);
       return res.status(500).json({
         success: false,
         error: "Failed to fetch team members",

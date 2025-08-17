@@ -1,5 +1,5 @@
-const Order = require('../models/orderModel');
-const Razorpay = require('razorpay');
+const Order = require("../models/orderModel");
+const Razorpay = require("razorpay");
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -35,7 +35,7 @@ const createOrder = async (req, res) => {
 
     if (!orderItems || orderItems.length === 0) {
       res.status(400);
-      throw new Error('No order items');
+      throw new Error("No order items");
     }
 
     // Set user from authenticated request
@@ -49,7 +49,7 @@ const createOrder = async (req, res) => {
         salePrice: item.salePrice || 0,
         discountPercentage: item.discountPercentage || 0,
         inventory: item.inventory,
-        orderStatus: item.orderStatus || 'Open',
+        orderStatus: item.orderStatus || "Open",
       })),
       shippingAddress: {
         firstName: shippingAddress.firstName,
@@ -61,19 +61,19 @@ const createOrder = async (req, res) => {
         country: shippingAddress.country,
         phone: shippingAddress.phone,
       },
-      paymentMethod: paymentMethod || 'Razorpay',
+      paymentMethod: paymentMethod || "Razorpay",
       paymentResult: paymentResult || {},
       itemsPrice: itemsPrice || 0.0,
       taxPrice: taxPrice || 0.0,
       shippingPrice: shippingPrice || 0.0,
       totalPrice: totalPrice || 0.0,
-      isPaid: typeof isPaid === 'boolean' ? isPaid : false,
+      isPaid: typeof isPaid === "boolean" ? isPaid : false,
       paidAt: paidAt || null,
-      isDelivered: typeof isDelivered === 'boolean' ? isDelivered : false,
+      isDelivered: typeof isDelivered === "boolean" ? isDelivered : false,
       deliveredAt: deliveredAt || null,
-      razorpayOrderId: razorpayOrderId || '',
-      razorpayPaymentId: razorpayPaymentId || '',
-      razorpaySignature: razorpaySignature || '',
+      razorpayOrderId: razorpayOrderId || "",
+      razorpayPaymentId: razorpayPaymentId || "",
+      razorpaySignature: razorpaySignature || "",
       couponCode: couponCode || null,
       couponUsageTracked: couponUsageTracked || false,
       couponApplied: couponApplied || false,
@@ -83,6 +83,7 @@ const createOrder = async (req, res) => {
 
     res.status(201).json(createdOrder);
   } catch (error) {
+    console.error("Error creating order:", error);
     res.status(400).json({ message: error.message });
   }
 };
@@ -92,14 +93,15 @@ const createOrder = async (req, res) => {
 // @access  Private
 const getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('user');
+    const order = await Order.findById(req.params.id).populate("user");
     if (order) {
       res.json(order);
     } else {
       res.status(404);
-      throw new Error('Order not found');
+      throw new Error("Order not found");
     }
   } catch (error) {
+    console.error("Error getting order by ID:", error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -129,9 +131,10 @@ const updateOrderToPaid = async (req, res) => {
       res.json(updatedOrder);
     } else {
       res.status(404);
-      throw new Error('Order not found');
+      throw new Error("Order not found");
     }
   } catch (error) {
+    console.error("Error updating order to paid:", error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -152,9 +155,10 @@ const updateOrderToDelivered = async (req, res) => {
       res.json(updatedOrder);
     } else {
       res.status(404);
-      throw new Error('Order not found');
+      throw new Error("Order not found");
     }
   } catch (error) {
+    console.error("Error updating order to delivered:", error);
     res.status(404).json({ message: error.message });
   }
 };
@@ -167,6 +171,7 @@ const getMyOrders = async (req, res) => {
     const orders = await Order.find({ user: req.user._id });
     res.json(orders);
   } catch (error) {
+    console.error("Error getting user orders:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -176,9 +181,10 @@ const getMyOrders = async (req, res) => {
 // @access  Private/Admin
 const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({}).populate('user', 'id name');
+    const orders = await Order.find({}).populate("user", "id name");
     res.json(orders);
   } catch (error) {
+    console.error("Error getting all orders:", error);
     res.status(500).json({ message: error.message });
   }
 };
