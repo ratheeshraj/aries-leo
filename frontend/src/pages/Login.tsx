@@ -9,6 +9,7 @@ import {
   LockClosedIcon,
   ShieldCheckIcon,
   ArrowLeftIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import Button from "../components/ui/Button";
@@ -150,9 +151,9 @@ export const Login: React.FC = () => {
   useScrollToTop();
 
   return (
-    <div className="h-screen bg-white flex flex-col justify-center items-center">
+    <div className="h-screen bg-white flex flex-col items-center px-4 py-8 sm:px-6 lg:px-8">
       {/* Back Button */}
-      <div className="absolute top-6 left-6 z-20">
+      <div className="flex justify-between w-full ">
         <button
           onClick={() => {
             if (location.state?.from === "/checkout") {
@@ -161,32 +162,40 @@ export const Login: React.FC = () => {
               navigate(-1);
             }
           }}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-2 rounded-lg p-2"
+          className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-2 rounded-lg p-2"
         >
-          <ArrowLeftIcon className="w-5 h-5" />
-          <span className="text-sm font-medium">Back</span>
-        </button>{" "}
+          <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="text-xs sm:text-sm font-medium">Back</span>
+        </button>
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center space-x-1 sm:space-x-2 text-gray-600 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-rose focus:ring-offset-2 rounded-lg p-2"
+        >
+          <span className="text-xs sm:text-sm border-b border-gray-600 font-medium">
+            Home
+          </span>
+        </button>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative">
+      <div className="w-full max-w-sm sm:max-w-md mx-auto relative">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
           {/* Logo Section */}
-          <div className="flex justify-center">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <img
               src={logo}
               alt="Aries Leo Logo"
-              className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64"
+              className="h-24 w-auto sm:h-28 md:h-32 lg:h-36"
             />
           </div>
           <motion.h2
             key={isLogin ? "login" : "signup"}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-bold text-gray-900"
+            className="text-xl sm:text-2xl font-bold text-gray-900 mb-2"
           >
             {isLogin ? "Welcome back" : "Create your account"}
           </motion.h2>
@@ -195,18 +204,18 @@ export const Login: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mt-2 text-gray-600 max-w-sm mx-auto"
+            className="text-sm sm:text-base text-gray-600 max-w-xs sm:max-w-sm mx-auto px-2"
           >
             {isLogin
               ? "Sign in to your account to continue your shopping journey"
-              : "Join the Aries Leo community and enjoy exclusive benefits and personalized experiences"}
+              : "Join the Aries Leo community and enjoy exclusive benefits"}
           </motion.p>
         </motion.div>
       </div>
 
-      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md relative">
+      <div className="mt-6 sm:mt-8 pb-6 w-full max-w-sm sm:max-w-md mx-auto relative">
         <motion.div
-          className="bg-white py-4 px-4 shadow-xl border border-gray-200 sm:rounded-2xl sm:px-6"
+          className="bg-white py-6 px-4 sm:py-8 sm:px-6 shadow-xl border border-gray-200 rounded-xl sm:rounded-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -216,19 +225,21 @@ export const Login: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-accent-light border border-accent-medium rounded-lg"
+              className="mb-4 sm:mb-6 p-3 sm:p-4 bg-accent-light border border-accent-medium rounded-lg"
             >
-              <p className="text-sm text-center">{errors.submit}</p>
+              <p className="text-xs sm:text-sm text-center text-red-600">
+                {errors.submit}
+              </p>
             </motion.div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
             {!isLogin && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="space-y-4"
+                className="space-y-3 sm:space-y-4"
               >
                 <Input
                   label="Full name"
@@ -336,60 +347,65 @@ export const Login: React.FC = () => {
 
                 {/* Password Requirements */}
                 {formData.password && (
-                  <div className="mt-3 space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircleIcon
-                        className={`h-4 w-4 ${
-                          formData.password.length >= 6
-                            ? "text-green-500"
-                            : "text-gray-300"
-                        }`}
-                      />
-                      <span
-                        className={`text-xs ${
-                          formData.password.length >= 6
-                            ? "text-green-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        At least 6 characters
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircleIcon
-                        className={`h-4 w-4 ${
-                          /[A-Z]/.test(formData.password)
-                            ? "text-green-500"
-                            : "text-gray-300"
-                        }`}
-                      />
-                      <span
-                        className={`text-xs ${
-                          /[A-Z]/.test(formData.password)
-                            ? "text-green-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        One uppercase letter
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircleIcon
-                        className={`h-4 w-4 ${
-                          /[0-9]/.test(formData.password)
-                            ? "text-green-500"
-                            : "text-gray-300"
-                        }`}
-                      />
-                      <span
-                        className={`text-xs ${
-                          /[0-9]/.test(formData.password)
-                            ? "text-green-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        One number
-                      </span>
+                  <div className="mt-2 sm:mt-3 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xs font-medium text-gray-700 mb-2">
+                      Password requirements:
+                    </p>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircleIcon
+                          className={`h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ${
+                            formData.password.length >= 6
+                              ? "text-green-500"
+                              : "text-gray-300"
+                          }`}
+                        />
+                        <span
+                          className={`text-xs ${
+                            formData.password.length >= 6
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          At least 6 characters
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <CheckCircleIcon
+                          className={`h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ${
+                            /[A-Z]/.test(formData.password)
+                              ? "text-green-500"
+                              : "text-gray-300"
+                          }`}
+                        />
+                        <span
+                          className={`text-xs ${
+                            /[A-Z]/.test(formData.password)
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          One uppercase letter
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <CheckCircleIcon
+                          className={`h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ${
+                            /[0-9]/.test(formData.password)
+                              ? "text-green-500"
+                              : "text-gray-300"
+                          }`}
+                        />
+                        <span
+                          className={`text-xs ${
+                            /[0-9]/.test(formData.password)
+                              ? "text-green-600"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          One number
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -403,19 +419,12 @@ export const Login: React.FC = () => {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-accent-rose focus:ring-accent-rose border-gray-300 rounded transition-colors"
+                    className="h-3 w-3 sm:h-4 sm:w-4 text-accent-rose focus:ring-accent-rose border-gray-300 rounded transition-colors"
                   />
-                  <span className="ml-2 block text-sm text-gray-700">
+                  <span className="ml-2 block text-xs sm:text-sm text-gray-700">
                     Remember me
                   </span>
                 </label>
-
-                <button
-                  type="button"
-                  className="text-sm font-medium text-accent-rose hover:text-accent-mauve transition-colors focus:outline-none focus:underline"
-                >
-                  Forgot password?
-                </button>
               </div>
             )}
 
@@ -423,18 +432,20 @@ export const Login: React.FC = () => {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full bg-gradient-to-r from-accent-rose to-accent-mauve hover:from-accent-mauve hover:to-accent-dark transform transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02] shadow-lg"
+              className="w-full bg-gradient-to-r from-accent-rose to-accent-mauve hover:from-accent-mauve hover:to-accent-dark transform transition-all duration-200 hover:scale-[1.02] focus:scale-[1.02] shadow-lg py-3 sm:py-4 text-sm sm:text-base font-medium"
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                  {isLogin ? "Signing in..." : "Creating account..."}
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent mr-2"></div>
+                  <span className="text-sm sm:text-base">
+                    {isLogin ? "Signing in..." : "Creating account..."}
+                  </span>
                 </div>
-              ) : isLogin ? (
-                "Sign in"
               ) : (
-                "Create account"
+                <span className="text-sm sm:text-base font-medium">
+                  {isLogin ? "Sign in" : "Create account"}
+                </span>
               )}
             </Button>
           </form>
@@ -491,15 +502,14 @@ export const Login: React.FC = () => {
           </div> */}
 
           {/* Toggle Login/Signup */}
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-6 sm:mt-8 text-center">
+            <p className="text-xs sm:text-sm text-gray-600">
               {isLogin ? "Don't have an account?" : "Already have an account?"}
               <button
                 type="button"
                 onClick={() => {
                   const newMode = isLogin ? "signup" : "login";
                   navigate(`/login?mode=${newMode}`);
-                  // setIsLogin(!isLogin);
                   setErrors({});
                   setFormData({
                     name: "",
@@ -509,7 +519,7 @@ export const Login: React.FC = () => {
                     phone: "",
                   });
                 }}
-                className="ml-2 font-semibold text-accent-rose hover:text-accent-mauve transition-colors focus:outline-none focus:underline"
+                className="ml-1 sm:ml-2 font-semibold text-accent-rose hover:text-accent-mauve transition-colors focus:outline-none focus:underline text-xs sm:text-sm"
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>
@@ -519,7 +529,7 @@ export const Login: React.FC = () => {
           {/* Terms and Privacy (for signup) */}
           {!isLogin && (
             <motion.div
-              className="mt-6 text-center"
+              className="mt-4 sm:mt-6 text-center px-2"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -528,14 +538,14 @@ export const Login: React.FC = () => {
                 By creating an account, you agree to our{" "}
                 <button
                   onClick={() => navigate("/terms")}
-                  className="text-accent-rose hover:text-accent-mauve underline focus:outline-none"
+                  className="text-accent-rose hover:text-accent-mauve underline focus:outline-none transition-colors"
                 >
                   Terms and Conditions
                 </button>{" "}
                 and{" "}
                 <button
                   onClick={() => navigate("/privacy")}
-                  className="text-accent-rose hover:text-accent-mauve underline focus:outline-none"
+                  className="text-accent-rose hover:text-accent-mauve underline focus:outline-none transition-colors"
                 >
                   Privacy Policy
                 </button>

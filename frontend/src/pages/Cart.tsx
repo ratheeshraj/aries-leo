@@ -129,9 +129,129 @@ const Cart: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.6, delay: index * 0.1 }}
                     >
-                      <div className="flex items-start gap-3 sm:gap-4">
+                      {/* Mobile Layout (< md) */}
+                      <div className="block md:hidden">
+                        <div className="flex items-start gap-3 mb-4">
+                          {/* Product Image */}
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                            <img
+                              src={getBestImageUrl(item.product.images)}
+                              alt={item.product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                if (target.src !== "/placeholder-product.jpg") {
+                                  target.src = "/placeholder-product.jpg";
+                                }
+                              }}
+                            />
+                          </div>
+
+                          {/* Product Details */}
+                          <div className="flex-1 min-w-0">
+                            <Link
+                              to={`/product/${
+                                item.product.id || item.product._id
+                              }`}
+                              className="text-base sm:text-lg font-semibold text-gray-900 hover:text-accent-rose transition-colors block"
+                            >
+                              {item.product.name}
+                            </Link>
+                            <div className="mt-1 text-sm text-gray-600">
+                              {/* Display selected size and color */}
+                              {(item.selectedSize || item.selectedColor) && (
+                                <div className="flex flex-wrap gap-1 mb-1">
+                                  {item.selectedSize && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                      Size: {item.selectedSize}
+                                    </span>
+                                  )}
+                                  {item.selectedColor && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                      Color: {item.selectedColor}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              <p className="font-medium text-gray-900">
+                                {formatCurrency(
+                                  item.product.compareAtPrice ||
+                                    item.product.costPrice ||
+                                    0
+                                )}
+                                {item.product.compareAtPrice &&
+                                  item.product.compareAtPrice <
+                                    (item.product.costPrice || 0) && (
+                                    <span className="ml-2 text-xs text-gray-500 line-through">
+                                      {formatCurrency(
+                                        item.product.costPrice || 0
+                                      )}
+                                    </span>
+                                  )}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Remove Button - Top Right */}
+                          <button
+                            onClick={() =>
+                              removeFromCart(item.product._id, item.inventoryId)
+                            }
+                            className="p-1 text-gray-400 hover:text-accent-rose transition-colors flex-shrink-0"
+                          >
+                            <XMarkIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        {/* Quantity Controls and Total - Bottom Row */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center border border-gray-300 rounded-lg">
+                            <button
+                              onClick={() =>
+                                handleQuantityChange(
+                                  item.product._id,
+                                  item.quantity - 1,
+                                  item.inventoryId
+                                )
+                              }
+                              className="p-2 hover:bg-gray-50 transition-colors"
+                            >
+                              <MinusIcon className="w-4 h-4" />
+                            </button>
+                            <span className="px-3 py-2 border-x border-gray-300 min-w-[50px] text-center text-sm">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                handleQuantityChange(
+                                  item.product._id,
+                                  item.quantity + 1,
+                                  item.inventoryId
+                                )
+                              }
+                              className="p-2 hover:bg-gray-50 transition-colors"
+                            >
+                              <PlusIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          {/* Item Total */}
+                          <div className="text-right">
+                            <p className="text-lg font-semibold text-gray-900">
+                              {formatCurrency(
+                                (item.product.compareAtPrice ||
+                                  item.product.costPrice ||
+                                  0) * item.quantity
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop Layout (>= md) */}
+                      <div className="hidden md:flex items-start gap-4">
                         {/* Product Image */}
-                        <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                           <img
                             src={getBestImageUrl(item.product.images)}
                             alt={item.product.name}
@@ -155,10 +275,10 @@ const Cart: React.FC = () => {
                           >
                             {item.product.name}
                           </Link>
-                          <div className="mt-1 text-sm text-gray-600 space-y-1">
+                          <div className="mt-2 text-sm text-gray-600">
                             {/* Display selected size and color */}
                             {(item.selectedSize || item.selectedColor) && (
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-wrap gap-2 mb-2">
                                 {item.selectedSize && (
                                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                     Size: {item.selectedSize}
@@ -191,7 +311,7 @@ const Cart: React.FC = () => {
                         </div>
 
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-shrink-0">
                           <div className="flex items-center border border-gray-300 rounded-lg">
                             <button
                               onClick={() =>
@@ -234,7 +354,7 @@ const Cart: React.FC = () => {
                         </div>
 
                         {/* Item Total */}
-                        <div className="text-right flex-shrink-0">
+                        <div className="text-right flex-shrink-0 min-w-[100px]">
                           <p className="text-lg font-semibold text-gray-900">
                             {formatCurrency(
                               (item.product.compareAtPrice ||

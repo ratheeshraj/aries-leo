@@ -1,48 +1,59 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCartIcon,
   HeartIcon,
   Bars3Icon,
   XMarkIcon,
-  UserIcon
-} from '@heroicons/react/24/outline';
-import { useAppContext } from '../../context/AppContext';
-import useAuth from '../../hooks/useAuth';
-import Button from '../ui/Button';
-import logo from '../../assets/aries-leo-logo.png'
+  UserIcon,
+} from "@heroicons/react/24/outline";
+import { useAppContext } from "../../context/AppContext";
+import useAuth from "../../hooks/useAuth";
+import Button from "../ui/Button";
+import logo from "../../assets/aries-leo-logo.png";
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const { cart, wishlist } = useAppContext();
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Shop', href: '/shop' },
-    { name: 'About', href: '/about' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' },
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "/shop" },
+    { name: "About", href: "/about" },
+    { name: "Blog", href: "/blog" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const isActivePage = (href: string) => {
-    if (href === '/') {
-      return location.pathname === '/';
+    if (href === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(href);
   };
 
-  
+  // if scroll detected close mobile menu
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
       {/* Top Banner */}
       <div className="bg-accent-rose text-white text-center py-2 px-4">
         <p className="text-xs sm:text-sm font-medium truncate">
-          <span className="hidden sm:inline">Premium women's bottoms worldwide 🌍</span>
+          <span className="hidden sm:inline">
+            Premium women's bottoms worldwide 🌍
+          </span>
           <span className="sm:hidden">Free shipping over Rs. 2000 🌍</span>
         </p>
       </div>
@@ -50,24 +61,29 @@ const Header: React.FC = () => {
       <div className="container-responsive">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex-shrink-0">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
             >
               {isMobileMenuOpen ? (
-                <XMarkIcon className="w-6 h-6" />
+                <XMarkIcon className="w-5 h-5" />
               ) : (
-                <Bars3Icon className="w-6 h-6" />
+                <Bars3Icon className="w-5 h-5" />
               )}
             </Button>
           </div>
 
           {/* Logo Section */}
-          <div className="flex items-center">
-            <Link to="/">
-              <img src={logo} alt="Aries Leo Logo" className="h-16 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32" />
+          <div className="flex items-center justify-center flex-1 md:flex-initial">
+            <Link to="/" className="flex items-center">
+              <img
+                src={logo}
+                alt="Aries Leo Logo"
+                className="h-20 w-auto md:h-16 lg:h-18 xl:h-20"
+              />
             </Link>
           </div>
 
@@ -79,8 +95,8 @@ const Header: React.FC = () => {
                 to={item.href}
                 className={`text-sm font-medium transition-colors duration-200 ${
                   isActivePage(item.href)
-                    ? 'text-accent-rose border-b-2 border-accent-rose pb-1'
-                    : 'text-gray-700 hover:text-accent-rose'
+                    ? "text-accent-rose border-b-2 border-accent-rose pb-1"
+                    : "text-gray-700 hover:text-accent-rose"
                 }`}
               >
                 {item.name}
@@ -89,7 +105,7 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
             {/* Search */}
             {/* <div className="relative">
               <Button
@@ -132,45 +148,64 @@ const Header: React.FC = () => {
             {/* User/Login */}
             {isAuthenticated ? (
               <div className="relative group">
-                <Link to="/profile" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose flex items-center">
-                  <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-1" />
-                  <span className="hidden md:inline text-sm font-medium">{user?.name || 'Profile'}</span>
+                <Link
+                  to="/profile"
+                  className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose flex items-center transition-colors duration-200"
+                >
+                  <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden lg:inline text-sm font-medium ml-1">
+                    {user?.name || "Profile"}
+                  </span>
                 </Link>
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                  >
                     My Profile
                   </Link>
                   <button
                     onClick={logout}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-150"
                   >
                     Sign Out
                   </button>
                 </div>
               </div>
             ) : (
-              <Link to="/login" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose flex items-center">
-                <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-1" />
-                <span className="hidden md:inline text-sm font-medium">Login</span>
+              <Link
+                to="/login"
+                className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose flex items-center transition-colors duration-200"
+              >
+                <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden lg:inline text-sm font-medium ml-1">
+                  Login
+                </span>
               </Link>
             )}
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose">
+            <Link
+              to="/wishlist"
+              className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose transition-colors duration-200"
+            >
               <HeartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               {wishlist && wishlist.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
-                  {wishlist.length > 9 ? '9+' : wishlist.length}
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-[10px] sm:text-xs min-w-[16px] sm:min-w-[20px]">
+                  {wishlist.length > 9 ? "9+" : wishlist.length}
                 </span>
               )}
             </Link>
 
             {/* Cart */}
-            <Link to="/cart" className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose">
+            <Link
+              to="/cart"
+              className="relative p-1.5 sm:p-2 text-gray-700 hover:text-accent-rose transition-colors duration-200"
+            >
               <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               {cart.totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-xs">
-                  {cart.totalItems > 9 ? '9+' : cart.totalItems}
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent-rose text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-bold text-[10px] sm:text-xs min-w-[16px] sm:min-w-[20px]">
+                  {cart.totalItems > 9 ? "9+" : cart.totalItems}
                 </span>
               )}
             </Link>
@@ -182,25 +217,59 @@ const Header: React.FC = () => {
           {isMobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-200 py-4"
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="md:hidden border-t border-gray-200 py-3 bg-white"
             >
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-1">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     to={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
                       isActivePage(item.href)
-                        ? 'text-accent-rose bg-accent-light'
-                        : 'text-gray-700 hover:text-accent-rose hover:bg-accent-light'
+                        ? "text-accent-rose bg-accent-light border-l-4 border-accent-rose"
+                        : "text-gray-700 hover:text-accent-rose hover:bg-accent-light hover:border-l-4 hover:border-accent-rose"
                     }`}
                   >
                     {item.name}
                   </Link>
                 ))}
+
+                {/* Mobile-only user actions */}
+                <div className="border-t border-gray-200 mt-3 pt-3 space-y-1">
+                  {!isAuthenticated && (
+                    <Link
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-accent-rose hover:bg-accent-light transition-all duration-200"
+                    >
+                      Login
+                    </Link>
+                  )}
+                  {isAuthenticated && (
+                    <>
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-accent-rose hover:bg-accent-light transition-all duration-200"
+                      >
+                        My Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -210,7 +279,10 @@ const Header: React.FC = () => {
       {/* Brand tagline bar */}
       <div className="bg-gray-50 text-center py-2 sm:py-3 px-4 text-gray-600 border-t border-gray-200">
         <p className="text-xs sm:text-sm font-medium truncate">
-          <span className="hidden sm:inline">"Bottoms that empower – Cotton | Comfort | Confidence for Every Woman."</span>
+          <span className="hidden sm:inline">
+            "Bottoms that empower – Cotton | Comfort | Confidence for Every
+            Woman."
+          </span>
           <span className="sm:hidden">"Cotton • Comfort • Confidence"</span>
         </p>
       </div>

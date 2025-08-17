@@ -312,8 +312,7 @@ const Checkout: React.FC = () => {
           name: item.product.name,
           qty: item.quantity,
           image:
-            Array.isArray(item.product.images) &&
-            item.product.images.length > 0
+            Array.isArray(item.product.images) && item.product.images.length > 0
               ? typeof item.product.images[0] === "string"
                 ? item.product.images[0]
                 : item.product.images[0].original ||
@@ -378,36 +377,39 @@ const Checkout: React.FC = () => {
         }
 
         // Get Razorpay key
-        const keyResponse = await fetch('/api/payments/get-razorpay-key');
+        const keyResponse = await fetch("/api/payments/get-razorpay-key");
         if (!keyResponse.ok) {
           throw new Error("Failed to get Razorpay key");
         }
         const keyData = await keyResponse.json();
-        
+
         if (!keyData.key) {
           throw new Error("Razorpay key not configured");
         }
-        
+
         // Create Razorpay order
-        const razorpayOrderResponse = await fetch('/api/payments/create-order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            amount: total, // Amount in rupees, will be converted to paise in backend
-            currency: 'INR',
-            receipt: `receipt_${Date.now()}`,
-            notes: {
-              discount_code: appliedDiscount?.code || '',
-              customer_name: `${shippingAddress.firstName} ${shippingAddress.lastName}`
-            }
-          })
-        });
+        const razorpayOrderResponse = await fetch(
+          "/api/payments/create-order",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount: total, // Amount in rupees, will be converted to paise in backend
+              currency: "INR",
+              receipt: `receipt_${Date.now()}`,
+              notes: {
+                discount_code: appliedDiscount?.code || "",
+                customer_name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+              },
+            }),
+          }
+        );
 
         if (!razorpayOrderResponse.ok) {
-          throw new Error('Failed to create Razorpay order');
+          throw new Error("Failed to create Razorpay order");
         }
 
         const razorpayOrder = await razorpayOrderResponse.json();
@@ -416,8 +418,8 @@ const Checkout: React.FC = () => {
           key: keyData.key,
           amount: razorpayOrder.amount,
           currency: razorpayOrder.currency,
-          name: 'Aries Leo',
-          description: 'Order Payment',
+          name: "Aries Leo",
+          description: "Order Payment",
           order_id: razorpayOrder.id,
           handler: async function (response: any) {
             try {
@@ -442,7 +444,10 @@ const Checkout: React.FC = () => {
                             item.product.images[0].medium ||
                             item.product.images[0].thumb
                         : "/placeholder-product.jpg",
-                    price: item.product.compareAtPrice || item.product.costPrice || 0,
+                    price:
+                      item.product.compareAtPrice ||
+                      item.product.costPrice ||
+                      0,
                     salePrice: item.product.salePrice || 0,
                     discountPercentage: 0,
                     inventory: item.inventoryId,
@@ -474,7 +479,10 @@ const Checkout: React.FC = () => {
                 razorpaySignature: response.razorpay_signature,
               };
 
-              const orderResponse = await orderAPI.createOrder(orderData, token);
+              const orderResponse = await orderAPI.createOrder(
+                orderData,
+                token
+              );
               const newOrderNumber = orderResponse._id || `ORD-${Date.now()}`;
               setOrderNumber(newOrderNumber);
 
@@ -483,22 +491,24 @@ const Checkout: React.FC = () => {
               setOrderComplete(true);
             } catch (error) {
               console.error("Order creation failed:", error);
-              alert("Payment successful but order creation failed. Please contact support.");
+              alert(
+                "Payment successful but order creation failed. Please contact support."
+              );
             } finally {
               setIsProcessing(false);
             }
           },
           prefill: {
             name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
-            email: user?.email || '',
+            email: user?.email || "",
             contact: shippingAddress.phone,
           },
           notes: {
             address: `${shippingAddress.address1}, ${shippingAddress.city}`,
-            discount_code: appliedDiscount?.code || '',
+            discount_code: appliedDiscount?.code || "",
           },
           theme: {
-            color: '#F43F5E',
+            color: "#F43F5E",
           },
           method: {
             card: true,
@@ -516,15 +526,16 @@ const Checkout: React.FC = () => {
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
-        
       } catch (razorpayError) {
-        console.warn("Razorpay payment failed, falling back to direct order creation:", razorpayError);
-        
+        console.warn(
+          "Razorpay payment failed, falling back to direct order creation:",
+          razorpayError
+        );
+
         // Fallback: Create order directly without payment processing
         await createOrderDirectly();
         setIsProcessing(false);
       }
-      
     } catch (error) {
       console.error("Order processing failed:", error);
       alert("There was an error processing your order. Please try again.");
@@ -544,12 +555,12 @@ const Checkout: React.FC = () => {
           shippingAddress.state &&
           shippingAddress.postalCode
         );
-        
+
         // If using same address for billing, only validate shipping
         if (useSameAddress) {
           return shippingValid;
         }
-        
+
         // If using different billing address, validate both
         const billingValid = !!(
           billingAddress.firstName &&
@@ -560,7 +571,7 @@ const Checkout: React.FC = () => {
           billingAddress.state &&
           billingAddress.postalCode
         );
-        
+
         return shippingValid && billingValid;
       case 2:
         return paymentMethod === "razorpay";
@@ -623,10 +634,12 @@ const Checkout: React.FC = () => {
               className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              Back to Cart
+              <span className="hidden sm:inline text-sm">Back to Cart</span>
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900">Checkout</h1>
-            <div className="w-20"></div> {/* Spacer */}
+            <h1 className="text-xl font-semibold text-gray-900 text-center">
+              Checkout
+            </h1>
+            <div className="md:w-20 w-10"></div> {/* Spacer */}
           </div>
         </div>
       </div>
@@ -636,12 +649,58 @@ const Checkout: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Progress Steps */}
-            <div className="bg-white rounded-2xl p-6 mb-8">
-              <div className="flex items-center justify-between">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+              {/* Mobile Progress Steps */}
+              <div className="block sm:hidden">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="text-center">
+                    <div
+                      className={`flex items-center justify-center w-12 h-12 rounded-full border-2 mx-auto mb-2 ${
+                        currentStep >
+                        steps.findIndex(
+                          (s) => s.id === steps[currentStep - 1]?.id
+                        ) +
+                          1
+                          ? "bg-accent-rose border-accent-rose text-white"
+                          : "border-accent-rose text-accent-rose"
+                      }`}
+                    >
+                      {currentStep >
+                      steps.findIndex(
+                        (s) => s.id === steps[currentStep - 1]?.id
+                      ) +
+                        1 ? (
+                        <CheckIcon className="w-6 h-6" />
+                      ) : (
+                        steps[currentStep - 1]?.icon
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Step {currentStep} of {steps.length}
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {steps[currentStep - 1]?.title}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {steps[currentStep - 1]?.description}
+                    </p>
+                  </div>
+                </div>
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-accent-rose h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(currentStep / steps.length) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Desktop Progress Steps */}
+              <div className="hidden sm:flex items-center justify-between">
                 {steps.map((step, index) => (
                   <div key={step.id} className="flex items-center">
                     <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                      className={`flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 rounded-full border-2 ${
                         currentStep > index + 1
                           ? "bg-accent-rose border-accent-rose text-white"
                           : currentStep === index + 1
@@ -650,14 +709,14 @@ const Checkout: React.FC = () => {
                       }`}
                     >
                       {currentStep > index + 1 ? (
-                        <CheckIcon className="w-5 h-5" />
+                        <CheckIcon className="w-5 h-5 lg:w-6 lg:h-6" />
                       ) : (
                         step.icon
                       )}
                     </div>
-                    <div className="ml-3">
+                    <div className="ml-3 hidden md:block">
                       <p
-                        className={`text-sm font-medium ${
+                        className={`text-sm lg:text-base font-medium ${
                           currentStep >= index + 1
                             ? "text-gray-900"
                             : "text-gray-500"
@@ -665,13 +724,13 @@ const Checkout: React.FC = () => {
                       >
                         {step.title}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs lg:text-sm text-gray-500">
                         {step.description}
                       </p>
                     </div>
                     {index < steps.length - 1 && (
                       <div
-                        className={`w-12 h-0.5 mx-4 ${
+                        className={`w-8 md:w-12 lg:w-16 h-0.5 mx-2 md:mx-4 ${
                           currentStep > index + 1
                             ? "bg-accent-rose"
                             : "bg-gray-300"
@@ -1090,133 +1149,177 @@ const Checkout: React.FC = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white rounded-2xl p-6 mb-8"
+                  className="bg-white rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8"
                 >
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">
                     Order Review
                   </h2>
 
                   {/* Order Items */}
-                  <div className="space-y-4 mb-6">
-                    {cart.items.map(
-                      (
-                        item: { product: Product; quantity: number },
-                        index: number
-                      ) => (
-                        <div
-                          key={index}
-                          className="flex items-center p-4 border rounded-lg"
-                        >
-                          <img
-                            src={
-                              Array.isArray(item.product.images) &&
-                              item.product.images.length > 0
-                                ? typeof item.product.images[0] === "string"
-                                  ? item.product.images[0]
-                                  : item.product.images[0].original ||
-                                    item.product.images[0].medium ||
-                                    item.product.images[0].thumb
-                                : "/placeholder-product.jpg"
-                            }
-                            alt={item.product.name}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                          <div className="ml-4 flex-1">
-                            <h4 className="font-medium text-gray-900">
-                              {item.product.name}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              Qty: {item.quantity}
-                            </p>
+                  <div className="mb-6">
+                    <div className="space-y-3 sm:space-y-4">
+                      {cart.items.map(
+                        (
+                          item: { product: Product; quantity: number },
+                          index: number
+                        ) => (
+                          <div
+                            key={index}
+                            className="flex flex-col sm:flex-row sm:items-center p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0"
+                          >
+                            {/* Mobile Layout */}
+                            <div className="flex items-start sm:hidden gap-3">
+                              <img
+                                src={
+                                  Array.isArray(item.product.images) &&
+                                  item.product.images.length > 0
+                                    ? typeof item.product.images[0] === "string"
+                                      ? item.product.images[0]
+                                      : item.product.images[0].original ||
+                                        item.product.images[0].medium ||
+                                        item.product.images[0].thumb
+                                    : "/placeholder-product.jpg"
+                                }
+                                alt={item.product.name}
+                                className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-900 text-sm truncate">
+                                  {item.product.name}
+                                </h4>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  Qty: {item.quantity}
+                                </p>
+                                <p className="font-medium text-gray-900 text-sm mt-1">
+                                  {formatCurrency(
+                                    (item.product.compareAtPrice ||
+                                      item.product.costPrice ||
+                                      0) * item.quantity
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Desktop Layout */}
+                            <div className="hidden sm:flex sm:items-center w-full">
+                              <img
+                                src={
+                                  Array.isArray(item.product.images) &&
+                                  item.product.images.length > 0
+                                    ? typeof item.product.images[0] === "string"
+                                      ? item.product.images[0]
+                                      : item.product.images[0].original ||
+                                        item.product.images[0].medium ||
+                                        item.product.images[0].thumb
+                                    : "/placeholder-product.jpg"
+                                }
+                                alt={item.product.name}
+                                className="w-16 h-16 lg:w-20 lg:h-20 object-cover rounded-lg flex-shrink-0"
+                              />
+                              <div className="ml-4 flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-900 text-sm lg:text-base truncate">
+                                  {item.product.name}
+                                </h4>
+                                <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                                  Qty: {item.quantity}
+                                </p>
+                              </div>
+                              <div className="text-right flex-shrink-0 ml-4">
+                                <p className="font-medium text-gray-900 text-sm lg:text-base">
+                                  {formatCurrency(
+                                    (item.product.compareAtPrice ||
+                                      item.product.costPrice ||
+                                      0) * item.quantity
+                                  )}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-medium text-gray-900">
-                              {formatCurrency(
-                                (item.product.compareAtPrice ||
-                                  item.product.costPrice ||
-                                  0) * item.quantity
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    )}
+                        )
+                      )}
+                    </div>
                   </div>
 
                   {/* Shipping Information */}
-                  <div className="border-t pt-6 mb-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="border-t pt-4 sm:pt-6 mb-4 sm:mb-6">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                       Shipping Information
                     </h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="font-medium text-gray-900">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <p className="font-medium text-gray-900 text-sm sm:text-base">
                         {shippingAddress.firstName} {shippingAddress.lastName}
                       </p>
-                      <p className="text-gray-600">
-                        {shippingAddress.address1}
-                      </p>
-                      {shippingAddress.address2 && (
-                        <p className="text-gray-600">
-                          {shippingAddress.address2}
+                      <div className="mt-1 space-y-0.5">
+                        <p className="text-gray-600 text-xs sm:text-sm">
+                          {shippingAddress.address1}
                         </p>
-                      )}
-                      <p className="text-gray-600">
-                        {shippingAddress.city}, {shippingAddress.state}{" "}
-                        {shippingAddress.postalCode}
-                      </p>
-                      <p className="text-gray-600">{shippingAddress.phone}</p>
+                        {shippingAddress.address2 && (
+                          <p className="text-gray-600 text-xs sm:text-sm">
+                            {shippingAddress.address2}
+                          </p>
+                        )}
+                        <p className="text-gray-600 text-xs sm:text-sm">
+                          {shippingAddress.city}, {shippingAddress.state}{" "}
+                          {shippingAddress.postalCode}
+                        </p>
+                        <p className="text-gray-600 text-xs sm:text-sm">
+                          {shippingAddress.phone}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Order Summary */}
-                  <div className="border-t pt-6 mb-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="border-t pt-4 sm:pt-6 mb-4 sm:mb-6">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                       Order Total
                     </h3>
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Subtotal</span>
-                        <span className="text-gray-900">
-                          {formatCurrency(subtotal)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Shipping</span>
-                        <span className="text-gray-900">
-                          {shipping === 0 ? "Free" : formatCurrency(shipping)}
-                        </span>
-                      </div>
-                      {appliedDiscount && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-green-600">
-                            Discount ({appliedDiscount.code})
-                          </span>
-                          <span className="text-green-600">
-                            -{formatCurrency(discountAmount)}
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-gray-600">Subtotal</span>
+                          <span className="text-gray-900 font-medium">
+                            {formatCurrency(subtotal)}
                           </span>
                         </div>
-                      )}
-                      <div className="border-t pt-2 flex justify-between font-semibold">
-                        <span className="text-gray-900">Total</span>
-                        <span className="text-gray-900">
-                          {formatCurrency(total)}
-                        </span>
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-gray-600">Shipping</span>
+                          <span className="text-gray-900 font-medium">
+                            {shipping === 0 ? "Free" : formatCurrency(shipping)}
+                          </span>
+                        </div>
+                        {appliedDiscount && (
+                          <div className="flex justify-between text-xs sm:text-sm">
+                            <span className="text-green-600">
+                              Discount ({appliedDiscount.code})
+                            </span>
+                            <span className="text-green-600 font-medium">
+                              -{formatCurrency(discountAmount)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="border-t pt-2 flex justify-between font-semibold text-sm sm:text-base">
+                          <span className="text-gray-900">Total</span>
+                          <span className="text-gray-900">
+                            {formatCurrency(total)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Payment Information */}
-                  <div className="border-t pt-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="border-t pt-4 sm:pt-6">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                       Payment Method
                     </h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="font-medium text-gray-900">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <p className="font-medium text-gray-900 text-sm sm:text-base">
                         {paymentMethod === "razorpay"
                           ? "Cards, UPI & More (Razorpay)"
                           : paymentMethod}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
                         Secure payment via Razorpay gateway
                       </p>
                     </div>
@@ -1226,11 +1329,12 @@ const Checkout: React.FC = () => {
             </AnimatePresence>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
               <Button
                 onClick={handleBack}
                 disabled={currentStep === 1}
                 variant="outline"
+                className="order-2 sm:order-1 w-full sm:w-auto"
               >
                 Back
               </Button>
@@ -1239,6 +1343,7 @@ const Checkout: React.FC = () => {
                 <Button
                   onClick={handleNext}
                   disabled={!validateStep(currentStep)}
+                  className="order-1 sm:order-2 w-full sm:w-auto"
                 >
                   Continue
                 </Button>
@@ -1247,6 +1352,7 @@ const Checkout: React.FC = () => {
                   onClick={handlePlaceOrder}
                   disabled={isProcessing || !validateStep(currentStep)}
                   isLoading={isProcessing}
+                  className="order-1 sm:order-2 w-full sm:w-auto"
                 >
                   {isProcessing ? "Processing..." : "Place Order"}
                 </Button>
@@ -1336,7 +1442,7 @@ const Checkout: React.FC = () => {
                 </h3>
                 {!appliedDiscount ? (
                   <div className="space-y-2">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Input
                         value={discountCode}
                         onChange={setDiscountCode}
@@ -1348,6 +1454,7 @@ const Checkout: React.FC = () => {
                         disabled={!discountCode.trim() || isValidatingDiscount}
                         variant="outline"
                         size="sm"
+                        className="w-full sm:w-auto"
                       >
                         {isValidatingDiscount ? "Validating..." : "Apply"}
                       </Button>

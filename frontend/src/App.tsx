@@ -17,7 +17,7 @@ import { AppProvider } from "./context/AppContext";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { VerifyOtp } from "./pages/VerifyOtp";
 import TermsAndConditions from "./pages/TermsAndConditions";
-import CancellationRefundPolicy from "./pages/CancellationRefundPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import ContactUs from "./pages/ContactUs";
@@ -48,7 +48,7 @@ function App() {
               <Route path="/shipping" element={<ShippingPolicy />} />
               <Route
                 path="/refund"
-                element={<CancellationRefundPolicy />}
+                element={<RefundPolicy />}
               />
             </Route>
             <Route path="login" element={<Login />} />
