@@ -49,19 +49,21 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
       {/* Top Banner */}
-      <div className="bg-accent-rose text-white text-center py-2 px-4">
-        <p className="text-xs sm:text-sm font-medium truncate">
-          <span className="hidden sm:inline">
-            Premium women's bottoms worldwide 🌍
-          </span>
-          <span className="sm:hidden">Free shipping over Rs. 2000 🌍</span>
-        </p>
+      <div className="bg-accent-rose text-white text-center py-2">
+        <div className="container-responsive">
+          <p className="text-xs sm:text-sm font-medium truncate">
+            <span className="hidden sm:inline">
+              Premium women's bottoms worldwide 🌍
+            </span>
+            <span className="sm:hidden">Free shipping over Rs. 2000 🌍</span>
+          </p>
+        </div>
       </div>
 
       <div className="container-responsive">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+        <div className="grid grid-cols-12 items-center h-16 sm:h-18 md:h-20 gap-4">
           {/* Mobile menu button */}
-          <div className="md:hidden flex-shrink-0">
+          <div className="md:hidden col-span-2">
             <Button
               variant="ghost"
               size="sm"
@@ -76,36 +78,38 @@ const Header: React.FC = () => {
             </Button>
           </div>
 
-          {/* Logo Section */}
-          <div className="flex items-center justify-center flex-1 md:flex-initial">
+          {/* Logo Section - Centered on mobile, left-aligned on desktop */}
+          <div className="col-span-8 md:col-span-3 flex items-center justify-center md:justify-start">
             <Link to="/" className="flex items-center">
               <img
                 src={logo}
                 alt="Aries Leo Logo"
-                className="h-20 w-auto md:h-16 lg:h-18 xl:h-20"
+                className="h-14 w-auto md:h-16 lg:h-18 xl:h-20"
               />
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  isActivePage(item.href)
-                    ? "text-accent-rose border-b-2 border-accent-rose pb-1"
-                    : "text-gray-700 hover:text-accent-rose"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden md:flex md:col-span-6 justify-center">
+            <div className="flex space-x-6 lg:space-x-8">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
+                    isActivePage(item.href)
+                      ? "text-accent-rose border-b-2 border-accent-rose pb-1"
+                      : "text-gray-700 hover:text-accent-rose"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
+          <div className="col-span-2 md:col-span-3 flex items-center justify-end space-x-1 sm:space-x-2 md:space-x-3">
             {/* Search */}
             {/* <div className="relative">
               <Button
@@ -277,14 +281,15 @@ const Header: React.FC = () => {
       </div>
 
       {/* Brand tagline bar */}
-      <div className="bg-gray-50 text-center py-2 sm:py-3 px-4 text-gray-600 border-t border-gray-200">
-        <p className="text-xs sm:text-sm font-medium truncate">
-          <span className="hidden sm:inline">
-            "Bottoms that empower – Cotton | Comfort | Confidence for Every
-            Woman."
-          </span>
-          <span className="sm:hidden">"Cotton • Comfort • Confidence"</span>
-        </p>
+      <div className="bg-gray-50 text-center py-2 sm:py-3 text-gray-600 border-t border-gray-200">
+        <div className="container-responsive">
+          <p className="text-xs sm:text-sm font-medium truncate">
+            <span className="hidden sm:inline">
+              "NOT JUST PANT - A POWER MOVE"
+            </span>
+            <span className="sm:hidden">"Cotton • Comfort • Confidence"</span>
+          </p>
+        </div>
       </div>
     </header>
   );

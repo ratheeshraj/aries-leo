@@ -187,7 +187,7 @@ export const Login: React.FC = () => {
             <img
               src={logo}
               alt="Aries Leo Logo"
-              className="h-24 w-auto sm:h-28 md:h-32 lg:h-36"
+              className="h-24 w-auto sm:h-32 md:h-48 lg:h-60"
             />
           </div>
           <motion.h2

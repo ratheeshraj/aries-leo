@@ -159,23 +159,24 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-accent-light to-secondary-50 overflow-hidden px-4 py-8 sm:py-16">
+      <section className="relative bg-gradient-to-br from-accent-light to-secondary-50 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10"></div>
 
-        <motion.div
-          className="relative z-10 text-center max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          {/* Logo Section */}
-          <div className="flex justify-center">
-            <img
-              src={logo}
-              alt="Aries Leo Logo"
-              className="h-32 w-auto sm:h-40 md:h-48 lg:h-56 xl:h-64"
-            />
-          </div>
+        <div className="container-responsive py-12 sm:py-16 md:py-20 lg:py-24">
+          <motion.div
+            className="relative z-10 text-center max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Logo Section */}
+            <div className="flex justify-center mb-6 sm:mb-8">
+              <img
+                src={logo}
+                alt="Aries Leo Logo"
+                className="h-24 w-auto sm:h-32 md:h-48 lg:h-72 xl:h-96"
+              />
+            </div>
           {/* 
           <motion.h1 
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-4 sm:mb-6"
@@ -229,7 +230,8 @@ const Home: React.FC = () => {
               </Button>
             </Link>
           </motion.div>
-        </motion.div>
+          </motion.div>
+        </div>
       </section>
 
       {/* Features Section */}
@@ -261,15 +263,14 @@ const Home: React.FC = () => {
               },
               {
                 icon: <TruckIcon className="w-12 h-12" />,
-                title: "Global Shipping",
-                description:
-                  "Free worldwide shipping on orders over Rs.2000. Express delivery available to your doorstep",
+                title: "Worldwide Shipping",
+                description: "No matter where you are, we deliver.",
               },
               {
                 icon: <ShieldCheckIcon className="w-12 h-12" />,
-                title: "Satisfaction Promise",
+                title: "Zero risk shopping",
                 description:
-                  "30-day return policy and lifetime repair service. Your confidence is our guarantee",
+                  "We stand by our craft — if you’re not happy, we’ll make it right.",
               },
             ].map((feature, index) => (
               <motion.div

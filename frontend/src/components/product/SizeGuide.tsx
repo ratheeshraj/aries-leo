@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { XMarkIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import Modal from '../ui/Modal';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { XMarkIcon, QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import Modal from "../ui/Modal";
 
 interface SizeGuideProps {
   isOpen: boolean;
@@ -9,43 +9,46 @@ interface SizeGuideProps {
 }
 
 const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
-  const [selectedUnit, setSelectedUnit] = useState<'inches' | 'cm'>('inches');
+  const [selectedUnit, setSelectedUnit] = useState<"inches" | "cm">("inches");
 
   const sizeData = {
     inches: [
-      { size: 'XS', waist: '24-25', hips: '33-34', inseam: '28-30' },
-      { size: 'S', waist: '26-27', hips: '35-36', inseam: '28-30' },
-      { size: 'M', waist: '28-29', hips: '37-38', inseam: '28-30' },
-      { size: 'L', waist: '30-32', hips: '39-41', inseam: '28-30' },
-      { size: 'XL', waist: '33-35', hips: '42-44', inseam: '28-30' },
-      { size: 'XXL', waist: '36-38', hips: '45-47', inseam: '28-30' },
+      { size: "XS", waist: "24-25", hips: "33-34", inseam: "28-30" },
+      { size: "S", waist: "26-27", hips: "35-36", inseam: "28-30" },
+      { size: "M", waist: "28-29", hips: "37-38", inseam: "28-30" },
+      { size: "L", waist: "30-32", hips: "39-41", inseam: "28-30" },
+      { size: "XL", waist: "33-35", hips: "42-44", inseam: "28-30" },
+      { size: "XXL", waist: "36-38", hips: "45-47", inseam: "28-30" },
     ],
     cm: [
-      { size: 'XS', waist: '61-64', hips: '84-86', inseam: '71-76' },
-      { size: 'S', waist: '66-69', hips: '89-91', inseam: '71-76' },
-      { size: 'M', waist: '71-74', hips: '94-97', inseam: '71-76' },
-      { size: 'L', waist: '76-81', hips: '99-104', inseam: '71-76' },
-      { size: 'XL', waist: '84-89', hips: '107-112', inseam: '71-76' },
-      { size: 'XXL', waist: '91-97', hips: '114-119', inseam: '71-76' },
+      { size: "XS", waist: "61-64", hips: "84-86", inseam: "71-76" },
+      { size: "S", waist: "66-69", hips: "89-91", inseam: "71-76" },
+      { size: "M", waist: "71-74", hips: "94-97", inseam: "71-76" },
+      { size: "L", waist: "76-81", hips: "99-104", inseam: "71-76" },
+      { size: "XL", waist: "84-89", hips: "107-112", inseam: "71-76" },
+      { size: "XXL", waist: "91-97", hips: "114-119", inseam: "71-76" },
     ],
   };
 
   const measurementTips = [
     {
-      title: 'Waist',
-      description: 'Measure around the narrowest part of your waist, keeping the tape level.',
-      icon: '📏'
+      title: "Waist",
+      description:
+        "Measure around your waist at the level of your belly button. Keep the tape measure snug but not tight, and ensure it’s parallel to the floor. Record the measurement in inches.",
+      icon: "📏",
     },
     {
-      title: 'Hips',
-      description: 'Measure around the fullest part of your hips, about 8 inches below your waist.',
-      icon: '📐'
+      title: "Hips",
+      description:
+        "Measure around the fullest part of your hips and seat area (usually 8 inches below your waist). Keep the tape level all the way around. Record in inches.",
+      icon: "📐",
     },
     {
-      title: 'Inseam',
-      description: 'Measure from the crotch to the bottom of the ankle bone.',
-      icon: '📏'
-    }
+      title: "Inseam",
+      description:
+        "Measure from the crotch seam down to the bottom of your ankle bone. Keep your leg straight for an accurate reading.",
+      icon: "📏",
+    },
   ];
 
   return (
@@ -53,7 +56,9 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Size Guide - Women's Pants</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Size Guide - Women's Pants
+          </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -66,21 +71,21 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
         <div className="flex justify-center mb-6">
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
-              onClick={() => setSelectedUnit('inches')}
+              onClick={() => setSelectedUnit("inches")}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedUnit === 'inches'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                selectedUnit === "inches"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Inches
             </button>
             <button
-              onClick={() => setSelectedUnit('cm')}
+              onClick={() => setSelectedUnit("cm")}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedUnit === 'cm'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                selectedUnit === "cm"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Centimeters
@@ -93,7 +98,9 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
           <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Size</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                  Size
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
                   Waist ({selectedUnit})
                 </th>
@@ -114,10 +121,18 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
                   transition={{ delay: index * 0.1 }}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{row.size}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{row.waist}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{row.hips}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{row.inseam}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                    {row.size}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {row.waist}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {row.hips}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {row.inseam}
+                  </td>
                 </motion.tr>
               ))}
             </tbody>
@@ -151,23 +166,43 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
 
         {/* Fit Guide */}
         <div className="bg-accent-rose/10 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Fit Guide</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Fit Guide
+          </h3>
           <ul className="space-y-1 text-sm text-gray-600">
-            <li>• <strong>Skinny:</strong> Fitted through the hip and thigh, tapered leg</li>
-            <li>• <strong>Straight:</strong> Straight leg from hip to ankle</li>
-            <li>• <strong>Bootcut:</strong> Fitted through the hip and thigh, slightly flared from knee</li>
-            <li>• <strong>Wide Leg:</strong> Relaxed fit through hip and thigh, wide leg opening</li>
-            <li>• <strong>High Waist:</strong> Sits at or above the natural waistline</li>
-            <li>• <strong>Mid Rise:</strong> Sits just below the natural waistline</li>
-            <li>• <strong>Low Rise:</strong> Sits at or below the hip bone</li>
+            <li>
+              • <strong>Skinny:</strong> Fitted through the hip and thigh,
+              tapered leg
+            </li>
+            <li>
+              • <strong>Straight:</strong> Straight leg from hip to ankle
+            </li>
+            <li>
+              • <strong>Bootcut:</strong> Fitted through the hip and thigh,
+              slightly flared from knee
+            </li>
+            <li>
+              • <strong>Wide Leg:</strong> Relaxed fit through hip and thigh,
+              wide leg opening
+            </li>
+            <li>
+              • <strong>High Waist:</strong> Sits at or above the natural
+              waistline
+            </li>
+            <li>
+              • <strong>Mid Rise:</strong> Sits just below the natural waistline
+            </li>
+            <li>
+              • <strong>Low Rise:</strong> Sits at or below the hip bone
+            </li>
           </ul>
         </div>
 
         {/* Note */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            Measurements may vary by ±0.5 inches. For the best fit, we recommend measuring yourself 
-            and comparing with our size chart.
+            Measurements may vary by ±0.5 inches. For the best fit, we recommend
+            measuring yourself and comparing with our size chart.
           </p>
         </div>
       </div>
