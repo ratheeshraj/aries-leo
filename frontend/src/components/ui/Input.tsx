@@ -19,6 +19,8 @@ interface InputProps {
   id?: string;
   name?: string;
   autoComplete?: string;
+  maxLength?: number;
+  minLength?: number;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -40,6 +42,8 @@ const Input: React.FC<InputProps> = ({
   id,
   name,
   autoComplete,
+  maxLength,
+  minLength,
 }) => {
   const inputId = id || name || `input-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -85,6 +89,8 @@ const Input: React.FC<InputProps> = ({
           disabled={disabled}
           required={required}
           autoComplete={autoComplete}
+          maxLength={maxLength}
+          minLength={minLength}
           className={baseClasses}
         />
         

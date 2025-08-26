@@ -667,7 +667,7 @@ const ProductDetail: React.FC = () => {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size!)}
-                      className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
+                      className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target whitespace-nowrap ${
                         selectedSize === size
                           ? "bg-accent-rose text-white border-accent-rose"
                           : "bg-white text-gray-700 border-gray-300 hover:border-accent-medium"

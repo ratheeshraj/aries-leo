@@ -48,6 +48,11 @@ export const Login: React.FC = () => {
 
     if (!isLogin) {
       if (!formData.name.trim()) newErrors.name = "Full name is required";
+      if (!formData.phone.trim()) {
+        newErrors.phone = "Phone number is required";
+      } else if (!/^[0-9]{10}$/.test(formData.phone)) {
+        newErrors.phone = "Phone number must be exactly 10 digits";
+      }
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match";
       }
@@ -111,7 +116,7 @@ export const Login: React.FC = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          phone: formData.phone || undefined,
+          phone: formData.phone,
         });
 
         if (success) {
@@ -122,6 +127,7 @@ export const Login: React.FC = () => {
           setErrors({ submit: error });
         }
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Authentication error:", error);
       setErrors({
@@ -254,13 +260,16 @@ export const Login: React.FC = () => {
                   placeholder="John Doe"
                 />
                 <Input
-                  label="Phone number (optional)"
+                  label="Phone number"
                   id="phone"
                   name="phone"
                   type="tel"
+                  required
                   autoComplete="tel"
+                  maxLength={10}
                   value={formData.phone}
                   onChange={handleInputChange("phone")}
+                  error={errors.phone}
                   placeholder="+91 98765 43210"
                 />
               </motion.div>

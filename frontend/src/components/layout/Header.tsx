@@ -37,14 +37,18 @@ const Header: React.FC = () => {
 
   // if scroll detected close mobile menu
   useEffect(() => {
-    const handleScroll = () => {
+    if (!isMobileMenuOpen) return;
+
+    const handleUserScroll = () => {
       setIsMobileMenuOpen(false);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("wheel", handleUserScroll, { passive: true });
+    window.addEventListener("touchmove", handleUserScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("wheel", handleUserScroll);
+      window.removeEventListener("touchmove", handleUserScroll);
     };
-  }, []);
+  }, [isMobileMenuOpen]);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
