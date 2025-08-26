@@ -13,6 +13,7 @@ import useAuth from "../../hooks/useAuth";
 import Button from "../ui/Button";
 import logo from "../../assets/aries-leo-logo.png";
 import { categoryAPI } from "../../utils/api";
+import { toTitleCase } from "../../utils/helpers";
 import type { Category } from "../../types";
 
 const Header: React.FC = () => {
@@ -180,13 +181,13 @@ const Header: React.FC = () => {
                                           <Link
                                             to={`/shop?category=${category._id}`}
                                             onClick={handleCategoryClick}
-                                            className="text-base font-semibold text-gray-900 hover:text-accent-rose transition-colors duration-200 text-wrap leading-tight"
+                                            className="text-base text-gray-900 hover:text-accent-rose transition-colors duration-200 text-wrap leading-tight font-medium"
                                           >
-                                            {category.name}
+                                            {toTitleCase(category.name)}
                                           </Link>
                                           
                                           {/* Subcategory links */}
-                                          <div className="flex flex-col gap-2">
+                                          {/* <div className="flex flex-col gap-2">
                                             <Link
                                               to={`/shop?category=${category._id}`}
                                               onClick={handleCategoryClick}
@@ -194,22 +195,14 @@ const Header: React.FC = () => {
                                             >
                                               View All {category.name}
                                             </Link>
-                                            {category.description && (
-                                              <Link
-                                                to={`/shop?category=${category._id}&featured=true`}
-                                                onClick={handleCategoryClick}
-                                                className="text-sm text-gray-600 hover:text-accent-rose transition-colors duration-200 leading-relaxed"
-                                              >
-                                                Featured {category.name}
-                                              </Link>
-                                            )}
-                                          </div>
+                                          </div> */}
                                         </div>
                                       ))}
                                       
-                                      {/* Quick Filters Section */}
+                                      
+                                      {/* Collections Section */}
                                       <div className="flex flex-col gap-3 break-inside-avoid mb-8 w-full">
-                                        <span className="text-base font-semibold text-gray-900 leading-tight">
+                                      <span className="text-base font-semibold text-gray-900 leading-tight">
                                           Quick Filters
                                         </span>
                                         <div className="flex flex-col gap-2">
@@ -235,10 +228,6 @@ const Header: React.FC = () => {
                                             On Sale
                                           </Link>
                                         </div>
-                                      </div>
-                                      
-                                      {/* Collections Section */}
-                                      <div className="flex flex-col gap-3 break-inside-avoid mb-8 w-full">
                                         <span className="text-base font-semibold text-gray-900 leading-tight">
                                           Collections
                                         </span>
@@ -471,7 +460,7 @@ const Header: React.FC = () => {
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className="block px-4 py-2 rounded-lg text-sm text-gray-600 hover:text-accent-rose hover:bg-accent-light transition-all duration-200 ml-4"
                               >
-                                {category.name}
+                                {toTitleCase(category.name)}
                               </Link>
                             ))}
                             <Link

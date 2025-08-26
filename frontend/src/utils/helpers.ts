@@ -388,3 +388,12 @@ export const hexToColorName = (hex: string): string => {
   };
   return colorMap[hex.toUpperCase()] || hex;
 };
+
+// Convert string to title case
+export const toTitleCase = (str: string): string => {
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
