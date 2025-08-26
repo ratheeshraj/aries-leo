@@ -13,20 +13,24 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
 
   const sizeData = {
     inches: [
-      { size: "XS", waist: "24-25", hips: "33-34", inseam: "28-30" },
-      { size: "S", waist: "26-27", hips: "35-36", inseam: "28-30" },
-      { size: "M", waist: "28-29", hips: "37-38", inseam: "28-30" },
-      { size: "L", waist: "30-32", hips: "39-41", inseam: "28-30" },
-      { size: "XL", waist: "33-35", hips: "42-44", inseam: "28-30" },
-      { size: "XXL", waist: "36-38", hips: "45-47", inseam: "28-30" },
+      { size: "XS", waist: "24-27", hips: "37", length: "35" },
+      { size: "S", waist: "27-31", hips: "39", length: "37" },
+      { size: "M", waist: "29-33", hips: "41", length: "37" },
+      { size: "L", waist: "31-35", hips: "43", length: "38" },
+      { size: "XL", waist: "34-38", hips: "46", length: "38" },
+      { size: "2XL", waist: "37-41", hips: "49", length: "39" },
+      { size: "3XL", waist: "40-44", hips: "52", length: "39" },
+      { size: "4XL", waist: "43-47", hips: "55", length: "39" },
     ],
     cm: [
-      { size: "XS", waist: "61-64", hips: "84-86", inseam: "71-76" },
-      { size: "S", waist: "66-69", hips: "89-91", inseam: "71-76" },
-      { size: "M", waist: "71-74", hips: "94-97", inseam: "71-76" },
-      { size: "L", waist: "76-81", hips: "99-104", inseam: "71-76" },
-      { size: "XL", waist: "84-89", hips: "107-112", inseam: "71-76" },
-      { size: "XXL", waist: "91-97", hips: "114-119", inseam: "71-76" },
+      { size: "XS", waist: "61-69", hips: "94", length: "89" },
+      { size: "S", waist: "69-79", hips: "99", length: "94" },
+      { size: "M", waist: "74-84", hips: "104", length: "94" },
+      { size: "L", waist: "79-89", hips: "109", length: "97" },
+      { size: "XL", waist: "86-97", hips: "117", length: "97" },
+      { size: "2XL", waist: "94-104", hips: "124", length: "99" },
+      { size: "3XL", waist: "102-112", hips: "132", length: "99" },
+      { size: "4XL", waist: "109-119", hips: "140", length: "99" },
     ],
   };
 
@@ -131,7 +135,7 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
                     {row.hips}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {row.inseam}
+                    {row.length}
                   </td>
                 </motion.tr>
               ))}
