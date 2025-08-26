@@ -31,7 +31,6 @@ interface ShopFilters {
   onSale: boolean;
   featured: boolean;
   newArrivals: boolean;
-  material: string[];
   gender: string[];
 }
 
@@ -135,7 +134,6 @@ const Shop: React.FC = () => {
       onSale: onSaleParam,
       featured: featuredParam,
       newArrivals: newArrivalsParam,
-      material: [],
       gender: [],
     };
   }, [searchParams]);
@@ -162,7 +160,6 @@ const Shop: React.FC = () => {
   const availableOptions = useMemo(() => {
     const sizes = new Set<string>();
     const colors = new Set<string>();
-    const materials = new Set<string>();
     const genders = new Set<string>();
 
     products.forEach(product => {
@@ -178,14 +175,12 @@ const Shop: React.FC = () => {
       }
 
       // Extract other properties
-      if (product.material) materials.add(product.material);
       if (product.gender) genders.add(product.gender);
     });
 
     return {
       sizes: Array.from(sizes).sort(),
       colors: Array.from(colors).sort(),
-      materials: Array.from(materials).sort(),
       genders: Array.from(genders).sort(),
     };
   }, [products]);
@@ -213,7 +208,6 @@ const Shop: React.FC = () => {
         featured: currentFilters.featured || undefined,
         newArrivals: currentFilters.newArrivals || undefined,
         search: currentSearchQuery || undefined,
-        material: currentFilters.material.length > 0 ? currentFilters.material : undefined,
         gender: currentFilters.gender.length > 0 ? currentFilters.gender : undefined,
       };
 
@@ -325,12 +319,7 @@ const Shop: React.FC = () => {
       );
     }
 
-    // Apply material filter
-    if (filters.material.length > 0) {
-      filteredProducts = filteredProducts.filter(product => 
-        filters.material.some(mat => product.material && product.material.toLowerCase().includes(mat.toLowerCase()))
-      );
-    }
+
 
     // Apply gender filter
     if (filters.gender.length > 0) {
@@ -542,19 +531,7 @@ const Shop: React.FC = () => {
 
 
 
-  const handleMaterialToggle = useCallback((material: string) => {
-    setFilters(prev => {
-      const newMaterials = prev.material.includes(material)
-        ? prev.material.filter(m => m !== material)
-        : [...prev.material, material];
-      
-      // Only update if the material array actually changed
-      if (JSON.stringify(prev.material) === JSON.stringify(newMaterials)) {
-        return prev;
-      }
-      return { ...prev, material: newMaterials };
-    });
-  }, []);
+
 
   const clearFilters = useCallback(() => {
     setFilters({
@@ -567,7 +544,6 @@ const Shop: React.FC = () => {
       onSale: false,
       featured: false,
       newArrivals: false,
-      material: [],
       gender: [],
     });
     setSearchQuery('');
@@ -597,7 +573,6 @@ const Shop: React.FC = () => {
     (filters.inStock ? 1 : 0) +
     (filters.rating > 0 ? 1 : 0) +
     ((filters.onSale || filters.featured || filters.newArrivals) ? 1 : 0) +
-    (filters.material.length > 0 ? 1 : 0) +
     (filters.gender.length > 0 ? 1 : 0), [filters]);
 
   // Memoize filter options to prevent unnecessary re-renders
@@ -947,36 +922,7 @@ const Shop: React.FC = () => {
                 </div>
               </FilterSection> */}
 
-              {/* Material Filter */}
-              <FilterSection 
-                title="Material" 
-                filterKey="material" 
-                isExpanded={memoizedFilterOptions.expandedFilters.has('material')} 
-                onToggle={toggleFilterExpansion}
-              >
-                <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-                    <input
-                      type="checkbox"
-                      checked={filters.material.length === 0}
-                      onChange={() => handleFilterChange('material', [])}
-                      className="rounded border-gray-300 text-accent-rose"
-                    />
-                    <span className="text-sm text-gray-700 group-hover:text-gray-900">All Materials</span>
-                  </label>
-                  {memoizedFilterOptions.availableOptions.materials.map(material => (
-                    <label key={material} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-                      <input
-                        type="checkbox"
-                        checked={filters.material.includes(material)}
-                        onChange={() => handleMaterialToggle(material)}
-                        className="rounded border-gray-300 text-accent-rose"
-                      />
-                      <span className="text-sm text-gray-700 group-hover:text-gray-900">{material}</span>
-                    </label>
-                  ))}
-                </div>
-              </FilterSection>
+
 
               {/* Size Filter */}
               <FilterSection 
@@ -1430,36 +1376,7 @@ const Shop: React.FC = () => {
                   </div>
                 </FilterSection>
 
-                {/* Material Filter */}
-                <FilterSection 
-                  title="Material" 
-                  filterKey="material" 
-                  isExpanded={memoizedFilterOptions.expandedFilters.has('material')} 
-                  onToggle={toggleFilterExpansion}
-                >
-                  <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-                      <input
-                        type="checkbox"
-                        checked={filters.material.length === 0}
-                        onChange={() => handleFilterChange('material', [])}
-                        className="rounded border-gray-300 text-accent-rose"
-                      />
-                      <span className="text-sm text-gray-700 group-hover:text-gray-900">All Materials</span>
-                    </label>
-                    {memoizedFilterOptions.availableOptions.materials.map(material => (
-                      <label key={material} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
-                        <input
-                          type="checkbox"
-                          checked={filters.material.includes(material)}
-                          onChange={() => handleMaterialToggle(material)}
-                          className="rounded border-gray-300 text-accent-rose"
-                        />
-                        <span className="text-sm text-gray-700 group-hover:text-gray-900">{material}</span>
-                      </label>
-                    ))}
-                  </div>
-                </FilterSection>
+
 
                 {/* Size Filter */}
                 <FilterSection 
