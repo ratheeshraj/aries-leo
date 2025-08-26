@@ -13,7 +13,7 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
 
   const sizeData = {
     inches: [
-      { size: "XS", waist: "24-27", hips: "37", length: "35" },
+      { size: "XS", waist: "24-27", hips: "37", length: "37" },
       { size: "S", waist: "27-31", hips: "39", length: "37" },
       { size: "M", waist: "29-33", hips: "41", length: "37" },
       { size: "L", waist: "31-35", hips: "43", length: "38" },
@@ -23,7 +23,7 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
       { size: "4XL", waist: "43-47", hips: "55", length: "39" },
     ],
     cm: [
-      { size: "XS", waist: "61-69", hips: "94", length: "89" },
+      { size: "XS", waist: "61-69", hips: "94", length: "94" },
       { size: "S", waist: "69-79", hips: "99", length: "94" },
       { size: "M", waist: "74-84", hips: "104", length: "94" },
       { size: "L", waist: "79-89", hips: "109", length: "97" },
@@ -112,7 +112,7 @@ const SizeGuide: React.FC<SizeGuideProps> = ({ isOpen, onClose }) => {
                   Hips ({selectedUnit})
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-                  Inseam ({selectedUnit})
+                  Length ({selectedUnit})
                 </th>
               </tr>
             </thead>
