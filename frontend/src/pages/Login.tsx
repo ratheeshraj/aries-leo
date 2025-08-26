@@ -116,7 +116,7 @@ export const Login: React.FC = () => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          phone: formData.phone || undefined,
+          phone: formData.phone,
         });
 
         if (success) {

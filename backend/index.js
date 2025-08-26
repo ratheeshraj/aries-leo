@@ -19,9 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 // Request logging middleware - place BEFORE routes
 app.use((req, res, next) => {
   // remove password from the request body for security
-  if (req.body) {
-    delete req.body.password;
-  }
+  // if (req.body) {
+  //   delete req.body.password;
+  // }
   if (req.query) {
     delete req.query.password;
   }
