@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef, memo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AdjustmentsHorizontalIcon, 
@@ -18,6 +19,7 @@ import ProductCard from '../../components/product/ProductCard';
 import Button from '../../components/ui/Button';
 import { productAPI } from '../../utils/api';
 import type { Product } from '../../types';
+import { Link } from 'react-router-dom';
 
 interface ShopFilters {
   category: string[];
@@ -73,6 +75,7 @@ FilterSection.displayName = 'FilterSection';
 
 const Shop: React.FC = () => {
   useScrollToTop();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Manual scroll to top function as fallback
   const scrollToTop = useCallback(() => {
@@ -115,19 +118,29 @@ const Shop: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [viewMode] = useState<'grid' | 'list'>('grid');
   
-  const [filters, setFilters] = useState<ShopFilters>({
-    category: [],
-    priceRange: [199, 1700],
-    sizes: [],
-    colors: [],
-    inStock: false,
-    rating: 0,
-    onSale: false,
-    featured: false,
-    newArrivals: false,
-    material: [],
-    gender: [],
-  });
+  // Get initial category from URL parameter
+  const getInitialFilters = useCallback(() => {
+    const categoryParam = searchParams.get('category');
+    const featuredParam = searchParams.get('featured') === 'true';
+    const newArrivalsParam = searchParams.get('newArrivals') === 'true';
+    const onSaleParam = searchParams.get('onSale') === 'true';
+    
+    return {
+      category: categoryParam ? [categoryParam] : [],
+      priceRange: [199, 1700] as [number, number],
+      sizes: [],
+      colors: [],
+      inStock: false,
+      rating: 0,
+      onSale: onSaleParam,
+      featured: featuredParam,
+      newArrivals: newArrivalsParam,
+      material: [],
+      gender: [],
+    };
+  }, [searchParams]);
+  
+  const [filters, setFilters] = useState<ShopFilters>(getInitialFilters());
 
   // Use refs to track the latest state for API calls
   const filtersRef = useRef(filters);
@@ -443,9 +456,73 @@ const Shop: React.FC = () => {
       if (JSON.stringify(prev.category) === JSON.stringify(newCategories)) {
         return prev;
       }
+      
+      // Update URL parameters
+      const newSearchParams = new URLSearchParams(searchParams);
+      if (newCategories.length > 0) {
+        // For now, handle single category selection for URL
+        newSearchParams.set('category', newCategories[newCategories.length - 1]);
+      } else {
+        newSearchParams.delete('category');
+      }
+      setSearchParams(newSearchParams, { replace: true });
+      
       return { ...prev, category: newCategories };
     });
-  }, []);
+  }, [searchParams, setSearchParams]);
+
+  // Handle URL parameter changes and initialize filters
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    const featuredParam = searchParams.get('featured') === 'true';
+    const newArrivalsParam = searchParams.get('newArrivals') === 'true';
+    const onSaleParam = searchParams.get('onSale') === 'true';
+    
+    setFilters(prev => {
+      let hasChanges = false;
+      const newFilters = { ...prev };
+      
+      // Handle category
+      if (categoryParam && !prev.category.includes(categoryParam)) {
+        newFilters.category = [categoryParam];
+        hasChanges = true;
+      } else if (!categoryParam && prev.category.length > 0) {
+        newFilters.category = [];
+        hasChanges = true;
+      }
+      
+      // Handle featured
+      if (featuredParam !== prev.featured) {
+        newFilters.featured = featuredParam;
+        hasChanges = true;
+      }
+      
+      // Handle newArrivals
+      if (newArrivalsParam !== prev.newArrivals) {
+        newFilters.newArrivals = newArrivalsParam;
+        hasChanges = true;
+      }
+      
+      // Handle onSale
+      if (onSaleParam !== prev.onSale) {
+        newFilters.onSale = onSaleParam;
+        hasChanges = true;
+      }
+      
+      return hasChanges ? newFilters : prev;
+    });
+  }, [searchParams]);
+
+  // Clear category filter when no category in URL
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (!categoryParam && filters.category.length > 0) {
+      setFilters(prev => ({
+        ...prev,
+        category: []
+      }));
+    }
+  }, [searchParams.toString()]); // Use toString to detect any URL changes
 
 
 
@@ -495,7 +572,11 @@ const Shop: React.FC = () => {
     });
     setSearchQuery('');
     setCurrentPage(1);
-  }, []);
+    
+    // Clear all URL parameters
+    const newSearchParams = new URLSearchParams();
+    setSearchParams(newSearchParams, { replace: true });
+  }, [setSearchParams]);
 
   const toggleFilterExpansion = useCallback((filterName: string) => {
     setExpandedFilters(prev => {
@@ -575,10 +656,96 @@ const Shop: React.FC = () => {
         </div>
       </section>
 
+      {/* Category Breadcrumb - Show when filtering by category */}
+      {filters.category.length > 0 && categories.length > 0 && (
+        <section className="bg-white border-b border-gray-200">
+          <div className="container-responsive py-4">
+            <div className="flex items-center space-x-2 text-sm">
+              <Link 
+                to="/shop" 
+                className="text-gray-500 hover:text-accent-rose transition-colors"
+              >
+                All Products
+              </Link>
+              <span className="text-gray-400">/</span>
+              {filters.category.map((categoryId, index) => {
+                const category = categories.find(cat => cat._id === categoryId);
+                const isLast = index === filters.category.length - 1;
+                return category ? (
+                  <span key={categoryId} className="flex items-center space-x-2">
+                    <span className={isLast ? "text-accent-rose font-medium" : "text-gray-500"}>
+                      {category.name}
+                    </span>
+                    {!isLast && <span className="text-gray-400">/</span>}
+                  </span>
+                ) : null;
+              })}
+              <button
+                onClick={() => {
+                  setFilters(prev => ({ ...prev, category: [] }));
+                  const newSearchParams = new URLSearchParams(searchParams);
+                  newSearchParams.delete('category');
+                  setSearchParams(newSearchParams, { replace: true });
+                }}
+                className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Clear category filter"
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Filter Breadcrumb - Show when filtering by featured/newArrivals/onSale */}
+      {(filters.featured || filters.newArrivals || filters.onSale) && (
+        <section className="bg-white border-b border-gray-200">
+          <div className="container-responsive py-4">
+            <div className="flex items-center space-x-2 text-sm">
+              <Link 
+                to="/shop" 
+                className="text-gray-500 hover:text-accent-rose transition-colors"
+              >
+                All Products
+              </Link>
+              <span className="text-gray-400">/</span>
+              {filters.featured && (
+                <span className="text-accent-rose font-medium">Featured Products</span>
+              )}
+              {filters.newArrivals && (
+                <span className="text-accent-rose font-medium">New Arrivals</span>
+              )}
+              {filters.onSale && (
+                <span className="text-accent-rose font-medium">On Sale</span>
+              )}
+              <button
+                onClick={() => {
+                  setFilters(prev => ({ 
+                    ...prev, 
+                    featured: false, 
+                    newArrivals: false, 
+                    onSale: false 
+                  }));
+                  const newSearchParams = new URLSearchParams(searchParams);
+                  newSearchParams.delete('featured');
+                  newSearchParams.delete('newArrivals');
+                  newSearchParams.delete('onSale');
+                  setSearchParams(newSearchParams, { replace: true });
+                }}
+                className="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Clear filter"
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="container-responsive py-6 sm:py-8">
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* Enhanced Filters Sidebar */}
-          <aside className={`lg:w-1/4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <aside className="lg:w-1/4 hidden lg:block">
             <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg sticky top-4 border border-gray-100">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -1105,14 +1272,15 @@ const Shop: React.FC = () => {
       <AnimatePresence>
         {showFilters && (
           <motion.div
-            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[9999]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowFilters(false)}
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <motion.div
-              className="fixed right-0 top-0 h-full w-80 bg-white overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-full max-w-sm bg-white overflow-y-auto"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -1121,15 +1289,255 @@ const Shop: React.FC = () => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg"
-                  >
-                    <XMarkIcon className="w-5 h-5" />
-                  </button>
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <FunnelIcon className="w-5 h-5 text-accent-rose" />
+                    Filters
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {activeFiltersCount > 0 && (
+                      <span className="bg-accent-rose text-white text-xs px-2 py-1 rounded-full font-medium">
+                        {activeFiltersCount}
+                      </span>
+                    )}
+                    <button
+                      onClick={clearFilters}
+                      className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 transition-colors"
+                    >
+                      <ArrowPathIcon className="w-4 h-4" />
+                      Clear all
+                    </button>
+                    <button
+                      onClick={() => setShowFilters(false)}
+                      className="p-2 hover:bg-gray-100 rounded-lg"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-                {/* Mobile filter content would mirror the desktop filters */}
+
+                {/* Enhanced Search */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Search
+                  </label>
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search products..."
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent-rose focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Filters */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-900 group-hover:text-gray-700 mb-3">Quick Filters</label>
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="radio"
+                        name="quickFilter"
+                        checked={filters.featured && !filters.newArrivals && !filters.onSale}
+                        onChange={() => {
+                          handleFilterChange('featured', true);
+                          handleFilterChange('newArrivals', false);
+                          handleFilterChange('onSale', false);
+                        }}
+                        className="text-accent-rose"
+                      />
+                      <SparklesIcon className="w-4 h-4 text-accent-rose" />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">Featured Products</span>
+                    </label>
+                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="radio"
+                        name="quickFilter"
+                        checked={filters.newArrivals && !filters.featured && !filters.onSale}
+                        onChange={() => {
+                          handleFilterChange('newArrivals', true);
+                          handleFilterChange('featured', false);
+                          handleFilterChange('onSale', false);
+                        }}
+                        className="text-accent-rose"
+                      />
+                      <FireIcon className="w-4 h-4 text-accent-rose" />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">New Arrivals</span>
+                    </label>
+                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="radio"
+                        name="quickFilter"
+                        checked={filters.onSale && !filters.featured && !filters.newArrivals}
+                        onChange={() => {
+                          handleFilterChange('onSale', true);
+                          handleFilterChange('featured', false);
+                          handleFilterChange('newArrivals', false);
+                        }}
+                        className="text-accent-rose"
+                      />
+                      <TagIcon className="w-4 h-4 text-accent-rose" />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">On Sale</span>
+                    </label>
+                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="radio"
+                        name="quickFilter"
+                        checked={!filters.featured && !filters.newArrivals && !filters.onSale}
+                        onChange={() => {
+                          handleFilterChange('featured', false);
+                          handleFilterChange('newArrivals', false);
+                          handleFilterChange('onSale', false);
+                        }}
+                        className="text-accent-rose"
+                      />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">All Products</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Category Filter */}
+                <FilterSection 
+                  title="Category" 
+                  filterKey="category" 
+                  isExpanded={memoizedFilterOptions.expandedFilters.has('category')} 
+                  onToggle={toggleFilterExpansion}
+                >
+                  {memoizedFilterContent.categoryContent}
+                </FilterSection>
+
+                {/* Price Range */}
+                <FilterSection 
+                  title={`Price: ₹${filters.priceRange[0]} - ₹${filters.priceRange[1]}`} filterKey="price" 
+                  isExpanded={memoizedFilterOptions.expandedFilters.has('price')} 
+                  onToggle={toggleFilterExpansion}
+                >
+                  <div className="space-y-3">
+                    <input
+                      type="range"
+                      min="199"
+                      max="1700"
+                      value={filters.priceRange[1]}
+                      onChange={(e) => handleFilterChange('priceRange', [199, parseInt(e.target.value)])}
+                      className="w-full accent-accent-rose"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>₹199</span>
+                      <span>₹1700</span>
+                    </div>
+                  </div>
+                </FilterSection>
+
+                {/* Material Filter */}
+                <FilterSection 
+                  title="Material" 
+                  filterKey="material" 
+                  isExpanded={memoizedFilterOptions.expandedFilters.has('material')} 
+                  onToggle={toggleFilterExpansion}
+                >
+                  <div className="max-h-48 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                      <input
+                        type="checkbox"
+                        checked={filters.material.length === 0}
+                        onChange={() => handleFilterChange('material', [])}
+                        className="rounded border-gray-300 text-accent-rose"
+                      />
+                      <span className="text-sm text-gray-700 group-hover:text-gray-900">All Materials</span>
+                    </label>
+                    {memoizedFilterOptions.availableOptions.materials.map(material => (
+                      <label key={material} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                        <input
+                          type="checkbox"
+                          checked={filters.material.includes(material)}
+                          onChange={() => handleMaterialToggle(material)}
+                          className="rounded border-gray-300 text-accent-rose"
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-gray-900">{material}</span>
+                      </label>
+                    ))}
+                  </div>
+                </FilterSection>
+
+                {/* Size Filter */}
+                <FilterSection 
+                  title="Size" 
+                  filterKey="size" 
+                  isExpanded={memoizedFilterOptions.expandedFilters.has('size')} 
+                  onToggle={toggleFilterExpansion}
+                >
+                  <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div className="grid grid-cols-3 gap-2 pr-2">
+                      {memoizedFilterOptions.availableOptions.sizes.map(size => (
+                        <label key={size} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                          <input
+                            type="checkbox"
+                            checked={filters.sizes.includes(size)}
+                            onChange={() => handleSizeToggle(size)}
+                            className="rounded border-gray-300 text-accent-rose"
+                          />
+                          <span className="text-sm text-gray-700 group-hover:text-gray-900">{size}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </FilterSection>
+
+                {/* Color Filter */}
+                <FilterSection 
+                  title="Color" 
+                  filterKey="color" 
+                  isExpanded={memoizedFilterOptions.expandedFilters.has('color')} 
+                  onToggle={toggleFilterExpansion}
+                >
+                  <div className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div className="grid grid-cols-2 gap-2 pr-2">
+                      {memoizedFilterOptions.availableOptions.colors.map(color => (
+                        <label key={color} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors group">
+                          <input
+                            type="checkbox"
+                            checked={filters.colors.includes(color)}
+                            onChange={() => handleColorToggle(color)}
+                            className="rounded border-gray-300 text-accent-rose"
+                          />
+                          <span className="text-sm text-gray-700 group-hover:text-gray-900">{color}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </FilterSection>
+
+                {/* Additional Filters */}
+                <FilterSection 
+                  title="Availability & Offers" 
+                  filterKey="extras" 
+                  isExpanded={memoizedFilterOptions.expandedFilters.has('extras')} 
+                  onToggle={toggleFilterExpansion}
+                >
+                  <div className="space-y-3">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={filters.inStock}
+                        onChange={(e) => handleFilterChange('inStock', e.target.checked)}
+                        className="rounded border-gray-300 text-accent-rose focus:ring-accent-rose"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">In stock only</span>
+                    </label>
+                  </div>
+                </FilterSection>
+
+                {/* Apply Filters Button */}
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <Button
+                    onClick={() => setShowFilters(false)}
+                    className="w-full"
+                  >
+                    Apply Filters
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

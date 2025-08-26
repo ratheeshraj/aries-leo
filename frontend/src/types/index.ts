@@ -216,3 +216,14 @@ export interface TeamMember {
   designation: string;
   isActive: boolean;
 }
+
+export interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  business: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -558,6 +558,60 @@ export const teamAPI = {
   },
 };
 
+// Category API functions
+export const categoryAPI = {
+  // Get all categories
+  getAllCategories: async () => {
+    const response = await fetch(`${API_BASE_URL}/categories`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch categories');
+    }
+
+    return response.json();
+  },
+
+  // Get silk collections (specific category type)
+  getSilkCollections: async () => {
+    const response = await fetch(`${API_BASE_URL}/categories/silk-collections`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to fetch silk collections');
+    }
+
+    return response.json();
+  },
+};
+
+// Blog API functions (using Airtable)
+export const blogAPI = {
+  // Get all blog posts
+  getBlogPosts: async () => {
+    // TODO: Replace with actual API call
+    // return fetch(`${API_BASE_URL}/blog`);
+    return new Promise(resolve => setTimeout(resolve, 400));
+  },
+
+  getBlogPost: async (id: string) => {
+    // TODO: Replace with actual API call
+    // return fetch(`${API_BASE_URL}/blog/${id}`);
+    console.log('Mock API: getBlogPost called with id:', id);
+    return new Promise(resolve => setTimeout(resolve, 300));
+  },
+};
+
 // Legacy API functions - keeping for backward compatibility
 export const api = {
   // Products - now using real API
@@ -571,16 +625,11 @@ export const api = {
 
   // Blog
   getBlogPosts: async () => {
-    // TODO: Replace with actual API call
-    // return fetch(`${API_BASE_URL}/blog`);
-    return new Promise(resolve => setTimeout(resolve, 400));
+    return blogAPI.getBlogPosts();
   },
 
   getBlogPost: async (id: string) => {
-    // TODO: Replace with actual API call
-    // return fetch(`${API_BASE_URL}/blog/${id}`);
-    console.log('Mock API: getBlogPost called with id:', id);
-    return new Promise(resolve => setTimeout(resolve, 300));
+    return blogAPI.getBlogPost(id);
   },
 
   // Reviews - now using real API
