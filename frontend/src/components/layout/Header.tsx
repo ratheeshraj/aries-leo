@@ -175,7 +175,7 @@ const Header: React.FC = () => {
                                   ) : categories.length > 0 ? (
                                     <div className="columns-4 gap-12">
                                       {/* Dynamic Categories */}
-                                      {categories.map((category, index) => (
+                                      {categories.map((category) => (
                                         <div key={category._id} className="flex flex-col gap-3 break-inside-avoid mb-8 w-full">
                                           <Link
                                             to={`/shop?category=${category._id}`}

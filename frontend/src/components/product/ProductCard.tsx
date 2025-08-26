@@ -202,7 +202,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive h-full flex flex-col ${className}`}
+      className={`group relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg card-responsive h-full flex flex-col min-h-[600px] ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -334,15 +334,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
             onClick={onView}
           >
             <div className="flex flex-col h-full">
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between mb-2 h-14">
                 <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-accent-rose transition-colors">
                   {product.name}
                 </h3>
               </div>
 
-              <p className="text-gray-600 text-sm mb-2 line-clamp-2 flex-1">
-                {product.description}
-              </p>
+              <div className="h-10 mb-2">
+                <p className="text-gray-600 text-sm line-clamp-2">
+                  {product.description}
+                </p>
+              </div>
 
               <div className="mt-auto">
                 {/* Rating */}
@@ -391,10 +393,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Link>
 
           {/* Quick Options */}
-          <div className="space-y-2 mb-3">
+          <div className="space-y-2 mb-3 min-h-[80px] flex flex-col justify-start">
             {/* Size Selection */}
             {availableSizes && availableSizes.length > 0 && (
-              <div>
+              <div className="h-auto">
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Size:
                 </label>
@@ -419,7 +421,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
             {/* Category Display */}
             {product.categoryName && (
-              <div>
+              <div className="h-auto">
                 <label className="text-xs font-medium text-gray-700 block mb-1">
                   Category:
                 </label>
