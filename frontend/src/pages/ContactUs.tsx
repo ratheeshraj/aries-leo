@@ -187,13 +187,6 @@ const ContactUs: React.FC = () => {
               <ChatBubbleLeftRightIcon className="w-5 h-5" />
               Chat on WhatsApp
             </a>
-            <a
-              href="mailto:care.ariesleo@gmail.com"
-              className="inline-flex items-center justify-center gap-2 bg-transparent border border-accent-rose text-accent-rose px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-accent-rose transition-colors"
-            >
-              <EnvelopeIcon className="w-5 h-5" />
-              Send Email
-            </a>
           </div>
         </motion.div>
       </div>
