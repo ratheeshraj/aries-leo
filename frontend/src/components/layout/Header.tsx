@@ -36,15 +36,15 @@ const Header: React.FC = () => {
   };
 
   // if scroll detected close mobile menu
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsMobileMenuOpen(false);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setIsMobileMenuOpen(false);
+  //   };
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, []);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
