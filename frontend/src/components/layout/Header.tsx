@@ -65,20 +65,20 @@ const Header: React.FC = () => {
   };
 
   // if scroll detected close mobile menu and dropdown
-  useEffect(() => {
-    if (!isMobileMenuOpen) return;
+  // useEffect(() => {
+  //   if (!isMobileMenuOpen) return;
 
-    const handleUserScroll = () => {
-      setIsMobileMenuOpen(false);
-      setIsShopDropdownOpen(false);
-    };
-    window.addEventListener("wheel", handleUserScroll, { passive: true });
-    window.addEventListener("touchmove", handleUserScroll, { passive: true });
-    return () => {
-      window.removeEventListener("wheel", handleUserScroll);
-      window.removeEventListener("touchmove", handleUserScroll);
-    };
-  }, [isMobileMenuOpen]);
+  //   const handleUserScroll = () => {
+  //     setIsMobileMenuOpen(false);
+  //     setIsShopDropdownOpen(false);
+  //   };
+  //   window.addEventListener("wheel", handleUserScroll, { passive: true });
+  //   window.addEventListener("touchmove", handleUserScroll, { passive: true });
+  //   return () => {
+  //     window.removeEventListener("wheel", handleUserScroll);
+  //     window.removeEventListener("touchmove", handleUserScroll);
+  //   };
+  // }, [isMobileMenuOpen]);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 safe-area-top">
@@ -430,7 +430,7 @@ const Header: React.FC = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="md:hidden border-t border-gray-200 py-3 bg-white"
+              className="md:hidden border-t border-gray-200 bg-white"
             >
               <div className="flex flex-col space-y-1">
                 {navigation.map((item) => (
@@ -438,7 +438,7 @@ const Header: React.FC = () => {
                     <Link
                       to={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                      className={`block px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
                         isActivePage(item.href)
                           ? "text-accent-rose bg-accent-light border-l-4 border-accent-rose"
                           : "text-gray-700 hover:text-accent-rose hover:bg-accent-light hover:border-l-4 hover:border-accent-rose"
@@ -456,7 +456,7 @@ const Header: React.FC = () => {
                         {isLoadingCategories ? (
                           <div className="px-4 py-2 text-sm text-gray-500">Loading categories...</div>
                         ) : categories.length > 0 ? (
-                          <div className="space-y-1">
+                          <div className="space-y-1 max-h-[30vh] overflow-auto">
                             {categories.map((category) => (
                               <Link
                                 key={category._id}
@@ -484,7 +484,7 @@ const Header: React.FC = () => {
                 ))}
 
                 {/* Mobile-only user actions */}
-                <div className="border-t border-gray-200 mt-3 pt-3 space-y-1">
+                <div className="border-t border-gray-200 mt-3 pt-2 space-y-1">
                   {!isAuthenticated && (
                     <Link
                       to="/login"
@@ -499,7 +499,7 @@ const Header: React.FC = () => {
                       <Link
                         to="/profile"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-4 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-accent-rose hover:bg-accent-light transition-all duration-200"
+                        className="block px-4 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-accent-rose hover:bg-accent-light transition-all duration-200"
                       >
                         My Profile
                       </Link>
@@ -508,7 +508,7 @@ const Header: React.FC = () => {
                           logout();
                           setIsMobileMenuOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
+                        className="block w-full text-left px-4 py-2 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
                       >
                         Sign Out
                       </button>
