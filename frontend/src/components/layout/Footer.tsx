@@ -60,15 +60,11 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 sm:gap-8 lg:gap-x-8 lg:gap-y-16">
           {/* Brand Info & Social Media */}
           <div className="sm:col-span-2 lg:col-span-3">
-            <Link
-              to="/"
-              className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 lg:mb-6 inline-block"
-            >
+            <Link to="/" className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4 lg:mb-6 inline-block">
               Aries Leo
             </Link>
             <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 lg:mb-8 max-w-md leading-relaxed">
-              Unmatched comfort. Impeccable fit. Timeless style for the modern
-              woman.
+              Unmatched comfort. Impeccable fit. Timeless style for the modern woman.
             </p>
             <div className="flex space-x-4 sm:space-x-6">
               {socialMedia.map((social) => (
@@ -158,11 +154,33 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
-        <div className="container-max section-padding py-8">
-          <div className="text-center text-sm text-gray-500">
-            © {currentYear} Aries Leo. All rights reserved.
-          </div>
+      <div className="container-responsive border-t border-gray-800 flex sm:flex-row flex-col justify-between sm:items-center items-start py-4 sm:gap-0 gap-4">
+        <div className="section-padding">
+          <div className="text-center text-sm text-gray-500">© {currentYear} Aries Leo. All rights reserved.</div>
+        </div>
+        <div className="flex items-center">
+          <span className="font-body text-gray-400 text-sm">Powered by</span>
+          <Link
+            to="https://www.brushandbyte.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-accent-rose to-accent-mauve hover:from-accent-mauve hover:to-accent-rose text-white font-medium rounded-full transition-all duration-200 transform hover:scale-105 hover:shadow-lg ml-1"
+          >
+            Brush & Byte
+            <svg
+              className="w-4 h-4 ml-1.5 group-hover:translate-x-0.5 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
+            </svg>
+          </Link>
         </div>
       </div>
     </footer>
