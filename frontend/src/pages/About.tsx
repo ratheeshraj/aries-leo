@@ -54,33 +54,33 @@ const About: React.FC = () => {
 
   const timeline = [
     {
-      year: "2020",
-      title: "The Beginning",
+      year: "March 2024",
+      title: "",
       description:
-        "Founded with a vision to create empowering women's bottoms that combine comfort, style, and confidence.",
+        "We began our journey as a sourcing and production hub, laying the foundation for sustainable growth and trusted partnerships.",
     },
     {
-      year: "2021",
-      title: "First Collection",
+      year: "May 2024",
+      title: "",
       description:
-        "Launched our debut collection featuring premium cotton women's bottoms designed specifically for the female form.",
+        "We took the next leap forward by launching our own manufacturing and in-house design, turning vision into reality.",
     },
     {
-      year: "2022",
-      title: "Global Expansion",
-      description: "Expanded internationally, bringing Aries Leo women's bottoms to customers around the world.",
+      year: "Mid of May 2024",
+      title: "",
+      description: "We expanded globally by starting international orders, taking our products beyond borders.",
     },
     {
-      year: "2023",
-      title: "Inclusive Sizing",
-      description: "Introduced expanded size ranges and sustainable manufacturing practices to serve all women.",
+      year: "October 2024",
+      title: "",
+      description: "We strengthened our B2B presence by starting wholesale supply, building lasting partnerships with retailers and distributors.",
     },
-    {
-      year: "2024",
-      title: "Today",
-      description:
-        "Continuing to innovate and create bottoms that truly empower women, serving thousands of customers globally.",
-    },
+    // {
+    //   year: "2024",
+    //   title: "Today",
+    //   description:
+    //     "Continuing to innovate and create bottoms that truly empower women, serving thousands of customers globally.",
+    // },
   ];
 
   return (

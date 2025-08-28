@@ -1,3 +1,4 @@
+import { SHIPPING_PRICE } from "../constant/contant";
 import type { Product, FilterOptions } from "../types";
 
 // Format currency
@@ -145,7 +146,7 @@ export const generateStarRating = (rating: number): string => {
 // Calculate shipping cost (example logic)
 export const calculateShipping = (subtotal: number): number => {
   if (subtotal >= 2000) return 0; // Free shipping over ₹2000
-  return 199; // Standard shipping cost
+  return SHIPPING_PRICE; // Standard shipping cost
 };
 
 // Calculate tax (example logic)

@@ -18,23 +18,26 @@ app.use(express.urlencoded({ extended: true }));
 
 // Request logging middleware - place BEFORE routes
 app.use((req, res, next) => {
+  // create a deep clone of the request body
+  const body = JSON.parse(JSON.stringify(req.body));
+
   // remove password from the request body for security
-  if (req.body) {
-    delete req.body.password;
+  if (body.password) {
+    delete body.password;
   }
-  if (req.query) {
-    delete req.query.password;
+  if (body.query) {
+    delete body.query.password;
   }
-  if (req.params) {
-    delete req.params.password;
+  if (body.params) {
+    delete body.params.password;
   }
 
   // Enhanced logging with timestamp and request details
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
   // console.log("Request Headers:", JSON.stringify(req.headers, null, 2));
-  console.log("Request Body:", JSON.stringify(req.body, null, 2));
-  console.log("Request Query:", JSON.stringify(req.query, null, 2));
+  console.log("Request Body:", JSON.stringify(body, null, 2));
+  console.log("Request Query:", JSON.stringify(body.query, null, 2));
   console.log("Request IP:", req.ip);
 
   next();

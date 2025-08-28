@@ -13,6 +13,7 @@ import { getBestImageUrl } from "../utils/imageUtils";
 import Button from "../components/ui/Button";
 import { useScrollToTop } from "../hooks/useScrollToTop";
 import type { Product } from "../types";
+import { SHIPPING_PRICE } from "../constant/contant";
 
 const Cart: React.FC = () => {
   useScrollToTop();
@@ -31,7 +32,7 @@ const Cart: React.FC = () => {
   };
 
   const shipping =
-    cart.items.length > 0 ? (cart.totalPrice >= 2000 ? 0 : 199) : 0;
+    cart.items.length > 0 ? (cart.totalPrice >= 2000 ? 0 : SHIPPING_PRICE) : 0;
   const total = cart.totalPrice + shipping;
 
   if (cart.items.length === 0) {

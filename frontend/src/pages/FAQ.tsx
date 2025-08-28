@@ -32,7 +32,7 @@ const faqData: FAQItem[] = [
   {
     id: '4',
     category: 'Design & Features',
-    question: 'Pant with elastic — 60s adjustable drawstring',
+    question: 'Pants have elastic ? Or an adjustable drawstring?',
     answer: 'Both: half elastic with half belt, adjustable drawstring in front.'
   },
   {

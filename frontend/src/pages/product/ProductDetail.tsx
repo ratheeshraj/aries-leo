@@ -187,8 +187,12 @@ const ProductDetail: React.FC = () => {
         );
         setProduct(transformedProduct);
 
+        // filter out the inventory that is not in stock
+        const inStockInventory = response.data.inventory.filter((inv: InventoryItem) => inv.stockQuantity > 0);
+        setInventory(inStockInventory);
+
         // Set inventory from API response
-        setInventory(response.data.inventory || []);
+        // setInventory(response.data.inventory || []);
 
         // Set default selections - choose first available size with stock
         if (transformedProduct.sizes && transformedProduct.sizes.length > 0) {
