@@ -190,9 +190,20 @@ const ProductDetail: React.FC = () => {
         // Set inventory from API response
         setInventory(response.data.inventory || []);
 
-        // Set default selections
+        // Set default selections - choose first available size with stock
         if (transformedProduct.sizes && transformedProduct.sizes.length > 0) {
-          setSelectedSize(transformedProduct.sizes[0]);
+          const inventoryData = response.data.inventory || [];
+          const availableSizes = transformedProduct.sizes.filter(size => {
+            const sizeStock = getSizeStockQuantity(inventoryData, size);
+            return sizeStock > 0;
+          });
+          
+          if (availableSizes.length > 0) {
+            setSelectedSize(availableSizes[0]);
+          } else {
+            // If no sizes have stock, still set the first size for display
+            setSelectedSize(transformedProduct.sizes[0]);
+          }
         }
         // Color selection will be handled by useEffect based on selected size
 
@@ -725,7 +736,9 @@ const ProductDetail: React.FC = () => {
                             : "bg-white text-gray-700 border-gray-300 hover:border-accent-medium"
                         }`}
                       >
-                        {size!.toUpperCase()}
+                        <span className={isDisabled ? "line-through" : ""}>
+                          {size!.toUpperCase()}
+                        </span>
                         {isDisabled && (
                           <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                             ×
