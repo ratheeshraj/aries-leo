@@ -463,6 +463,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             fullWidth
             size="sm"
             leftIcon={<ShoppingCartIcon className="w-4 h-4" />}
+            className="px-4 py-2.5 sm:px-3 sm:py-1.5"
           >
              Add to Cart
           </Button>

@@ -73,13 +73,58 @@ function getSelectedInventory(inventory: InventoryItem[], size: string, color: s
   });
 }
 
-// Helper to get available colors for a specific size
+// Helper to get all sizes (including those with 0 stock)
+function getAllSizes(inventory: InventoryItem[]): string[] {
+  if (!inventory) return [];
+  const allSizes = new Set<string>();
+  inventory.forEach((inv) => {
+    if (inv.size) {
+      allSizes.add(inv.size);
+    }
+  });
+  return Array.from(allSizes);
+}
+
+// Helper to get stock quantity for a specific size across all colors
+function getSizeStockQuantity(inventory: InventoryItem[], size: string): number {
+  if (!inventory || !size) return 0;
+  return inventory
+    .filter((inv) => inv.size === size)
+    .reduce((total, inv) => total + (inv.stockQuantity || 0), 0);
+}
+
+// Helper to get all colors for a specific size (including those with 0 stock)
+function getAllColorsForSize(inventory: InventoryItem[], size: string): string[] {
+  if (!inventory || !size) return [];
+
+  const allColors = new Set<string>();
+  inventory.forEach((inv) => {
+    if (inv.size === size && inv.color) {
+      // Convert hex color to color name if needed
+      let colorName = inv.color;
+      if (inv.color.startsWith("#")) {
+        colorName = hexToColorName(inv.color);
+      }
+      allColors.add(colorName);
+    }
+  });
+
+  return Array.from(allColors);
+}
+
+// Helper to get stock quantity for a specific size and color combination
+function getVariantStockQuantity(inventory: InventoryItem[], size: string, color: string): number {
+  const selectedInventory = getSelectedInventory(inventory, size, color);
+  return selectedInventory?.stockQuantity || 0;
+}
+
+// Helper to get available colors for a specific size (only those with stock > 0)
 function getAvailableColorsForSize(inventory: InventoryItem[], size: string): string[] {
   if (!inventory || !size) return [];
 
   const availableColors = new Set<string>();
   inventory.forEach((inv) => {
-    if (inv.size === size && inv.color) {
+    if (inv.size === size && inv.color && inv.stockQuantity > 0) {
       // Convert hex color to color name if needed
       let colorName = inv.color;
       if (inv.color.startsWith("#")) {
@@ -474,8 +519,8 @@ const ProductDetail: React.FC = () => {
   };
 
   // Extract sizes and colors from inventory
-  const inventorySizes = Array.from(new Set(inventory.map((item) => item.size).filter(Boolean)));
-  const inventoryColors = getAvailableColorsForSize(inventory, selectedSize);
+  const inventorySizes = getAllSizes(inventory);
+  const inventoryColors = getAllColorsForSize(inventory, selectedSize);
 
   // Quantity change handlers with validation
   const handleDecreaseQuantity = () => {
@@ -663,19 +708,32 @@ const ProductDetail: React.FC = () => {
                   </button>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
-                  {inventorySizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size!)}
-                      className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
-                        selectedSize === size
-                          ? "bg-accent-rose text-white border-accent-rose"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-accent-medium"
-                      }`}
-                    >
-                      {size!.toUpperCase()}
-                    </button>
-                  ))}
+                  {inventorySizes.map((size) => {
+                    const sizeStock = getSizeStockQuantity(inventory, size);
+                    const isDisabled = sizeStock === 0;
+                    
+                    return (
+                      <button
+                        key={size}
+                        onClick={() => !isDisabled && setSelectedSize(size!)}
+                        disabled={isDisabled}
+                        className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target relative ${
+                          selectedSize === size
+                            ? "bg-accent-rose text-white border-accent-rose"
+                            : isDisabled
+                            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-accent-medium"
+                        }`}
+                      >
+                        {size!.toUpperCase()}
+                        {isDisabled && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            ×
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -689,29 +747,42 @@ const ProductDetail: React.FC = () => {
               >
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">COLOR</h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {inventoryColors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target ${
-                        selectedColor === color
-                          ? "bg-accent-rose text-white border-accent-rose"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-accent-medium"
-                      }`}
-                    >
-                      {color.startsWith("#") ? (
-                        <>
-                          <span
-                            className="inline-block w-5 h-5 rounded-full border mr-2 align-middle"
-                            style={{ backgroundColor: color }}
-                          ></span>
-                          {hexToColorName(color).toUpperCase()}
-                        </>
-                      ) : (
-                        color.toUpperCase()
-                      )}
-                    </button>
-                  ))}
+                  {inventoryColors.map((color) => {
+                    const colorStock = getVariantStockQuantity(inventory, selectedSize, color);
+                    const isDisabled = colorStock === 0;
+                    
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => !isDisabled && setSelectedColor(color)}
+                        disabled={isDisabled}
+                        className={`px-3 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-lg border transition-colors touch-target relative ${
+                          selectedColor === color
+                            ? "bg-accent-rose text-white border-accent-rose"
+                            : isDisabled
+                            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                            : "bg-white text-gray-700 border-gray-300 hover:border-accent-medium"
+                        }`}
+                      >
+                        {color.startsWith("#") ? (
+                          <>
+                            <span
+                              className="inline-block w-5 h-5 rounded-full border mr-2 align-middle"
+                              style={{ backgroundColor: color }}
+                            ></span>
+                            {hexToColorName(color).toUpperCase()}
+                          </>
+                        ) : (
+                          color.toUpperCase()
+                        )}
+                        {isDisabled && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            ×
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -752,14 +823,28 @@ const ProductDetail: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
             >
-              <Button
-                onClick={handleAddToCart}
-                disabled={!product.inStock || maxQuantity === 0}
-                className="flex-1 btn-responsive"
-                size="lg"
-              >
-                {product.inStock && maxQuantity > 0 ? "Add to Cart" : "Out of Stock"}
-              </Button>
+              {(() => {
+                const selectedVariantStock = selectedSize && selectedColor 
+                  ? getVariantStockQuantity(inventory, selectedSize, selectedColor) 
+                  : 0;
+                const isOutOfStock = selectedVariantStock === 0 || maxQuantity === 0;
+                
+                return (
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={isOutOfStock}
+                    className={`flex-1 btn-responsive relative ${isOutOfStock ? 'opacity-60' : ''}`}
+                    size="lg"
+                  >
+                    {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                    {isOutOfStock && (
+                      <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        ×
+                      </span>
+                    )}
+                  </Button>
+                );
+              })()}
               <button
                 onClick={handleWishlistToggle}
                 className="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors touch-target"
